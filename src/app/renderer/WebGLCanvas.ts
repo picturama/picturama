@@ -41,6 +41,9 @@ export default class WebGLCanvas {
 
         this.canvas.width = width
         this.canvas.height = height
+        // For HiDPI cases, the CSS style should be proportionally smaller.
+        this.canvas.style.width = width / (window.devicePixelRatio || 1) + "px"
+        this.canvas.style.height = height / (window.devicePixelRatio || 1) + "px"
         this.gl.viewport(0, 0, width, height)
         return this
     }

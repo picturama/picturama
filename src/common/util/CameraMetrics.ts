@@ -11,6 +11,7 @@ export const maxZoom = 2
 
 export interface CameraMetrics {
     canvasSize: Size
+    canvasCssSize: Size  // For HiDPI screens, canvas size could be larger than the size in "px".
     textureSize: Size
     insets: Insets | null
     /**
@@ -39,11 +40,13 @@ export interface CameraMetrics {
      * See: `doc/geometry-concept.md`
      */
     cameraMatrix: mat4
+    cameraCssMatrix: mat4  // Similar to cameraMatrix, but uses CSS sizes for HiDPI.
     invertedCameraMatrix?: mat4
 }
 
 export const zeroCameraMetrics: CameraMetrics = {
     canvasSize: zeroSize,
+    canvasCssSize: zeroSize,
     textureSize: zeroSize,
     insets: null,
     boundsRect: zeroRect,
@@ -55,6 +58,7 @@ export const zeroCameraMetrics: CameraMetrics = {
     maxZoom,
     projectionMatrix: mat4.create(),
     cameraMatrix: mat4.create(),
+    cameraCssMatrix: mat4.create(),
 }
 
 export interface PhotoPosition {
@@ -72,7 +76,7 @@ export interface PhotoPosition {
 export type RequestedPhotoPosition = 'contain' | PhotoPosition
 
 export class CameraMetricsBuilder {
-
+    private canvasCssSize: Size | null = null
     private canvasSize: Size | null = null
     private textureSize: Size = zeroSize
     private insets: Insets = zeroInsets
@@ -94,9 +98,17 @@ export class CameraMetricsBuilder {
      * Sets the canvas size.
      * If set to `null` the canvas size will be set to the size of the bounds rect (which falls back to the crop rect).
      */
-    setCanvasSize(canvasSize: Size | null): this {
-        if (!isShallowEqual(this.canvasSize, canvasSize)) {
-            this.canvasSize = canvasSize
+    setCanvasCssSize(canvasSize: Size | null): this {
+        let realSize = canvasSize;
+        if (realSize) {
+            realSize = {
+                height: realSize.height * (window.devicePixelRatio || 1),
+                width: realSize.width * (window.devicePixelRatio || 1)
+            }
+        }
+        if (!isShallowEqual(this.canvasSize, realSize)) {
+            this.canvasCssSize = canvasSize
+            this.canvasSize = realSize
             this.isDirty = true
         }
         return this
@@ -191,6 +203,8 @@ export class CameraMetricsBuilder {
         const cropRect = photoWork.cropRect || neutralCropRect
         const boundsRect = this.boundsRect || cropRect
         let canvasSize: Size = this.canvasSize || { width: boundsRect.width, height: boundsRect.height }
+        
+        let canvasCssSize = this.canvasCssSize || canvasSize
 
         let photoPosition: PhotoPosition
         const minZoom = (boundsRect.width === 0 || boundsRect.height === 0 || insetsWidth >= canvasSize.width || insetsHeight >= canvasSize.height) ?
@@ -207,8 +221,14 @@ export class CameraMetricsBuilder {
             }
             if (this.adjustCanvasSize) {
                 canvasSize = {
+                    // The scaling here is for consitency with the Canvas, so that a larger image is generated.
                     width:  Math.floor(boundsRect.width  * zoom),
                     height: Math.floor(boundsRect.height * zoom)
+                }
+                canvasCssSize = {
+                    // The scaling here is for consitency with the Canvas, so that a larger image is generated.
+                    width:  Math.floor(boundsRect.width  * zoom / (window.devicePixelRatio || 1)),
+                    height: Math.floor(boundsRect.height * zoom / (window.devicePixelRatio || 1))
                 }
             }
         } else {
@@ -231,8 +251,19 @@ export class CameraMetricsBuilder {
         mat4.translate(cameraMatrix, cameraMatrix, [ -photoPosition.centerX, -photoPosition.centerY, 0 ])
         // We have projected coordinates here
 
+        const cameraMatrixCss = mat4.create()
+        // We have canvas coordinates here
+        // Move origin to left-top corner
+        mat4.translate(cameraMatrixCss, cameraMatrixCss, [ canvasCssSize.width / 2, canvasCssSize.height / 2, 0 ])
+        // Scale from texture pixels to screen pixels
+        mat4.scale(cameraMatrixCss, cameraMatrixCss, [ photoPosition.zoom / (window.devicePixelRatio || 1), photoPosition.zoom / (window.devicePixelRatio || 1), 1 ])
+        // Translate texture
+        mat4.translate(cameraMatrixCss, cameraMatrixCss, [ -photoPosition.centerX, -photoPosition.centerY, 0 ])
+        // We have projected coordinates here
+
         this.cameraMetrics = {
             canvasSize,
+            canvasCssSize,
             textureSize,
             insets,
             boundsRect,
@@ -244,6 +275,7 @@ export class CameraMetricsBuilder {
             neutralCropRect,
             projectionMatrix: createProjectionMatrix(textureSize, exifOrientation, photoWork),
             cameraMatrix,
+            cameraCssMatrix: cameraMatrixCss
         }
         this.isDirty = false
         return this.cameraMetrics

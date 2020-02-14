@@ -129,7 +129,7 @@ export default class PhotoLayer extends React.Component<Props, State> {
         }
 
         if (props.canvasSize !== prevProps.canvasSize) {
-            canvas.setSize(props.canvasSize)
+            canvas.setCssSize(props.canvasSize)
             canvasChanged = true
         }
 

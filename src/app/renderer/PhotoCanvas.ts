@@ -54,8 +54,10 @@ export default class PhotoCanvas {
         return !!(this.baseTexture)
     }
 
-    setSize(size: Size): this {
-        this.size = size
+    setCssSize(size: Size): this {
+        this.size = {height: size.height, width: size.width}
+        this.size.height *= window.devicePixelRatio || 1;
+        this.size.width *= window.devicePixelRatio || 1;
         return this
     }
 

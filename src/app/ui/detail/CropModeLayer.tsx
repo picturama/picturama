@@ -317,8 +317,7 @@ export default class CropModeLayer extends React.Component<Props, State> {
             return null
         }
 
-        const cropRectInViewCoords = transformRect(cameraMetrics.cropRect, cameraMetrics.cameraMatrix)
-
+        const cropRectInViewCoords = transformRect(cameraMetrics.cropRect, cameraMetrics.cameraCssMatrix)
         return (
             <>
                 <CropModeToolbar
@@ -333,8 +332,8 @@ export default class CropModeLayer extends React.Component<Props, State> {
                 />
                 <CropOverlay
                     className={classnames(props.bodyClassName, 'CropModeLayer-body')}
-                    width={cameraMetrics.canvasSize.width}
-                    height={cameraMetrics.canvasSize.height}
+                    width={cameraMetrics.canvasCssSize.width}
+                    height={cameraMetrics.canvasCssSize.height}
                     rect={cropRectInViewCoords}
                     tilt={props.photoWork.tilt || 0}
                     onRectDrag={this.onRectDrag}
@@ -464,7 +463,7 @@ function getDragStartMetrics(startCameraMetrics: CameraMetrics): DragStartMetric
     const textureBounds = boundsOfPoints(texturePolygon)
 
     return {
-        canvasSize: startCameraMetrics.canvasSize,
+        canvasSize: startCameraMetrics.canvasCssSize,
         insets: startCameraMetrics.insets || zeroInsets,
         startZoom: startCameraMetrics.photoPosition.zoom,
         startBoundsNwScreen,

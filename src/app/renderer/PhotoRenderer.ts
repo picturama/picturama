@@ -59,7 +59,7 @@ async function renderNext(job: RenderJob): Promise<string> {
 
     // Get camera metrics
     const cameraMetrics = cameraMetricsBuilder
-        .setCanvasSize(job.maxSize)
+        .setCanvasCssSize(job.maxSize)
         .setAdjustCanvasSize(job.maxSize !== null)
         .setTextureSize({ width: texture.width, height: texture.height })
         .setExifOrientation(photo.orientation)
@@ -83,7 +83,7 @@ async function renderNext(job: RenderJob): Promise<string> {
     // Render thumbnail
     canvas
         .setBaseTexture(texture)
-        .setSize(cameraMetrics.canvasSize)
+        .setCssSize(cameraMetrics.canvasCssSize)
         .setProjectionMatrix(cameraMetrics.projectionMatrix)
         .setCameraMatrix(cameraMetrics.cameraMatrix)
         .update()
