@@ -2,9 +2,8 @@ import ExifParser from 'exif-parser'
 
 import { ExifOrientation } from 'common/CommonTypes'
 import { isArray } from 'common/util/LangUtil'
-
-import { fsStat, fsReadFile } from 'background/util/FileUtil'
-
+import fs from 'fs'
+import { fsStat } from 'background/util/FileUtil'
 
 export interface MetaData {
     imgWidth?:     number
@@ -39,11 +38,43 @@ export function readMetadataOfImage(imagePath: string): Promise<MetaData> {
 
 
 function readExifOfImage(imagePath) {
-    return fsReadFile(imagePath)
-        .then(buffer => {
+    let chunks: Buffer[] = [];
+    let totalBytes = 0;
+    let done = false;
+    let readStream = fs.createReadStream(imagePath);
+    return new Promise((resolve, reject) => {
+      const processor = () => {
+        try {
+            const buffer = Buffer.concat(chunks);
             const parser = ExifParser.create(buffer) as any
-            return parser.parse()
-        })
+            done = true;
+            readStream.destroy();
+            const result = parser.parse();
+            resolve(result);
+        } catch (e) {
+            reject(e);
+        }
+      }
+      readStream
+        .on('data', function (chunk: Buffer) {
+          if (done) {
+              return;
+          }
+          totalBytes += chunk.byteLength;
+          chunks.push(chunk);
+
+          // EXIF data should be in the first 100Kb of a JPEG file.
+          if (totalBytes > 100000) {
+              processor();
+          }
+      }).on('end', () => {
+          if (!done) {
+              processor();
+          }
+      })
+    }).catch((err) => {
+        console.error("EXIF parsing error for file ", imagePath, err);
+    })
 }
 
 
