@@ -1,8 +1,9 @@
 import { PhotoId, Photo, PhotoDetail, MetaData, ExifData } from 'common/CommonTypes'
 
 
+// Relative to folder `dist`
 export const testPhotosDir = '../submodules/test-data/photos'
-    // Relative to folder `dist`
+const testPhotos800Dir = `${testPhotosDir}/800`
 
 
 let nextTestPhotoId: PhotoId = 49
@@ -11,22 +12,33 @@ export function createTestPhotoId(): PhotoId {
 }
 
 
-export const testBigPhoto: Photo = {
-    id: createTestPhotoId(),
-    master_dir: testPhotosDir,
-    master_filename: 'IMG_9700.JPG',
-    master_width: 5184,
-    master_height: 3456,
-    master_is_raw: 0,
-    edited_width: 5184,
-    edited_height: 3456,
-    date_section: '2016-09-18',
-    created_at: 1474222345000,
-    updated_at: 1474222345000,
-    imported_at: 1565807324226,
-    flag: 0,
-    trashed: 0
+function createMockPhoto(options: { dir: string, filename: string, width: number, height: number, special?: Partial<Photo> }): Photo {
+    return {
+        id: createTestPhotoId(),
+        master_dir: options.dir,
+        master_filename: options.filename,
+        master_width: options.width,
+        master_height: options.height,
+        master_is_raw: 0,
+        edited_width: 800,
+        edited_height: 530,
+        date_section: '2018-05-15',
+        created_at: 1474222345000,
+        updated_at: 1474222345000,
+        imported_at: 1565807324226,
+        flag: 0,
+        trashed: 0,
+        ...options.special
+    }
 }
+
+
+export const testBigPhoto = createMockPhoto({
+    dir: testPhotosDir,
+    filename: 'IMG_9700.JPG',
+    width: 5184,
+    height: 3456,
+})
 
 export const testBigPhotoMetData: MetaData = {
     aperture: 5.6,
@@ -41,88 +53,51 @@ export const testBigPhotoMetData: MetaData = {
     tags: [],
 }
 
-export const testLandscapePhoto: Photo = {
-    id: createTestPhotoId(),
-    master_dir: testPhotosDir,
-    master_filename: 'landscape.jpg',
-    master_width: 800,
-    master_height: 530,
-    master_is_raw: 0,
-    edited_width: 800,
-    edited_height: 530,
-    date_section: '2018-05-15',
-    created_at: 1474222345000,
-    updated_at: 1474222345000,
-    imported_at: 1565807324226,
-    flag: 0,
-    trashed: 0
-}
+export const testLandscapePhoto = createMockPhoto({
+    dir: testPhotosDir,
+    filename: 'landscape.jpg',
+    width: 800,
+    height: 530,
+})
 
-export const testPortraitPhoto: Photo = {
-    id: createTestPhotoId(),
-    master_dir: testPhotosDir,
-    master_filename: 'portrait.jpg',
-    master_width: 785,
-    master_height: 1024,
-    master_is_raw: 0,
-    edited_width: 785,
-    edited_height: 1024,
-    date_section: '2018-05-15',
-    created_at: 1474222345000,
-    updated_at: 1474222345000,
-    imported_at: 1565807324226,
-    flag: 1,
-    trashed: 0
-}
+export const testPortraitPhoto = createMockPhoto({
+    dir: testPhotosDir,
+    filename: 'portrait.jpg',
+    width: 785,
+    height: 1024,
+    special: { flag: 1 }
+})
 
-export const testPanoramaPhoto: Photo = {
-    id: createTestPhotoId(),
-    master_dir: testPhotosDir,
-    master_filename: 'panorama.jpg',
-    master_width: 1024,
-    master_height: 225,
-    master_is_raw: 0,
-    edited_width: 1024,
-    edited_height: 225,
-    date_section: '2018-05-15',
-    created_at: 1474222345000,
-    updated_at: 1474222345000,
-    imported_at: 1565807324226,
-    flag: 0,
-    trashed: 0
-}
+export const testPanoramaPhoto = createMockPhoto({
+    dir: testPhotosDir,
+    filename: 'panorama.jpg',
+    width: 1024,
+    height: 225,
+})
+
+export const testLightPhoto = createMockPhoto({
+    dir: testPhotos800Dir,
+    filename: 'ice-cubes.jpg',
+    width: 800,
+    height: 533,
+})
+
+export const testDarkPhoto = testPortraitPhoto
+
 
 export const testPhotos: Photo[] = [
-    { name: 'alone',          width: 800, height: 533 },
-    { name: 'architecture',   width: 800, height: 533 },
-    { name: 'door-knocker',   width: 800, height: 533 },
-    { name: 'ice-cubes',      width: 800, height: 533 },
-    { name: 'koblenz',        width: 800, height: 518 },
-    { name: 'light-bulb',     width: 800, height: 533 },
-    { name: 'railway-tracks', width: 800, height: 533 },
-    { name: 'rustic',         width: 800, height: 450 },
-    { name: 'tomatoes',       width: 516, height: 800 },
-    { name: 'water',          width: 800, height: 450 },
-    { name: 'wolf',           width: 800, height: 498 },
-].map(info => ({
-    id: createTestPhotoId(),
-    title: info.name,
-    master_dir: '../test-data/photos/800',
-    master_filename: `${info.name}.jpg`,
-    master_width: info.width,
-    master_height: info.height,
-    master_is_raw: 0,
-    edited_width: info.width,
-    edited_height: info.height,
-    date_section: '2018-05-15',
-    created_at: 1474222345000,
-    updated_at: 1474222345000,
-    imported_at: 1565807324226,
-    orientation: 1,
-    flag: 0,
-    trashed: 0
-}))
-testPhotos.unshift(testLandscapePhoto, testPortraitPhoto)
+    { dir: testPhotos800Dir, filename: 'alone.jpg',          width: 800, height: 533 },
+    { dir: testPhotos800Dir, filename: 'architecture.jpg',   width: 800, height: 533 },
+    { dir: testPhotos800Dir, filename: 'door-knocker.jpg',   width: 800, height: 533 },
+    { dir: testPhotos800Dir, filename: 'koblenz.jpg',        width: 800, height: 518 },
+    { dir: testPhotos800Dir, filename: 'light-bulb.jpg',     width: 800, height: 533 },
+    { dir: testPhotos800Dir, filename: 'railway-tracks.jpg', width: 800, height: 533 },
+    { dir: testPhotos800Dir, filename: 'rustic.jpg',         width: 800, height: 450 },
+    { dir: testPhotos800Dir, filename: 'tomatoes.jpg',       width: 516, height: 800 },
+    { dir: testPhotos800Dir, filename: 'water.jpg',          width: 800, height: 450 },
+    { dir: testPhotos800Dir, filename: 'wolf.jpg',           width: 800, height: 498 },
+].map(createMockPhoto)
+testPhotos.unshift(testLandscapePhoto, testPortraitPhoto, testLightPhoto)
 
 export const testPhotoDetail: PhotoDetail = {
     tags: [],

@@ -14,7 +14,7 @@ import FaIcon from 'app/ui/widget/icon/FaIcon'
 import './Picture.less'
 
 
-interface Props {
+export interface Props {
     className?: any
     sectionId: PhotoSectionId
     photo: Photo
