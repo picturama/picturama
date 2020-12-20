@@ -38,7 +38,7 @@ const defaultProps = {
         }
     },
     onPhotoClick: action('onPhotoClick'),
-    onPhotoDoubleClick: action('onPhotoDoubleClick'),
+    onShowPhotoDetails: action('onShowPhotoDetails'),
 }
 
 

@@ -58,7 +58,7 @@ export default class Grid extends React.Component<Props, State> {
 
         this.state = { scrollTop: 0, viewportWidth: 0, viewportHeight: 0 }
 
-        bindMany(this, 'onPhotoClick', 'onPhotoDoubleClick', 'onEnter', 'onResize', 'onScroll', 'setScrollTop',
+        bindMany(this, 'onPhotoClick', 'onShowPhotoDetails', 'onEnter', 'onResize', 'onScroll', 'setScrollTop',
             'moveHighlightLeft', 'moveHighlightRight', 'moveHighlightUp', 'moveHighlightDown')
     }
 
@@ -159,7 +159,7 @@ export default class Grid extends React.Component<Props, State> {
         }
     }
 
-    private onPhotoDoubleClick(event: React.MouseEvent, sectionId: PhotoSectionId, photoId: PhotoId) {
+    private onShowPhotoDetails(sectionId: PhotoSectionId, photoId: PhotoId) {
         this.props.setDetailPhotoById(sectionId, photoId)
     }
 
@@ -287,7 +287,7 @@ export default class Grid extends React.Component<Props, State> {
                     getThumbnailSrc={props.getThumbnailSrc}
                     createThumbnail={props.createThumbnail}
                     onPhotoClick={this.onPhotoClick}
-                    onPhotoDoubleClick={this.onPhotoDoubleClick}
+                    onShowPhotoDetails={this.onShowPhotoDetails}
                 />
             )
         }

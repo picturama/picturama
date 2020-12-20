@@ -1,7 +1,7 @@
 import classNames from 'classnames'
 import React from 'react'
 import { findDOMNode } from 'react-dom'
-import { Icon } from '@blueprintjs/core'
+import { Button, Icon } from '@blueprintjs/core'
 
 import { msg } from 'common/i18n/i18n'
 import CancelablePromise, { isCancelError } from 'common/util/CancelablePromise'
@@ -22,11 +22,12 @@ export interface Props {
     getThumbnailSrc: (photo: Photo) => string
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => CancelablePromise<string>
     onPhotoClick: (event: React.MouseEvent, sectionId: PhotoSectionId, photoId: PhotoId) => void
-    onPhotoDoubleClick: (event: React.MouseEvent, sectionId: PhotoSectionId, photoId: PhotoId) => void
+    onShowPhotoDetails(sectionId: PhotoSectionId, photoId: PhotoId): void
 }
 
 interface State {
     thumbnailSrc: string | null
+    isHovered: boolean
     isThumbnailLoaded: boolean
     thumbnailError: 'master-missing' | 'create-failed' | 'load-failed' | null
 }
@@ -39,10 +40,11 @@ export default class Picture extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props)
-        bindMany(this, 'onClick', 'onDoubleClick', 'onThumnailChange', 'onThumbnailLoad', 'onThumbnailLoadError')
+        bindMany(this, 'onMouseEnter', 'onMouseLeave', 'onClick', 'onShowDetails', 'onThumnailChange', 'onThumbnailLoad', 'onThumbnailLoadError')
 
         this.state = {
             thumbnailSrc: this.props.getThumbnailSrc(props.photo),
+            isHovered: false,
             isThumbnailLoaded: false,
             thumbnailError: null,
         }
@@ -102,18 +104,18 @@ export default class Picture extends React.Component<Props, State> {
         }
     }
 
-    onThumnailChange(evt: CustomEvent) {
+    private onThumnailChange(evt: CustomEvent) {
         const photoId = evt.detail.photoId
         if (photoId === this.props.photo.id) {
             this.createThumbnail(true)
         }
     }
 
-    onThumbnailLoad() {
+    private onThumbnailLoad() {
         this.setState({ isThumbnailLoaded: true })
     }
 
-    onThumbnailLoadError() {
+    private onThumbnailLoadError() {
         if (!this.createThumbnailPromise) {
             this.createThumbnail(false)
         } else {
@@ -121,17 +123,26 @@ export default class Picture extends React.Component<Props, State> {
         }
     }
 
-    onClick(event: React.MouseEvent) {
+    private onMouseEnter() {
+        this.setState({ isHovered: true })
+    }
+
+    private onMouseLeave() {
+        this.setState({ isHovered: false })
+    }
+
+    private onClick(event: React.MouseEvent) {
         const props = this.props
         props.onPhotoClick(event, props.sectionId, props.photo.id)
     }
 
-    onDoubleClick(event: React.MouseEvent) {
-        const props = this.props
-        props.onPhotoDoubleClick(event, props.sectionId, props.photo.id)
+    private onShowDetails(event: React.MouseEvent) {
+        event.stopPropagation()
+        const { props } = this
+        props.onShowPhotoDetails(props.sectionId, props.photo.id)
     }
 
-    createThumbnail(delayUpdate: boolean) {
+    private createThumbnail(delayUpdate: boolean) {
         if (this.delayedUpdateTimout) {
             window.clearTimeout(this.delayedUpdateTimout)
         }
@@ -166,7 +177,7 @@ export default class Picture extends React.Component<Props, State> {
             })
     }
 
-    renderThumbnailError() {
+    private renderThumbnailError() {
         const isSmall = this.props.layoutBox.height < 150
         const { thumbnailError } = this.state
         const isMasterMissing = thumbnailError === 'master-missing'
@@ -204,8 +215,10 @@ export default class Picture extends React.Component<Props, State> {
                     width:  Math.round(layoutBox.width),
                     height: Math.round(layoutBox.height)
                 }}
+                onMouseEnter={this.onMouseEnter}
+                onMouseLeave={this.onMouseLeave}
                 onClick={this.onClick}
-                onDoubleClick={this.onDoubleClick}
+                onDoubleClick={this.onShowDetails}
             >
                 {state.thumbnailSrc &&
                     <img
@@ -215,13 +228,22 @@ export default class Picture extends React.Component<Props, State> {
                         onError={this.onThumbnailLoadError}
                     />
                 }
+                {state.thumbnailError &&
+                    this.renderThumbnailError()
+                }
                 {showFavorite &&
-                    <div className='Picture-favorite'>
+                    <div className='Picture-overlay Picture-favorite'>
                         <Icon iconSize={18} icon='star'/>
                     </div>
                 }
-                {state.thumbnailError &&
-                    this.renderThumbnailError()
+                {state.isHovered &&
+                    // We hide this button using the `isHovered` state instead of a CSS rule, so the markup stays thin
+                    // for most of the pictures.
+                    <Button className='Picture-overlay Picture-showDetails'
+                        icon={<Icon iconSize={18} icon='zoom-in'/>}
+                        minimal={true}
+                        onClick={this.onShowDetails}
+                    />
                 }
                 {props.isActive &&
                     <div className='Picture-activeBorder'/>

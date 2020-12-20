@@ -23,7 +23,7 @@ interface Props {
     getThumbnailSrc: (photo: Photo) => string
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => CancelablePromise<string>
     onPhotoClick: (event: React.MouseEvent, sectionId: PhotoSectionId, photoId: PhotoId) => void
-    onPhotoDoubleClick: (event: React.MouseEvent, sectionId: PhotoSectionId, photoId: PhotoId) => void
+    onShowPhotoDetails(sectionId: PhotoSectionId, photoId: PhotoId): void
 }
 
 export default class GridSection extends React.Component<Props> {
@@ -50,7 +50,7 @@ export default class GridSection extends React.Component<Props> {
                         getThumbnailSrc={props.getThumbnailSrc}
                         createThumbnail={props.createThumbnail}
                         onPhotoClick={props.onPhotoClick}
-                        onPhotoDoubleClick={props.onPhotoDoubleClick}
+                        onShowPhotoDetails={props.onShowPhotoDetails}
                     />
                 )
             }

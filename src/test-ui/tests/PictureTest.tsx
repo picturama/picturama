@@ -29,7 +29,7 @@ const defaultPropsCommon: Omit<Props, 'photo' | 'layoutBox'> = {
         }
     },
     onPhotoClick: action('onPhotoClick'),
-    onPhotoDoubleClick: action('onPhotoDoubleClick'),
+    onShowPhotoDetails: action('onShowPhotoDetails'),
 }
 
 const defaultPropsLight: Props = {
