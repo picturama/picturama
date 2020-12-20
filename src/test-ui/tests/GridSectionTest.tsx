@@ -6,8 +6,9 @@ import { getNonRawPath } from 'common/util/DataUtil'
 import { fileUrlFromPath } from 'common/util/TextUtil'
 
 import { defaultGridRowHeight } from 'app/UiConstants'
-import GridSection from 'app/ui/library/GridSection'
 import { estimateContainerHeight, createDummyLayoutBoxes } from 'app/controller/LibraryController'
+import { gridBg } from 'app/style/variables'
+import GridSection from 'app/ui/library/GridSection'
 
 import { addSection, action } from 'test-ui/core/UiTester'
 import { createTestPhotoId, testBigPhoto, testPanoramaPhoto, testPortraitPhoto } from 'test-ui/util/MockData'
@@ -42,7 +43,7 @@ const defaultProps = {
 
 
 addSection('GridSection')
-    .setArenaStyle({ width: containerWidth, padding: 0, backgroundColor: '#cfd8dc', overflowY: 'auto' })
+    .setArenaStyle({ width: containerWidth, padding: 0, backgroundColor: gridBg, overflowY: 'auto' })
     .add('normal', context => (
         <GridSection
             {...defaultProps}

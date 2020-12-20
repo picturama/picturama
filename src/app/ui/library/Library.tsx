@@ -206,6 +206,7 @@ export class Library extends React.Component<Props, State> {
             }
         }
 
+        const showGrid = !nonIdealStateProps
         const selectedSection = selectedSectionId != null && props.sectionById[selectedSectionId]
         const photoData = isLoadedPhotoSection(selectedSection) && selectedSection.photoData
         const selectedPhotos = photoData ? props.selectedPhotoIds.map(photoId => photoData[photoId]) : []
@@ -213,7 +214,7 @@ export class Library extends React.Component<Props, State> {
         return (
             <div
                 ref="library"
-                className={classNames(props.className, 'Library', { hasRightSidebar: state.isShowingInfo })}
+                className={classNames(props.className, 'Library', { 'bp3-dark': showGrid, hasGrid: showGrid, hasRightSidebar: state.isShowingInfo })}
                 style={props.style}
             >
                 <LibraryTopBar
@@ -238,7 +239,7 @@ export class Library extends React.Component<Props, State> {
                             <NonIdealState {...nonIdealStateProps}/>
                         </>
                     }
-                    {!nonIdealStateProps &&
+                    {showGrid &&
                         <Grid
                             className="Library-grid"
                             isActive={props.isActive}

@@ -1,20 +1,21 @@
 import React from 'react'
 
 import { addSection, action } from 'test-ui/core/UiTester'
-
-import Picture, { Props } from 'app/ui/library/Picture'
-
 import { testDarkPhoto, testLightPhoto } from 'test-ui/util/MockData'
-import { getNonRawPath } from 'common/util/DataUtil'
-import { fileUrlFromPath } from 'common/util/TextUtil'
+
 import { Photo, PhotoSectionId } from 'common/CommonTypes'
 import CancelablePromise from 'common/util/CancelablePromise'
-import { defaultGridRowHeight } from 'app/UiConstants'
+import { getNonRawPath } from 'common/util/DataUtil'
 import ParameterTestDecorator from 'test-ui/util/ParameterTestDecorator'
+import { fileUrlFromPath } from 'common/util/TextUtil'
+
+import { boxSpacing } from 'app/controller/LibraryController'
+import { gridBg } from 'app/style/variables'
+import { defaultGridRowHeight } from 'app/UiConstants'
+import Picture, { Props } from 'app/ui/library/Picture'
 
 
 const testWrapperPadding = 40
-const testBoxSpacing = 2
 
 const defaultPropsCommon: Omit<Props, 'photo' | 'layoutBox'> = {
     sectionId: 'test-section',
@@ -48,7 +49,7 @@ const defaultPropsDark: Props = {
     photo: testDarkPhoto,
     layoutBox: {
         aspectRatio: testDarkPhoto.master_width / testDarkPhoto.master_height,
-        left: defaultPropsLight.layoutBox.left + defaultPropsLight.layoutBox.width + testBoxSpacing,
+        left: defaultPropsLight.layoutBox.left + defaultPropsLight.layoutBox.width + boxSpacing,
         top: testWrapperPadding,
         width: Math.round(defaultGridRowHeight * testDarkPhoto.master_width / testDarkPhoto.master_height),
         height: defaultGridRowHeight
@@ -62,7 +63,7 @@ addSection('Picture')
                 position: 'relative',
                 width:  defaultPropsDark.layoutBox.left + defaultPropsDark.layoutBox.width + testWrapperPadding,
                 height: defaultGridRowHeight + 2 * testWrapperPadding,
-                backgroundColor: '#cfd8dc'
+                backgroundColor: gridBg
             }}
             forceRedrawOnChange={false}
             context={context}
