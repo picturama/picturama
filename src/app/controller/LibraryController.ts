@@ -52,7 +52,8 @@ export interface PhotoGridPosition {
 const pagesToKeep = 4
 const pagesToPreload = 3
 const averageAspect = 3 / 2
-const boxSpacing = 10  // Default 'boxSpacing' of 'justified-layout'
+const containerPadding = 10
+export const boxSpacing = 2
 
 let prevSectionIds: PhotoSectionId[] = []
 let prevSectionById: PhotoSectionById = {}
@@ -255,7 +256,7 @@ export function createLayoutForLoadedSection(section: LoadedPhotoSection, sectio
         //   - `getLayoutForSections` will detect that the section changed and so it will get a ney layout using the correct edited size
         return (edited_width && edited_height) ? (edited_width / edited_height) : averageAspect
     })
-    const layout = createLayout(aspects, { containerWidth, targetRowHeight })
+    const layout = createLayout(aspects, { containerPadding, boxSpacing, containerWidth, targetRowHeight })
     layout.sectionTop = sectionTop
     layout.containerHeight = Math.round(layout.containerHeight)
     return layout
@@ -264,35 +265,35 @@ export function createLayoutForLoadedSection(section: LoadedPhotoSection, sectio
 
 export function estimateContainerHeight(viewportWidth: number, gridRowHeight: number, photoCount: number): number {
     if (viewportWidth === 0) {
-        return boxSpacing + photoCount * (gridRowHeight + boxSpacing)
+        return 2 * containerPadding + photoCount * gridRowHeight + (photoCount - 1) * boxSpacing
     } else {
         // Estimate section height (assuming a normal landscape aspect ratio of 3:2)
         const unwrappedWidth = averageAspect * photoCount * gridRowHeight
         const rows = Math.ceil(unwrappedWidth / viewportWidth)
-        return rows * gridRowHeight + (rows + 1) * boxSpacing
+        return 2 * containerPadding + rows * gridRowHeight + (rows - 1) * boxSpacing
     }
 }
 
 export function createDummyLayoutBoxes(viewportWidth: number, gridRowHeight: number, containerHeight: number, photoCount: number): JustifiedLayoutBox[] {
-    const rowCount = Math.round((containerHeight - boxSpacing) / (gridRowHeight + boxSpacing))   // Reverse `estimateContainerHeight`
+    const rowCount = Math.round((containerHeight - 2 * containerPadding + boxSpacing) / (gridRowHeight + boxSpacing))   // Reverse `estimateContainerHeight`
     let boxes: JustifiedLayoutBox[] = []
     for (let row = 0; row < rowCount; row++) {
         const lastBoxIndex = Math.ceil(photoCount * (row + 1) / rowCount)  // index is excluding
         const colCount = lastBoxIndex - boxes.length
-        let boxWidth = (viewportWidth - (colCount + 1) * boxSpacing) / colCount
+        let boxWidth = (viewportWidth - 2 * containerPadding - (colCount - 1) * boxSpacing) / colCount
         if (row === rowCount - 1) {
             boxWidth = Math.min(boxWidth, averageAspect * gridRowHeight)
         }
         const aspectRatio = boxWidth / gridRowHeight
-    
+
         for (let col = 0; col < colCount; col++) {
             if (boxes.length >= photoCount) {
                 break
             }
             boxes.push({
                 aspectRatio,
-                left: col * boxWidth + (col + 1) * boxSpacing,
-                top: boxSpacing + row * (gridRowHeight + boxSpacing),
+                left: containerPadding + col * boxWidth + (col - 1) * boxSpacing,
+                top: containerPadding + row * (gridRowHeight + boxSpacing),
                 width: boxWidth,
                 height: gridRowHeight
             })

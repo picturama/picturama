@@ -1,22 +1,16 @@
 @import "../../style/variables.less";
 
-@selectionSize: 5px;
-
 .Picture {
     position: absolute;
     display: block;
-    outline: @selectionSize solid transparent;
     overflow: hidden;
-    transition: outline-color 0.2s ease-in;
     background-color: @blue-grey-400;  // Loading background
     user-select: none;
-
-    &.isHighlighted {
-        outline-color: @deep-orange-500;
-    }
 }
 
 .Picture-thumbnail {
+    width: 100%;
+    height: 100%;
     pointer-events: none;  // Disable image dragging
     opacity: 1;
     transition: opacity 0.2s ease-in;
@@ -62,4 +56,13 @@
     border-radius: 50%;
     background-color: rgba(0, 0, 0, .08);
     box-shadow: 0 0 20px rgba(0, 0, 0, .2);
+}
+
+.Picture-activeBorder {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    border: 4px solid @deep-orange-500;
 }

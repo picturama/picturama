@@ -46,7 +46,7 @@ export default class GridSection extends React.Component<Props> {
                         sectionId={props.section.id}
                         photo={photoData[photoId]}
                         layoutBox={props.layout.boxes[photoIndex]}
-                        isHighlighted={!!props.selectedPhotoIds && props.selectedPhotoIds.indexOf(photoId) !== -1}
+                        isActive={!!props.selectedPhotoIds && props.selectedPhotoIds.indexOf(photoId) !== -1}
                         getThumbnailSrc={props.getThumbnailSrc}
                         createThumbnail={props.createThumbnail}
                         onPhotoClick={props.onPhotoClick}

@@ -18,7 +18,7 @@ export interface Props {
     sectionId: PhotoSectionId
     photo: Photo
     layoutBox: JustifiedLayoutBox
-    isHighlighted: boolean
+    isActive: boolean
     getThumbnailSrc: (photo: Photo) => string
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => CancelablePromise<string>
     onPhotoClick: (event: React.MouseEvent, sectionId: PhotoSectionId, photoId: PhotoId) => void
@@ -33,19 +33,20 @@ interface State {
 
 export default class Picture extends React.Component<Props, State> {
 
+    private mainRef: React.RefObject<HTMLDivElement>
     private createThumbnailPromise: CancelablePromise<void> | null = null
     private delayedUpdateTimout: number | null = null
 
     constructor(props: Props) {
         super(props)
+        bindMany(this, 'onClick', 'onDoubleClick', 'onThumnailChange', 'onThumbnailLoad', 'onThumbnailLoadError')
 
         this.state = {
             thumbnailSrc: this.props.getThumbnailSrc(props.photo),
             isThumbnailLoaded: false,
             thumbnailError: null,
         }
-
-        bindMany(this, 'onClick', 'onDoubleClick', 'onThumnailChange', 'onThumbnailLoad', 'onThumbnailLoadError')
+        this.mainRef = React.createRef()
     }
 
     componentDidMount() {
@@ -70,10 +71,10 @@ export default class Picture extends React.Component<Props, State> {
             })
         }
 
-        if (props.isHighlighted && props.isHighlighted !== prevProps.isHighlighted) {
-            const pictureElem = findDOMNode(this.refs.picture) as HTMLElement
-            const rect = pictureElem.getBoundingClientRect()
-            let scrollParentElem = pictureElem.parentElement
+        if (props.isActive && props.isActive !== prevProps.isActive) {
+            const mainEl = findDOMNode(this.mainRef.current) as HTMLElement
+            const rect = mainEl.getBoundingClientRect()
+            let scrollParentElem = mainEl.parentElement
             while (scrollParentElem && scrollParentElem.scrollHeight <= scrollParentElem.clientHeight) {
                 scrollParentElem = scrollParentElem.parentElement
             }
@@ -195,8 +196,8 @@ export default class Picture extends React.Component<Props, State> {
 
         return (
             <div
-                ref="picture"
-                className={classNames(props.className, 'Picture', { isHighlighted: props.isHighlighted, isLoading: !state.isThumbnailLoaded })}
+                ref={this.mainRef}
+                className={classNames(props.className, 'Picture', { isLoading: !state.isThumbnailLoaded })}
                 style={{
                     left:   Math.round(layoutBox.left),
                     top:    Math.round(layoutBox.top),
@@ -204,13 +205,11 @@ export default class Picture extends React.Component<Props, State> {
                     height: Math.round(layoutBox.height)
                 }}
                 onClick={this.onClick}
-                onDoubleClick={this.onDoubleClick}>
+                onDoubleClick={this.onDoubleClick}
+            >
                 {state.thumbnailSrc &&
                     <img
-                        ref="image"
-                        className="Picture-thumbnail"
-                        width={layoutBox.width}
-                        height={layoutBox.height}
+                        className='Picture-thumbnail'
                         src={state.thumbnailSrc}
                         onLoad={this.onThumbnailLoad}
                         onError={this.onThumbnailLoadError}
@@ -223,6 +222,9 @@ export default class Picture extends React.Component<Props, State> {
                 }
                 {state.thumbnailError &&
                     this.renderThumbnailError()
+                }
+                {props.isActive &&
+                    <div className='Picture-activeBorder'/>
                 }
             </div>
         )

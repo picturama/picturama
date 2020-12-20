@@ -14,10 +14,11 @@ import ParameterTestDecorator from 'test-ui/util/ParameterTestDecorator'
 
 
 const testWrapperPadding = 40
+const testBoxSpacing = 2
 
 const defaultPropsCommon: Omit<Props, 'photo' | 'layoutBox'> = {
     sectionId: 'test-section',
-    isHighlighted: false,
+    isActive: false,
     getThumbnailSrc: (photo: Photo) => fileUrlFromPath(getNonRawPath(photo)),
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => {
         if (photo.master_filename === 'dummy') {
@@ -47,7 +48,7 @@ const defaultPropsDark: Props = {
     photo: testDarkPhoto,
     layoutBox: {
         aspectRatio: testDarkPhoto.master_width / testDarkPhoto.master_height,
-        left: defaultPropsLight.layoutBox.left + defaultPropsLight.layoutBox.width,
+        left: defaultPropsLight.layoutBox.left + defaultPropsLight.layoutBox.width + testBoxSpacing,
         top: testWrapperPadding,
         width: Math.round(defaultGridRowHeight * testDarkPhoto.master_width / testDarkPhoto.master_height),
         height: defaultGridRowHeight
@@ -59,27 +60,34 @@ addSection('Picture')
         <ParameterTestDecorator
             testWrapperStyle={{
                 position: 'relative',
-                width:  defaultPropsLight.layoutBox.width + defaultPropsDark.layoutBox.width + 2 * testWrapperPadding,
+                width:  defaultPropsDark.layoutBox.left + defaultPropsDark.layoutBox.width + testWrapperPadding,
                 height: defaultGridRowHeight + 2 * testWrapperPadding,
                 backgroundColor: '#cfd8dc'
             }}
             forceRedrawOnChange={false}
             context={context}
             parameterSpec={{
-                isHighlighted: { label: 'Highlighted' },
                 isFavorite: { label: 'Favorite' },
             }}
             renderTest={(context, params) =>
                 <>
                     <Picture
                         {...defaultPropsLight}
-                        isHighlighted={params.isHighlighted}
+                        isActive={context.state.activePhoto === 'light'}
                         photo={{ ...defaultPropsLight.photo, flag: params.isFavorite ? 1 : 0 }}
+                        onPhotoClick={() => {
+                            context.state.activePhoto = 'light'
+                            context.forceUpdate()
+                        }}
                     />
                     <Picture
                         {...defaultPropsDark}
-                        isHighlighted={params.isHighlighted}
+                        isActive={context.state.activePhoto === 'dark'}
                         photo={{ ...defaultPropsDark.photo, flag: params.isFavorite ? 1 : 0 }}
+                        onPhotoClick={() => {
+                            context.state.activePhoto = 'dark'
+                            context.forceUpdate()
+                        }}
                     />
                 </>
             }
