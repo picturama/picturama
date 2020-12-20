@@ -9,7 +9,6 @@ import { bindMany, getErrorCode } from 'common/util/LangUtil'
 import { PhotoId, Photo, PhotoSectionId } from 'common/CommonTypes'
 
 import { JustifiedLayoutBox } from 'app/UITypes'
-import FaIcon from 'app/ui/widget/icon/FaIcon'
 
 import './Picture.less'
 
@@ -185,13 +184,13 @@ export default class Picture extends React.Component<Props, State> {
         // Wanted behaviour:
         // - If the photo changes, the thumbnail should load fast, so no spinner should be shown.
         // - If there is no thumbnail yet, we trigger creating the thumbnail and show a spinner.
-        // - If the flagged state changes, the thumbnail should not flicker.
+        // - If the favorite state (photo.flag) changes, the thumbnail should not flicker.
         // - If the photo is changed (e.g. rotated), the old thumbnail should stay until the new one is created.
         //   Only if creating the thumbnail takes a long time, a spinner should be shown.
 
         const props = this.props
         const state = this.state
-        const showFlag = !!(props.photo.flag && state.isThumbnailLoaded)
+        const showFavorite = !!(props.photo.flag && state.isThumbnailLoaded)
         const layoutBox = props.layoutBox
 
         return (
@@ -217,8 +216,10 @@ export default class Picture extends React.Component<Props, State> {
                         onError={this.onThumbnailLoadError}
                     />
                 }
-                {showFlag &&
-                    <FaIcon ref="flag" className="Picture-flag" name="flag"/>
+                {showFavorite &&
+                    <div className='Picture-favorite'>
+                        <Icon iconSize={18} icon='star'/>
+                    </div>
                 }
                 {state.thumbnailError &&
                     this.renderThumbnailError()

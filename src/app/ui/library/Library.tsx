@@ -194,9 +194,9 @@ export class Library extends React.Component<Props, State> {
         } else if (props.photoCount === 0 && !props.isFetching && !props.isImporting) {
             let title: string
             switch (props.libraryFilterType) {
-                case 'flagged': title = msg('Library_emptyFavorites'); break
-                case 'trash':   title = msg('Library_emptyTrash'); break
-                default:        title = msg('Library_emptyView'); break
+                case 'favorites': title = msg('Library_emptyFavorites'); break
+                case 'trash':     title = msg('Library_emptyTrash'); break
+                default:          title = msg('Library_emptyView'); break
             }
 
             nonIdealStateProps = {

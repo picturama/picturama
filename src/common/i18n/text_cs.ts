@@ -82,7 +82,7 @@ export default {
 
     LibraryFilterButton_shown: 'Zobrazeno: {0}',
     LibraryFilterButton_filter_all: 'Všechny fotografie',
-    LibraryFilterButton_filter_flagged: 'Oblíbené',
+    LibraryFilterButton_filter_favorites: 'Oblíbené',
     LibraryFilterButton_filter_processed: 'Editováno',
     LibraryFilterButton_filter_trash: 'Koš',
     LibraryFilterButton_filter_tag: 'Se štítkem "{0}"',

@@ -156,10 +156,10 @@ export function isLoadedPhotoSection(section: PhotoSection | null | undefined |
 export type PhotoSectionById = { [K in PhotoSectionId]: PhotoSection | LoadedPhotoSection }
 
 
-export type PhotoFilterType = 'all' | 'flagged' | 'processed' | 'trash' | 'tag'
+export type PhotoFilterType = 'all' | 'favorites' | 'processed' | 'trash' | 'tag'
 export type PhotoFilter =
     { readonly type: 'all' } |
-    { readonly type: 'flagged' } |
+    { readonly type: 'favorites' } |
     { readonly type: 'trash' } |
     { readonly type: 'tag', readonly tagId: TagId }
     // TODO: Revive Legacy code of 'version' feature

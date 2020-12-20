@@ -86,7 +86,7 @@ function createWhereForFilter(filter: PhotoFilter): { sql: string, params: any[]
         (filter.type === 'trash') ? 1 : 0
     ]
 
-    if (filter.type === 'flagged') {
+    if (filter.type === 'favorites') {
         sql += ' and flag = 1'
     }
 

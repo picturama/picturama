@@ -9,12 +9,9 @@ import { bindMany } from 'common/util/LangUtil'
 import { formatNumber } from 'common/util/TextUtil'
 
 import toaster from 'app/Toaster'
-import FaIcon from 'app/ui/widget/icon/FaIcon'
 import MdRestoreFromTrash from 'app/ui/widget/icon/MdRestoreFromTrash'
 
 import RotateButtonGroup from './RotateButtonGroup'
-
-import './PhotoActionButtons.less'
 
 
 interface Props {
@@ -124,15 +121,13 @@ export default class PhotoActionButtons extends React.Component<Props> {
             <>
                 <RotateButtonGroup disabled={!hasSelection} onRotate={this.onRotate}/>
                 <Button
-                    className={classNames('PhotoActionButtons-flagButton', { isActive: selectedAreFlagged })}
+                    icon={selectedAreFlagged ? 'star' : 'star-empty'}
                     minimal={true}
                     active={selectedAreFlagged}
                     disabled={!hasSelection}
                     onClick={this.toggleFlagged}
                     title={selectedAreFlagged ? msg('PhotoActionButtons_removeFavorite') : msg('PhotoActionButtons_addFavorite')}
-                >
-                    <FaIcon name="flag" />
-                </Button>
+                />
                 {!props.isShowingTrash &&
                     <Button minimal={true} icon="trash" disabled={!hasSelection} onClick={this.moveToTrash} title={msg('PhotoActionButtons_trash')}/>
                 }

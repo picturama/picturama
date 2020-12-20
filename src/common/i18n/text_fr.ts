@@ -82,7 +82,7 @@ export default {
 
     LibraryFilterButton_shown: 'Montré : {0}',
     LibraryFilterButton_filter_all: 'Toutes les photos',
-    LibraryFilterButton_filter_flagged: 'Favoris',
+    LibraryFilterButton_filter_favorites: 'Favoris',
     LibraryFilterButton_filter_processed: 'Éditéé',
     LibraryFilterButton_filter_trash: 'Corbeille',
     LibraryFilterButton_filter_tag: 'Avec tag "{0}"',

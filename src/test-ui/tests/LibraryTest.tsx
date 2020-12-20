@@ -289,8 +289,8 @@ addSection('Library')
     .add('Empty favorites', context => (
         <Library
             {...createDefaultProps(context)}
-            topBarLeftItem={renderTopBarLeftItem({ type: 'flagged' })}
-            libraryFilterType={'flagged'}
+            topBarLeftItem={renderTopBarLeftItem({ type: 'favorites' })}
+            libraryFilterType={'favorites'}
             photoCount={0}
             sectionIds={[]}
             sectionById={{}}
