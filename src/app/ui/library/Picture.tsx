@@ -2,6 +2,7 @@ import classNames from 'classnames'
 import React from 'react'
 import { findDOMNode } from 'react-dom'
 import { Button, Icon } from '@blueprintjs/core'
+import { FaCheckCircle, FaRegCircle } from 'react-icons/fa'
 
 import { msg } from 'common/i18n/i18n'
 import CancelablePromise, { isCancelError } from 'common/util/CancelablePromise'
@@ -9,24 +10,30 @@ import { bindMany, getErrorCode } from 'common/util/LangUtil'
 import { PhotoId, Photo, PhotoSectionId } from 'common/CommonTypes'
 
 import { JustifiedLayoutBox } from 'app/UITypes'
+import { deepOrange500 } from 'app/style/variables'
+import SvgIcon from 'app/ui/widget/icon/SvgIcon'
 
 import './Picture.less'
 
 
 export interface Props {
     className?: any
+    inSelectionMode: boolean
     sectionId: PhotoSectionId
     photo: Photo
     layoutBox: JustifiedLayoutBox
     isActive: boolean
+    isSelected: boolean
     getThumbnailSrc: (photo: Photo) => string
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => CancelablePromise<string>
-    onPhotoClick: (event: React.MouseEvent, sectionId: PhotoSectionId, photoId: PhotoId) => void
-    onShowPhotoDetails(sectionId: PhotoSectionId, photoId: PhotoId): void
+    setActivePhoto(sectionId: PhotoSectionId, photoId: PhotoId): void
+    setPhotoSelected(sectionId: PhotoSectionId, photoId: PhotoId, selected: boolean): void
+    showPhotoDetails(sectionId: PhotoSectionId, photoId: PhotoId): void
 }
 
 interface State {
     thumbnailSrc: string | null
+    // We hide buttons using the `isHovered` state instead of a CSS rule, so the markup stays thin for most of the pictures.
     isHovered: boolean
     isThumbnailLoaded: boolean
     thumbnailError: 'master-missing' | 'create-failed' | 'load-failed' | null
@@ -40,7 +47,8 @@ export default class Picture extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props)
-        bindMany(this, 'onMouseEnter', 'onMouseLeave', 'onClick', 'onShowDetails', 'onThumnailChange', 'onThumbnailLoad', 'onThumbnailLoadError')
+        bindMany(this, 'onMouseEnter', 'onMouseLeave', 'onToggleSelection', 'onSetPhotoActive', 'onShowDetails',
+            'onThumnailChange', 'onThumbnailLoad', 'onThumbnailLoadError')
 
         this.state = {
             thumbnailSrc: this.props.getThumbnailSrc(props.photo),
@@ -56,7 +64,7 @@ export default class Picture extends React.Component<Props, State> {
     }
 
     componentDidUpdate(prevProps: Props, prevState: State) {
-        const props = this.props
+        const { props } = this
 
         if (props.photo.id != prevProps.photo.id) {
             if (this.delayedUpdateTimout) {
@@ -131,15 +139,27 @@ export default class Picture extends React.Component<Props, State> {
         this.setState({ isHovered: false })
     }
 
-    private onClick(event: React.MouseEvent) {
-        const props = this.props
-        props.onPhotoClick(event, props.sectionId, props.photo.id)
+    private onToggleSelection(event: React.MouseEvent) {
+        const { props } = this
+        event.stopPropagation()
+        event.preventDefault()
+        props.setPhotoSelected(props.sectionId, props.photo.id, !props.isSelected)
+    }
+
+    private onSetPhotoActive(event: React.MouseEvent) {
+        const { props } = this
+        event.stopPropagation()
+        event.preventDefault()
+        if (!props.isActive) {
+            props.setActivePhoto(props.sectionId, props.photo.id)
+        }
     }
 
     private onShowDetails(event: React.MouseEvent) {
-        event.stopPropagation()
         const { props } = this
-        props.onShowPhotoDetails(props.sectionId, props.photo.id)
+        event.stopPropagation()
+        event.preventDefault()
+        props.showPhotoDetails(props.sectionId, props.photo.id)
     }
 
     private createThumbnail(delayUpdate: boolean) {
@@ -200,15 +220,17 @@ export default class Picture extends React.Component<Props, State> {
         // - If the photo is changed (e.g. rotated), the old thumbnail should stay until the new one is created.
         //   Only if creating the thumbnail takes a long time, a spinner should be shown.
 
-        const props = this.props
-        const state = this.state
+        const { props, state } = this
         const showFavorite = !!(props.photo.flag && state.isThumbnailLoaded)
         const layoutBox = props.layoutBox
+        const hasSelectionBorder = props.isSelected && props.inSelectionMode
 
         return (
             <div
                 ref={this.mainRef}
-                className={classNames(props.className, 'Picture', { isLoading: !state.isThumbnailLoaded })}
+                className={classNames(props.className, 'Picture',
+                    { isLoading: !state.isThumbnailLoaded, hasSelectionBorder }
+                )}
                 style={{
                     left:   Math.round(layoutBox.left),
                     top:    Math.round(layoutBox.top),
@@ -217,7 +239,7 @@ export default class Picture extends React.Component<Props, State> {
                 }}
                 onMouseEnter={this.onMouseEnter}
                 onMouseLeave={this.onMouseLeave}
-                onClick={this.onClick}
+                onClick={props.inSelectionMode ? this.onToggleSelection : this.onSetPhotoActive}
                 onDoubleClick={this.onShowDetails}
             >
                 {state.thumbnailSrc &&
@@ -237,12 +259,17 @@ export default class Picture extends React.Component<Props, State> {
                     </div>
                 }
                 {state.isHovered &&
-                    // We hide this button using the `isHovered` state instead of a CSS rule, so the markup stays thin
-                    // for most of the pictures.
                     <Button className='Picture-overlay Picture-showDetails'
                         icon={<Icon iconSize={18} icon='zoom-in'/>}
                         minimal={true}
                         onClick={this.onShowDetails}
+                    />
+                }
+                {(props.inSelectionMode || state.isHovered) &&
+                    <Button className={classNames('Picture-overlay Picture-toggleSelection')}
+                        minimal={true}
+                        icon={renderToggleSelectionIcon(props.isSelected, props.inSelectionMode)}
+                        onClick={this.onToggleSelection}
                     />
                 }
                 {props.isActive &&
@@ -251,4 +278,34 @@ export default class Picture extends React.Component<Props, State> {
             </div>
         )
     }
+}
+
+
+function renderToggleSelectionIcon(isSelected: boolean, inSelectionMode: boolean): JSX.Element {
+    if (isSelected && inSelectionMode) {
+        return (
+            <RedCheckCircle/>
+        )
+    } else {
+        const Icon = (isSelected || !inSelectionMode) ? FaCheckCircle : FaRegCircle
+        return (
+            <Icon className='Picture-icon'/>
+        )
+    }
+}
+
+
+class RedCheckCircle extends React.Component {
+
+    render() {
+        const { props } = this
+        return (
+            // Original: FaCheckCircle (but with a white check)
+            <SvgIcon className='Picture-icon' size={18} viewBox='0 0 512 512'>
+                <circle cx='256' cy='256' r='230' fill='white' />
+                <path fill={deepOrange500} d='M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z'/>
+            </SvgIcon>
+        )
+    }
+
 }

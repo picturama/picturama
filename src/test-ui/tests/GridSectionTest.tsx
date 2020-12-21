@@ -8,7 +8,7 @@ import { fileUrlFromPath } from 'common/util/TextUtil'
 import { defaultGridRowHeight } from 'app/UiConstants'
 import { estimateContainerHeight, createDummyLayoutBoxes } from 'app/controller/LibraryController'
 import { gridBg } from 'app/style/variables'
-import GridSection from 'app/ui/library/GridSection'
+import GridSection, { Props } from 'app/ui/library/GridSection'
 
 import { addSection, action } from 'test-ui/core/UiTester'
 import { createTestPhotoId, testBigPhoto, testPanoramaPhoto, testPortraitPhoto } from 'test-ui/util/MockData'
@@ -25,7 +25,7 @@ const defaultSection = createSection(defaultSectionId, defaultPhotos)
 const defaultLayout = createLayoutForSection(defaultSection, 0, viewportWidth, defaultGridRowHeight)
 
 
-const defaultProps = {
+const defaultProps: Props = {
     section: defaultSection,
     layout: defaultLayout,
     selectedPhotoIds: null,
@@ -37,8 +37,9 @@ const defaultProps = {
             return new CancelablePromise<string>(Promise.resolve(fileUrlFromPath(getNonRawPath(photo))))
         }
     },
-    onPhotoClick: action('onPhotoClick'),
-    onShowPhotoDetails: action('onShowPhotoDetails'),
+    setActivePhoto: action('setActivePhoto'),
+    setPhotoSelected: action('setPhotoSelected'),
+    showPhotoDetails: action('showPhotoDetails'),
 }
 
 

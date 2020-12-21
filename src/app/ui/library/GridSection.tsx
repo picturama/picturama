@@ -14,7 +14,7 @@ import './GridSection.less'
 export const sectionHeadHeight = 60  // Keep in sync with `GridSection.less`
 
 
-interface Props {
+export interface Props {
     className?: any
     style?: any
     section: PhotoSection
@@ -22,8 +22,9 @@ interface Props {
     selectedPhotoIds: PhotoId[] | null
     getThumbnailSrc: (photo: Photo) => string
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => CancelablePromise<string>
-    onPhotoClick: (event: React.MouseEvent, sectionId: PhotoSectionId, photoId: PhotoId) => void
-    onShowPhotoDetails(sectionId: PhotoSectionId, photoId: PhotoId): void
+    setActivePhoto(sectionId: PhotoSectionId, photoId: PhotoId): void
+    setPhotoSelected(sectionId: PhotoSectionId, photoId: PhotoId, selected: boolean): void
+    showPhotoDetails(sectionId: PhotoSectionId, photoId: PhotoId): void
 }
 
 export default class GridSection extends React.Component<Props> {
@@ -43,14 +44,17 @@ export default class GridSection extends React.Component<Props> {
                 elems.push(
                     <Picture
                         key={photoId}
+                        inSelectionMode={false}
                         sectionId={props.section.id}
                         photo={photoData[photoId]}
                         layoutBox={props.layout.boxes[photoIndex]}
                         isActive={!!props.selectedPhotoIds && props.selectedPhotoIds.indexOf(photoId) !== -1}
+                        isSelected={false}
                         getThumbnailSrc={props.getThumbnailSrc}
                         createThumbnail={props.createThumbnail}
-                        onPhotoClick={props.onPhotoClick}
-                        onShowPhotoDetails={props.onShowPhotoDetails}
+                        setActivePhoto={props.setActivePhoto}
+                        setPhotoSelected={props.setPhotoSelected}
+                        showPhotoDetails={props.showPhotoDetails}
                     />
                 )
             }

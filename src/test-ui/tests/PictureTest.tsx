@@ -18,8 +18,10 @@ import Picture, { Props } from 'app/ui/library/Picture'
 const testWrapperPadding = 40
 
 const defaultPropsCommon: Omit<Props, 'photo' | 'layoutBox'> = {
+    inSelectionMode: false,
     sectionId: 'test-section',
     isActive: false,
+    isSelected: false,
     getThumbnailSrc: (photo: Photo) => fileUrlFromPath(getNonRawPath(photo)),
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => {
         if (photo.master_filename === 'dummy') {
@@ -28,8 +30,9 @@ const defaultPropsCommon: Omit<Props, 'photo' | 'layoutBox'> = {
             return new CancelablePromise<string>(Promise.resolve(fileUrlFromPath(getNonRawPath(photo))))
         }
     },
-    onPhotoClick: action('onPhotoClick'),
-    onShowPhotoDetails: action('onShowPhotoDetails'),
+    setActivePhoto: action('setActivePhoto'),
+    setPhotoSelected: action('setPhotoSelected'),
+    showPhotoDetails: action('showPhotoDetails'),
 }
 
 const defaultPropsLight: Props = {
@@ -57,40 +60,54 @@ const defaultPropsDark: Props = {
 }
 
 addSection('Picture')
-    .add('normal', context => (
-        <ParameterTestDecorator
-            testWrapperStyle={{
-                position: 'relative',
-                width:  defaultPropsDark.layoutBox.left + defaultPropsDark.layoutBox.width + testWrapperPadding,
-                height: defaultGridRowHeight + 2 * testWrapperPadding,
-                backgroundColor: gridBg
-            }}
-            forceRedrawOnChange={false}
-            context={context}
-            parameterSpec={{
-                isFavorite: { label: 'Favorite' },
-            }}
-            renderTest={(context, params) =>
-                <>
-                    <Picture
-                        {...defaultPropsLight}
-                        isActive={context.state.activePhoto === 'light'}
-                        photo={{ ...defaultPropsLight.photo, flag: params.isFavorite ? 1 : 0 }}
-                        onPhotoClick={() => {
-                            context.state.activePhoto = 'light'
-                            context.forceUpdate()
-                        }}
-                    />
-                    <Picture
-                        {...defaultPropsDark}
-                        isActive={context.state.activePhoto === 'dark'}
-                        photo={{ ...defaultPropsDark.photo, flag: params.isFavorite ? 1 : 0 }}
-                        onPhotoClick={() => {
-                            context.state.activePhoto = 'dark'
-                            context.forceUpdate()
-                        }}
-                    />
-                </>
-            }
-        />
-    ))
+    .add('normal', context => {
+        return (
+            <ParameterTestDecorator
+                testWrapperStyle={{
+                    position: 'relative',
+                    width:  defaultPropsDark.layoutBox.left + defaultPropsDark.layoutBox.width + testWrapperPadding,
+                    height: defaultGridRowHeight + 2 * testWrapperPadding,
+                    backgroundColor: gridBg
+                }}
+                forceRedrawOnChange={false}
+                context={context}
+                parameterSpec={{
+                    inSelectionMode: { label: 'Selection mode', defaultValue: true },
+                    isFavorite: { label: 'Favorite' },
+                }}
+                renderTest={(context, params) => {
+                    return (
+                        <>
+                            {renderPicture(defaultPropsLight)}
+                            {renderPicture(defaultPropsDark)}
+                        </>
+                    )
+
+                    function renderPicture(props: Props) {
+                        const photoId = props.photo.id
+                        return (
+                            <Picture
+                                {...props}
+                                inSelectionMode={params.inSelectionMode}
+                                photo={{ ...props.photo, flag: params.isFavorite ? 1 : 0 }}
+                                isActive={context.state.activePhotoId === photoId}
+                                isSelected={context.state.selectedIds?.[photoId]}
+                                setActivePhoto={() => {
+                                    context.state.activePhotoId = photoId
+                                    context.forceUpdate()
+                                }}
+                                setPhotoSelected={(sectionId, photoId, selected) => {
+                                    if (!context.state.selectedIds) {
+                                        context.state.selectedIds = {}
+                                    }
+                                    context.state.selectedIds[photoId] = selected
+                                    context.forceUpdate()
+                                }}
+                            />
+                        )
+                    }
+
+                }}
+            />
+        )
+    })

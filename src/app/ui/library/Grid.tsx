@@ -58,7 +58,7 @@ export default class Grid extends React.Component<Props, State> {
 
         this.state = { scrollTop: 0, viewportWidth: 0, viewportHeight: 0 }
 
-        bindMany(this, 'onPhotoClick', 'onShowPhotoDetails', 'onEnter', 'onResize', 'onScroll', 'setScrollTop',
+        bindMany(this, 'setActivePhoto', 'showPhotoDetails', 'onEnter', 'onResize', 'onScroll', 'setScrollTop',
             'moveHighlightLeft', 'moveHighlightRight', 'moveHighlightUp', 'moveHighlightDown')
     }
 
@@ -139,27 +139,25 @@ export default class Grid extends React.Component<Props, State> {
             props.gridRowHeight, this.nailedGridPosition)
     }
 
-    private onPhotoClick(event: React.MouseEvent, sectionId: PhotoSectionId, photoId: PhotoId) {
+    private setActivePhoto(sectionId: PhotoSectionId, photoId: PhotoId) {
         const props = this.props
 
-        event.preventDefault()
-
-        if (sectionId === props.selectedSectionId && isMac ? event.metaKey : event.ctrlKey) {
-            const photoIndex = props.selectedPhotoIds.indexOf(photoId)
-            const highlight = props.selectedPhotoIds && photoIndex === -1
-            if (highlight) {
-                if (photoIndex === -1) {
-                    props.setSelectedPhotos(sectionId, [ ...props.selectedPhotoIds, photoId ])
-                }
-            } else {
-                props.setSelectedPhotos(sectionId, cloneArrayWithItemRemoved(props.selectedPhotoIds, photoId))
-            }
-        } else {
+        //if (sectionId === props.selectedSectionId && isMac ? event.metaKey : event.ctrlKey) {
+        //    const photoIndex = props.selectedPhotoIds.indexOf(photoId)
+        //    const highlight = props.selectedPhotoIds && photoIndex === -1
+        //    if (highlight) {
+        //        if (photoIndex === -1) {
+        //            props.setSelectedPhotos(sectionId, [ ...props.selectedPhotoIds, photoId ])
+        //        }
+        //    } else {
+        //        props.setSelectedPhotos(sectionId, cloneArrayWithItemRemoved(props.selectedPhotoIds, photoId))
+        //    }
+        //} else {
             props.setSelectedPhotos(sectionId, [ photoId ])
-        }
+        //}
     }
 
-    private onShowPhotoDetails(sectionId: PhotoSectionId, photoId: PhotoId) {
+    private showPhotoDetails(sectionId: PhotoSectionId, photoId: PhotoId) {
         this.props.setDetailPhotoById(sectionId, photoId)
     }
 
@@ -286,8 +284,9 @@ export default class Grid extends React.Component<Props, State> {
                     selectedPhotoIds={props.selectedPhotoIds}
                     getThumbnailSrc={props.getThumbnailSrc}
                     createThumbnail={props.createThumbnail}
-                    onPhotoClick={this.onPhotoClick}
-                    onShowPhotoDetails={this.onShowPhotoDetails}
+                    setActivePhoto={this.setActivePhoto}
+                    setPhotoSelected={() => {}}
+                    showPhotoDetails={this.showPhotoDetails}
                 />
             )
         }
