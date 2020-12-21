@@ -122,7 +122,8 @@
     opacity: 1 !important;
 }
 
-.Picture-activeBorder {
+.Picture-activeBorder,
+.Picture-preselectedBorder {
     position: absolute;
     left: 0;
     top: 0;
@@ -130,4 +131,8 @@
     bottom: 0;
     pointer-events: none;
     border: 4px solid @deep-orange-500;
+    box-shadow: inset 0 0 3px rgba(0, 0, 0, .5);
+}
+.Picture-preselectedBorder {
+    border-width: 1px;
 }

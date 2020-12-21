@@ -74,6 +74,8 @@ addSection('Picture')
                 parameterSpec={{
                     inSelectionMode: { label: 'Selection mode', defaultValue: true },
                     isFavorite: { label: 'Favorite' },
+                    isPreSelected: { label: 'Pre-Selected' },
+                    isPreDeselected: { label: 'Pre-Deselected' },
                 }}
                 renderTest={(context, params) => {
                     return (
@@ -92,6 +94,7 @@ addSection('Picture')
                                 photo={{ ...props.photo, flag: params.isFavorite ? 1 : 0 }}
                                 isActive={context.state.activePhotoId === photoId}
                                 isSelected={context.state.selectedIds?.[photoId]}
+                                preselected={params.isPreSelected ? true : params.isPreDeselected ? false : undefined}
                                 setActivePhoto={() => {
                                     context.state.activePhotoId = photoId
                                     context.forceUpdate()

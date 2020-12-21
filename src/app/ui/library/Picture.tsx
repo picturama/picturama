@@ -22,8 +22,16 @@ export interface Props {
     sectionId: PhotoSectionId
     photo: Photo
     layoutBox: JustifiedLayoutBox
+    /** Whether this photo is the active photo (which has the keyboard focus) */
     isActive: boolean
     isSelected: boolean
+    /**
+     * Whether this photo is pre-(de)-selected. E.g. if the user holds the shift key while hovering another photo
+     * and this photo is between the active photo and the hovered photo.
+     * Is `undefined` if this photo is not pre-(de)-selected, `true` if it is preselected and
+     * `false` if it is pre-deselected.
+     */
+    preselected?: boolean
     getThumbnailSrc: (photo: Photo) => string
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => CancelablePromise<string>
     setActivePhoto(sectionId: PhotoSectionId, photoId: PhotoId): void
@@ -265,15 +273,15 @@ export default class Picture extends React.Component<Props, State> {
                         onClick={this.onShowDetails}
                     />
                 }
-                {(props.inSelectionMode || state.isHovered) &&
+                {(props.inSelectionMode || state.isHovered || props.preselected !== undefined) &&
                     <Button className={classNames('Picture-overlay Picture-toggleSelection')}
                         minimal={true}
-                        icon={renderToggleSelectionIcon(props.isSelected, props.inSelectionMode)}
+                        icon={renderToggleSelectionIcon(props.isSelected, props.inSelectionMode, props.preselected)}
                         onClick={this.onToggleSelection}
                     />
                 }
-                {props.isActive &&
-                    <div className='Picture-activeBorder'/>
+                {(props.isActive || props.preselected !== undefined) &&
+                    <div className={props.isActive ? 'Picture-activeBorder' : 'Picture-preselectedBorder'}/>
                 }
             </div>
         )
@@ -281,13 +289,13 @@ export default class Picture extends React.Component<Props, State> {
 }
 
 
-function renderToggleSelectionIcon(isSelected: boolean, inSelectionMode: boolean): JSX.Element {
-    if (isSelected && inSelectionMode) {
+function renderToggleSelectionIcon(isSelected: boolean, inSelectionMode: boolean, preselected?: boolean): JSX.Element {
+    if (inSelectionMode && isSelected && preselected !== false) {
         return (
             <RedCheckCircle/>
         )
     } else {
-        const Icon = (isSelected || !inSelectionMode) ? FaCheckCircle : FaRegCircle
+        const Icon = (!inSelectionMode || (isSelected && preselected !== false) || preselected) ? FaCheckCircle : FaRegCircle
         return (
             <Icon className='Picture-icon'/>
         )
