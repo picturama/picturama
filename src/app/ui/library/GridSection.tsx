@@ -1,10 +1,15 @@
 import classNames from 'classnames'
 import React from 'react'
+import { Button } from '@blueprintjs/core'
+import { FaCheckCircle, FaRegCircle } from 'react-icons/fa'
 
 import { PhotoId, Photo, PhotoSectionId, PhotoSection, isLoadedPhotoSection } from 'common/CommonTypes'
 import CancelablePromise from 'common/util/CancelablePromise'
+import { bindMany } from 'common/util/LangUtil'
 
+import { selectionButtonSize } from 'app/style/variables'
 import { GridSectionLayout } from 'app/UITypes'
+import RedCheckCircle from 'app/ui/widget/icon/RedCheckCircle'
 
 import Picture from './Picture'
 
@@ -17,20 +22,32 @@ export const sectionHeadHeight = 60  // Keep in sync with `GridSection.less`
 export interface Props {
     className?: any
     style?: any
+    inSelectionMode: boolean
     section: PhotoSection
     layout: GridSectionLayout
-    selectedPhotoIds: PhotoId[] | null
+    selectedPhotoIds: PhotoId[] | 'all' | null
     getThumbnailSrc: (photo: Photo) => string
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => CancelablePromise<string>
     setActivePhoto(sectionId: PhotoSectionId, photoId: PhotoId): void
+    setSectionSelected(sectionId: PhotoSectionId, selected: boolean): void
     setPhotoSelected(sectionId: PhotoSectionId, photoId: PhotoId, selected: boolean): void
     showPhotoDetails(sectionId: PhotoSectionId, photoId: PhotoId): void
 }
 
 export default class GridSection extends React.Component<Props> {
 
-    renderPictures() {
-        const props = this.props
+    constructor(props: Props) {
+        super(props)
+        bindMany(this, 'onToggleSectionSelected')
+    }
+
+    private onToggleSectionSelected() {
+        const { props } = this
+        props.setSectionSelected(props.section.id, props.selectedPhotoIds !== 'all')
+    }
+
+    private renderPictures() {
+        const { props } = this
         if (!props.layout.boxes || props.layout.fromBoxIndex == null || props.layout.toBoxIndex == null) {
             return
         }
@@ -44,11 +61,11 @@ export default class GridSection extends React.Component<Props> {
                 elems.push(
                     <Picture
                         key={photoId}
-                        inSelectionMode={false}
+                        inSelectionMode={props.inSelectionMode}
                         sectionId={props.section.id}
                         photo={photoData[photoId]}
                         layoutBox={props.layout.boxes[photoIndex]}
-                        isActive={!!props.selectedPhotoIds && props.selectedPhotoIds.indexOf(photoId) !== -1}
+                        isActive={props.selectedPhotoIds === 'all' || props.selectedPhotoIds?.indexOf(photoId) !== -1}
                         isSelected={false}
                         getThumbnailSrc={props.getThumbnailSrc}
                         createThumbnail={props.createThumbnail}
@@ -83,8 +100,20 @@ export default class GridSection extends React.Component<Props> {
 
         return (
             <div className={classNames(props.className, 'GridSection')} style={props.style}>
-                <div className="GridSection-head">{props.section.title}</div>
-                <div className="GridSection-body" style={{ height: props.layout.containerHeight }}>
+                <div className='GridSection-head'>
+                    {props.section.title}
+                    {props.section.count > 1 &&
+                        <Button className={classNames('GridSection-toggleSelection', { isAlwaysVisible: props.inSelectionMode })}
+                            minimal={true}
+                            icon={
+                                !props.inSelectionMode ? <FaCheckCircle/> :
+                                props.selectedPhotoIds === 'all' ? <RedCheckCircle size={selectionButtonSize}/> :
+                                <FaRegCircle/>}
+                            onClick={this.onToggleSectionSelected}
+                        />
+                    }
+                </div>
+                <div className='GridSection-body' style={{ height: props.layout.containerHeight }}>
                     {this.renderPictures()}
                 </div>
             </div>

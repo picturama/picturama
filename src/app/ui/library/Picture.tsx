@@ -1,5 +1,5 @@
-import classNames from 'classnames'
 import React from 'react'
+import classNames from 'classnames'
 import { findDOMNode } from 'react-dom'
 import { Button, Icon } from '@blueprintjs/core'
 import { FaCheckCircle, FaRegCircle } from 'react-icons/fa'
@@ -10,10 +10,10 @@ import { bindMany, getErrorCode } from 'common/util/LangUtil'
 import { PhotoId, Photo, PhotoSectionId } from 'common/CommonTypes'
 
 import { JustifiedLayoutBox } from 'app/UITypes'
-import { deepOrange500 } from 'app/style/variables'
-import SvgIcon from 'app/ui/widget/icon/SvgIcon'
+import RedCheckCircle from 'app/ui/widget/icon/RedCheckCircle'
 
 import './Picture.less'
+import { selectionButtonSize } from 'app/style/variables'
 
 
 export interface Props {
@@ -292,7 +292,7 @@ export default class Picture extends React.Component<Props, State> {
 function renderToggleSelectionIcon(isSelected: boolean, inSelectionMode: boolean, preselected?: boolean): JSX.Element {
     if (inSelectionMode && isSelected && preselected !== false) {
         return (
-            <RedCheckCircle/>
+            <RedCheckCircle className='Picture-icon' size={selectionButtonSize}/>
         )
     } else {
         const Icon = (!inSelectionMode || (isSelected && preselected !== false) || preselected) ? FaCheckCircle : FaRegCircle
@@ -300,20 +300,4 @@ function renderToggleSelectionIcon(isSelected: boolean, inSelectionMode: boolean
             <Icon className='Picture-icon'/>
         )
     }
-}
-
-
-class RedCheckCircle extends React.Component {
-
-    render() {
-        const { props } = this
-        return (
-            // Original: FaCheckCircle (but with a white check)
-            <SvgIcon className='Picture-icon' size={18} viewBox='0 0 512 512'>
-                <circle cx='256' cy='256' r='230' fill='white' />
-                <path fill={deepOrange500} d='M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z'/>
-            </SvgIcon>
-        )
-    }
-
 }

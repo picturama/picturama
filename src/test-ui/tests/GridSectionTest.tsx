@@ -26,6 +26,7 @@ const defaultLayout = createLayoutForSection(defaultSection, 0, viewportWidth, d
 
 
 const defaultProps: Props = {
+    inSelectionMode: false,
     section: defaultSection,
     layout: defaultLayout,
     selectedPhotoIds: null,
@@ -38,6 +39,7 @@ const defaultProps: Props = {
         }
     },
     setActivePhoto: action('setActivePhoto'),
+    setSectionSelected: action('setSectionSelected'),
     setPhotoSelected: action('setPhotoSelected'),
     showPhotoDetails: action('showPhotoDetails'),
 }
@@ -48,6 +50,20 @@ addSection('GridSection')
     .add('normal', context => (
         <GridSection
             {...defaultProps}
+        />
+    ))
+    .add('selection mode', context => (
+        <GridSection
+            {...defaultProps}
+            inSelectionMode={true}
+            selectedPhotoIds={[ testPortraitPhoto.id ]}
+        />
+    ))
+    .add('selection mode (all)', context => (
+        <GridSection
+            {...defaultProps}
+            inSelectionMode={true}
+            selectedPhotoIds='all'
         />
     ))
     .add('selection', context => (

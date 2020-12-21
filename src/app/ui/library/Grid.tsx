@@ -279,12 +279,14 @@ export default class Grid extends React.Component<Props, State> {
                     key={sectionId}
                     className="Grid-section"
                     style={{ top: layout.sectionTop, width: state.viewportWidth, height: sectionHeadHeight + layout.containerHeight }}
+                    inSelectionMode={false}
                     section={props.sectionById[sectionId]}
                     layout={layout}
                     selectedPhotoIds={props.selectedPhotoIds}
                     getThumbnailSrc={props.getThumbnailSrc}
                     createThumbnail={props.createThumbnail}
                     setActivePhoto={this.setActivePhoto}
+                    setSectionSelected={() => {}}
                     setPhotoSelected={() => {}}
                     showPhotoDetails={this.showPhotoDetails}
                 />

@@ -4,14 +4,28 @@
 
 
 .GridSection-head {
-    display: table-cell;
     height: @sectionHeadHeight;
-    vertical-align: bottom;
+    padding: 20px 0 0 10px;
 
     color: @blue-grey-200;
-    padding: 0 10px;
     font-size: 32px;
     font-weight: 200;
+}
+
+.GridSection-toggleSelection {
+    color: inherit !important;
+    font-size: @selectionButtonSize !important;
+    margin: 0 0 3px 20px;
+    visibility: hidden;
+
+    .GridSection-head:hover &,
+    &.isAlwaysVisible {
+        visibility: visible;
+    }
+
+    .SvgIcon {
+        margin: 0 !important;
+    }
 }
 
 .GridSection-body {
