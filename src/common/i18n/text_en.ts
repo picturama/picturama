@@ -75,11 +75,6 @@ export default {
     Library_emptyView: "Your current view doesn't match any photo",
     Library_selectOtherView: 'Please select another view on the top left.',
 
-    LibraryBottomBar_selected: '{0} selected',
-    LibraryBottomBar_deselect: 'Deselect',
-    LibraryBottomBar_photoCount_one: '1 photo',
-    LibraryBottomBar_photoCount_more: '{0} photos',
-
     LibraryFilterButton_shown: 'Shown: {0}',
     LibraryFilterButton_filter_all: 'All photos',
     LibraryFilterButton_filter_favorites: 'Favorites',
@@ -142,6 +137,8 @@ export default {
 
     RotateButtonGroup_rotateLeft: 'Rotate left',
     RotateButtonGroup_rotateRight: 'Rotate right',
+
+    SelectionSummary_selected: '{0} selected',
 
     Settings_title: 'Settings',
     Settings_selectPhotoDirs: 'Please select the folders to scan for images.',

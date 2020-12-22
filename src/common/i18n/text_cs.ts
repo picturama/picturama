@@ -75,11 +75,6 @@ export default {
     Library_emptyView: "Váš stávající výběr neodpovídá žádným fotografiím",
     Library_selectOtherView: 'Prosím zvolte jiný výběr v levém horním rohu.',
 
-    LibraryBottomBar_selected: '{0} vybráno',
-    LibraryBottomBar_deselect: 'Zrušit výběr',
-    LibraryBottomBar_photoCount_one: '1 fotografie',
-    LibraryBottomBar_photoCount_more: '{0} fotografií',
-
     LibraryFilterButton_shown: 'Zobrazeno: {0}',
     LibraryFilterButton_filter_all: 'Všechny fotografie',
     LibraryFilterButton_filter_favorites: 'Oblíbené',
@@ -142,6 +137,8 @@ export default {
 
     RotateButtonGroup_rotateLeft: 'Otočit doleva',
     RotateButtonGroup_rotateRight: 'Otočit doprava',
+
+    SelectionSummary_selected: '{0} vybráno',
 
     Settings_title: 'Nastavení',
     Settings_selectPhotoDirs: 'Vyberte prosím složky, ve kterých budou vyhledány fotografie.',

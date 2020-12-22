@@ -12,6 +12,7 @@ import { GridLayout } from 'app/UITypes'
 import { sectionHeadHeight } from 'app/ui/library/GridSection'
 import { Library, Props } from 'app/ui/library/Library'
 import { LibraryFilterButton } from 'app/ui/library/LibraryFilterButton'
+import SelectionSummary from 'app/ui/library/SelectionSummary'
 import ImportProgressButton from 'app/ui/ImportProgressButton'
 
 import { addSection, action, TestContext } from 'test-ui/core/UiTester'
@@ -32,6 +33,7 @@ function createDefaultProps(context: TestContext): Props {
         topBarLeftItem: renderTopBarLeftItem({ type: 'all' }),
         isActive: true,
 
+        inSelectionMode: false,
         hasPhotoDirs: true,
         isFetching: false,
         isImporting: false,
@@ -144,9 +146,25 @@ addSection('Library')
             {...createDefaultProps(context)}
         />
     ))
-    .add('selection', context => (
+    .add('active photo', context => (
         <Library
             {...createDefaultProps(context)}
+            selectedSectionId={defaultSectionId}
+            selectedPhotoIds={[ testLandscapePhoto.id ]}
+            infoPhoto={testLandscapePhoto}
+            infoPhotoDetail={{ versions:[], tags: [] }}
+        />
+    ))
+    .add('selection mode', context => (
+        <Library
+            {...createDefaultProps(context)}
+            topBarLeftItem={
+                <SelectionSummary
+                    selectedCount={1}
+                    onClearSelection={action('onClearSelection')}
+                />
+            }
+            inSelectionMode={true}
             selectedSectionId={defaultSectionId}
             selectedPhotoIds={[ testLandscapePhoto.id ]}
             infoPhoto={testLandscapePhoto}

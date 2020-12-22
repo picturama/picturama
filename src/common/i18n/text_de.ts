@@ -75,11 +75,6 @@ export default {
     Library_emptyView: 'Keine Fotos in dieser Ansicht',
     Library_selectOtherView: 'Bitte wähle links oben eine andere Ansicht.',
 
-    LibraryBottomBar_selected: '{0} gewählt',
-    LibraryBottomBar_deselect: 'Abwählen',
-    LibraryBottomBar_photoCount_one: '1 Foto',
-    LibraryBottomBar_photoCount_more: '{0} Fotos',
-
     LibraryFilterButton_shown: 'Ansicht: {0}',
     LibraryFilterButton_filter_all: 'Alle Fotos',
     LibraryFilterButton_filter_favorites: 'Favoriten',
@@ -142,6 +137,8 @@ export default {
 
     RotateButtonGroup_rotateLeft: 'Nach links drehen',
     RotateButtonGroup_rotateRight: 'Nach rechts drehen',
+
+    SelectionSummary_selected: '{0} ausgewählt',
 
     Settings_title: 'Einstellungen',
     Settings_selectPhotoDirs: 'Bitte wähle die Ordner aus, die nach Fotos gescannt werden sollen.',

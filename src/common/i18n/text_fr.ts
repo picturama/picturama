@@ -75,11 +75,6 @@ export default {
     Library_emptyView: "Votre vue actuelle ne correspond à aucune photo",
     Library_selectOtherView: 'Veuillez sélectionner une autre vue en haut à gauche.',
 
-    LibraryBottomBar_selected: '{0} sélectionné',
-    LibraryBottomBar_deselect: 'Désélectionner',
-    LibraryBottomBar_photoCount_one: '1 photo',
-    LibraryBottomBar_photoCount_more: '{0} photos',
-
     LibraryFilterButton_shown: 'Montré : {0}',
     LibraryFilterButton_filter_all: 'Toutes les photos',
     LibraryFilterButton_filter_favorites: 'Favoris',
@@ -148,6 +143,8 @@ export default {
     Settings_photoDirs: 'Dossiers à scanner pour les images:',
     Settings_addPhotoDir: 'Ajouter un dossier de photos',
     Settings_startScan: `Recherche d'images`,
+
+    SelectionSummary_selected: '{0} sélectionné',
 
     TagEditor_addTag: 'Ajouter un tag...',
     TagEditor_error_tagExists: 'Veuillez saisir un nouveau tag',

@@ -27,6 +27,7 @@ const gridBottomPadding = toolbarHeight
 
 interface Props {
     className?: any
+    inSelectionMode: boolean
     isActive: boolean
     sectionIds: PhotoSectionId[]
     sectionById: PhotoSectionById
@@ -281,7 +282,7 @@ export default class Grid extends React.Component<Props, State> {
                     key={sectionId}
                     className="Grid-section"
                     style={{ top: layout.sectionTop, width: state.viewportWidth, height: sectionHeadHeight + layout.containerHeight }}
-                    inSelectionMode={false}
+                    inSelectionMode={props.inSelectionMode}
                     section={props.sectionById[sectionId]}
                     layout={layout}
                     selectedPhotoIds={props.selectedPhotoIds}

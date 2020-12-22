@@ -75,11 +75,6 @@ export default {
     Library_emptyView: "No hay ninguna foto en tu vista actual",
     Library_selectOtherView: 'Por favor, selecciona otra vista en la parte superior a la izquierda.',
 
-    LibraryBottomBar_selected: '{0} selectionados',
-    LibraryBottomBar_deselect: 'Deseleccionar',
-    LibraryBottomBar_photoCount_one: '1 foto',
-    LibraryBottomBar_photoCount_more: '{0} fotos',
-
     LibraryFilterButton_shown: 'Mostrado: {0}',
     LibraryFilterButton_filter_all: 'Todoas las fotos',
     LibraryFilterButton_filter_favorites: 'Favoritos',
@@ -142,6 +137,8 @@ export default {
 
     RotateButtonGroup_rotateLeft: 'Rotar a la izquierda',
     RotateButtonGroup_rotateRight: 'Rotar a la derecha',
+
+    SelectionSummary_selected: '{0} selectionados',
 
     Settings_title: 'Ajustes',
     Settings_selectPhotoDirs: 'Por favor, selecciona carpetas para escanear imágenes.',

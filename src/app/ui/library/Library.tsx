@@ -42,6 +42,7 @@ interface OwnProps {
 }
 
 interface StateProps {
+    inSelectionMode: boolean
     hasPhotoDirs: boolean
     isFetching: boolean
     isImporting: boolean
@@ -237,6 +238,7 @@ export class Library extends React.Component<Props, State> {
                     {showGrid &&
                         <Grid
                             className="Library-grid"
+                            inSelectionMode={props.inSelectionMode}
                             isActive={props.isActive}
                             sectionIds={props.sectionIds}
                             sectionById={props.sectionById}
@@ -292,6 +294,7 @@ const Connected = connect<StateProps, DispatchProps, OwnProps, AppState>(
 
         return {
             ...props,
+            inSelectionMode: false,
             hasPhotoDirs: state.data.settings.photoDirs.length !== 0,
             isFetching: sections.totalPhotoCount === null || sections.fetchState === FetchState.FETCHING,
             isImporting: !!state.import && state.import.progress.phase !== 'error',
