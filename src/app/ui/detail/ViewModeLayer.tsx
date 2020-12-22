@@ -1,14 +1,12 @@
 import classnames from 'classnames'
 import React from 'react'
-import { Button, ButtonGroup, Slider } from '@blueprintjs/core'
+import { Button, ButtonGroup, MaybeElement, Slider } from '@blueprintjs/core'
 
-import { PhotoId, Photo as Photo, PhotoWork, PhotoSectionId } from 'common/CommonTypes'
 import { msg } from 'common/i18n/i18n'
 import { CameraMetrics, RequestedPhotoPosition, limitPhotoPosition } from 'common/util/CameraMetrics'
 import { bindMany } from 'common/util/LangUtil'
 
 import FaIcon from 'app/ui/widget/icon/FaIcon'
-import PhotoActionButtons from 'app/ui/widget/PhotoActionButtons'
 import Toolbar from 'app/ui/widget/Toolbar'
 import { Command, getCommandButtonProps, CommandGroupId, addCommandGroup, setCommandGroupEnabled, removeCommandGroup } from 'app/controller/HotkeyController'
 
@@ -18,24 +16,18 @@ import ViewModeOverlay from './ViewModeOverlay'
 export interface Props {
     topBarClassName: string
     bodyClassName: string
+    isTopBarRight: boolean
+    topBarRightItem?: MaybeElement
+    showEditButton: boolean
     isActive: boolean
-    sectionId: PhotoSectionId
-    photo: Photo
     isFirst: boolean
     isLast: boolean
     cameraMetrics: CameraMetrics | null
-    isShowingInfo: boolean
     setPreviousDetailPhoto: () => void
     setNextDetailPhoto: () => void
     setPhotoPosition(photoPosition: RequestedPhotoPosition): void
     toggleDiff(): void
     enterCropMode(): void
-    toggleShowInfo(): void
-    updatePhotoWork: (photo: Photo, update: (photoWork: PhotoWork) => void) => void
-    setPhotosFlagged: (photos: Photo[], flag: boolean) => void
-    movePhotosToTrash: (photos: Photo[]) => void
-    restorePhotosFromTrash: (photos: Photo[]) => void
-    openExport: (sectionId: PhotoSectionId, photoIds: PhotoId[]) => void
     closeDetail(): void
 }
 
@@ -55,7 +47,7 @@ export default class ViewModeLayer extends React.Component<Props> {
             toggleDiff: { combo: 'd', label: 'Toggle diff' /* TODO: I18N */, onAction: props.toggleDiff },
             prevPhoto: { combo: 'left', enabled: () => !this.props.isFirst, label: msg('PhotoDetailPane_prevPhoto'), onAction: props.setPreviousDetailPhoto },
             nextPhoto: { combo: 'right', enabled: () => !this.props.isLast, label: msg('PhotoDetailPane_nextPhoto'), onAction: props.setNextDetailPhoto },
-            edit: { combo: 'enter', label: msg('PhotoDetailPane_edit'), onAction: props.enterCropMode },
+            edit: { combo: 'enter', enabled: () => this.props.showEditButton, label: msg('PhotoDetailPane_edit'), onAction: props.enterCropMode },
         }
     }
 
@@ -107,7 +99,7 @@ export default class ViewModeLayer extends React.Component<Props> {
                 <Toolbar
                     className={classnames(props.topBarClassName, 'ViewModeLayer-toolbar')}
                     isLeft={true}
-                    isRight={!props.isShowingInfo}
+                    isRight={props.isTopBarRight}
                 >
                     <Button onClick={commands.close.onAction}>
                         <FaIcon name="chevron-left"/>
@@ -135,21 +127,12 @@ export default class ViewModeLayer extends React.Component<Props> {
                         />
                         <div className='PhotoDetailPane-zoomValue'>{zoomSliderLabel}</div>
                     </div>
-                    <Button minimal={true} {...getCommandButtonProps(commands.edit)}>
-                        <FaIcon name='crop'/>
-                    </Button>
-                    <PhotoActionButtons
-                        selectedSectionId={props.sectionId}
-                        selectedPhotos={[ props.photo ]}
-                        isShowingTrash={!!props.photo.trashed}
-                        isShowingInfo={props.isShowingInfo}
-                        openExport={props.openExport}
-                        updatePhotoWork={props.updatePhotoWork}
-                        setPhotosFlagged={props.setPhotosFlagged}
-                        movePhotosToTrash={props.movePhotosToTrash}
-                        restorePhotosFromTrash={props.restorePhotosFromTrash}
-                        toggleShowInfo={props.toggleShowInfo}
-                    />
+                    {props.showEditButton &&
+                        <Button minimal={true} {...getCommandButtonProps(commands.edit)}>
+                            <FaIcon name='crop'/>
+                        </Button>
+                    }
+                    {props.topBarRightItem}
                 </Toolbar>
                 <ViewModeOverlay
                     className={classnames(props.bodyClassName, 'ViewModeLayer-body')}

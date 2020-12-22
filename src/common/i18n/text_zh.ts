@@ -75,14 +75,9 @@ export default {
     Library_emptyView: '您当前的视图不符合任何照片',
     Library_selectOtherView: '请选择左上角的其他视图',
 
-    LibraryBottomBar_selected: '{0}选中',
-    LibraryBottomBar_deselect: '取消选择',
-    LibraryBottomBar_photoCount_one: '1张照片',
-    LibraryBottomBar_photoCount_more: '{0}张照片',
-
     LibraryFilterButton_shown: '显示,{0}',
     LibraryFilterButton_filter_all: '所有照片',
-    LibraryFilterButton_filter_flagged: '收藏夹',
+    LibraryFilterButton_filter_favorites: ``,  // TODO: 'Favorites'
     LibraryFilterButton_filter_processed: '已编辑',
     LibraryFilterButton_filter_trash: '垃圾桶',
     LibraryFilterButton_filter_tag: '带标签"{0}" ',
@@ -119,6 +114,12 @@ export default {
     PhotoActionButtons_photoInfo: '显示所选照片的信息',
     PhotoActionButtons_export: '导出',
 
+    PhotoDetailPane_prevPhoto: '上一张照片',
+    PhotoDetailPane_nextPhoto: '下一张照片',
+    PhotoDetailBody_selected: ``,  // TODO: 'Selected'
+    PhotoDetailBody_select: ``,  // TODO: 'Select'
+    PhotoDetailPane_edit: '编辑',
+
     PhotoInfo_title: '信息',
     PhotoInfo_showInFolder: '在文件夹中显示照片',
     PhotoInfo_copyPath: '复制路径',
@@ -136,12 +137,10 @@ export default {
     PhotoInfo_noValue: '没有照片{0}',
     PhotoInfo_error_fetchPhotoSize: '获取照片大小失败',
 
-    PhotoDetailPane_prevPhoto: '上一张照片',
-    PhotoDetailPane_nextPhoto: '下一张照片',
-    PhotoDetailPane_edit: '编辑',
-
     RotateButtonGroup_rotateLeft: '向左旋转',
     RotateButtonGroup_rotateRight: '向右旋转',
+
+    SelectionSummary_selected: ``,  // TODO: '{0} selected'
 
     Settings_title: '设置',
     Settings_selectPhotoDirs: '请选择要扫描图像的文件夹',

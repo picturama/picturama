@@ -114,6 +114,12 @@ export default {
     PhotoActionButtons_photoInfo: 'Mostrar información sobre la foto seleccionada',
     PhotoActionButtons_export: 'Exportar',
 
+    PhotoDetailPane_prevPhoto: 'Anterior foto',
+    PhotoDetailPane_nextPhoto: 'Siguiente foto',
+    PhotoDetailBody_selected: ``,  // TODO: 'Selected'
+    PhotoDetailBody_select: ``,  // TODO: 'Select'
+    PhotoDetailPane_edit: 'Editar',
+
     PhotoInfo_title: 'Info',
     PhotoInfo_showInFolder: 'Mostrar foto en carpeta',
     PhotoInfo_copyPath: 'Copiar ruta',
@@ -130,10 +136,6 @@ export default {
     PhotoInfo_exifTitle_ifd1: `Miniatura (IFD1)`,
     PhotoInfo_noValue: `La foto no tiene {0}`,
     PhotoInfo_error_fetchPhotoSize: `No se pudo obtener el tamaño de la foto`,
-
-    PhotoDetailPane_prevPhoto: 'Anterior foto',
-    PhotoDetailPane_nextPhoto: 'Siguiente foto',
-    PhotoDetailPane_edit: 'Editar',
 
     RotateButtonGroup_rotateLeft: 'Rotar a la izquierda',
     RotateButtonGroup_rotateRight: 'Rotar a la derecha',

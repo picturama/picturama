@@ -1,12 +1,16 @@
 import React from 'react'
 import classnames from 'classnames'
-import { ResizeSensor, IResizeEntry, Spinner, NonIdealState, Classes } from '@blueprintjs/core'
+import { ResizeSensor, IResizeEntry, Spinner, NonIdealState, Classes, Button } from '@blueprintjs/core'
+import { FaCheckCircle } from 'react-icons/fa'
 
 import { ExifOrientation, PhotoWork, PhotoSectionId, Photo, PhotoId } from 'common/CommonTypes'
 import { msg } from 'common/i18n/i18n'
 import { CameraMetrics, CameraMetricsBuilder, RequestedPhotoPosition, PhotoPosition } from 'common/util/CameraMetrics'
 import { Size, zeroSize, Insets, zeroInsets, Rect } from 'common/util/GeometryTypes'
 import { bindMany, isShallowEqual } from 'common/util/LangUtil'
+
+import RedCheckCircle from 'app/ui/widget/icon/RedCheckCircle'
+import PhotoActionButtons from 'app/ui/widget/PhotoActionButtons'
 
 import CropModeLayer from './CropModeLayer'
 import { DetailMode } from './DetailTypes'
@@ -25,6 +29,7 @@ export interface Props {
     topBarClassName: string
     bodyClassName: string
     devicePixelRatio: number
+    inSelectionMode: boolean
     isActive: boolean
     mode: DetailMode
     isShowingInfo: boolean
@@ -32,6 +37,7 @@ export interface Props {
     photo: Photo
     isFirst: boolean
     isLast: boolean
+    isSelected: boolean
     imagePath: string
     imagePathPrev: string | null
     imagePathNext: string | null
@@ -41,6 +47,7 @@ export interface Props {
     setNextDetailPhoto(): void
     toggleDiff(): void
     toggleShowInfo(): void
+    setPhotoSelected(sectionId: PhotoSectionId, photoId: PhotoId, selected: boolean): void
     updatePhotoWork: (photo: Photo, update: (photoWork: PhotoWork) => void) => void
     setPhotosFlagged: (photos: Photo[], flag: boolean) => void
     movePhotosToTrash: (photos: Photo[]) => void
@@ -70,8 +77,8 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props)
-        bindMany(this, 'onLoadingStateChange', 'onResize', 'onTextureChange', 'setPhotoPosition', 'enterCropMode',
-            'onPhotoWorkEdited', 'onCropDone')
+        bindMany(this, 'onLoadingStateChange', 'onResize', 'onTextureChange', 'onTogglePhotoSelected', 
+            'setPhotoPosition', 'enterCropMode', 'onPhotoWorkEdited', 'onCropDone')
         const cameraMetricsBuilder = new CameraMetricsBuilder()
         this.state = {
             prevMode: null,
@@ -162,6 +169,11 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
         }
     }
 
+    private onTogglePhotoSelected() {
+        const { props } = this
+        props.setPhotoSelected(props.sectionId, props.photo.id, !props.isSelected)
+    }
+
     private setPhotoPosition(photoPosition: PhotoPosition) {
         this.setState({ photoPosition })
     }
@@ -214,24 +226,42 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
                     <ViewModeLayer
                         topBarClassName={props.topBarClassName}
                         bodyClassName={props.bodyClassName}
+                        isTopBarRight={!props.isShowingInfo}
+                        topBarRightItem={
+                            props.inSelectionMode ? (
+                                <Button
+                                    className='PhotoDetailBody-toggleSelected'
+                                    intent='primary'
+                                    active={props.isSelected}
+                                    icon={props.isSelected ? <RedCheckCircle size={16}/> : <FaCheckCircle style={{ fontSize: 16 }}/>}
+                                    text={msg(props.isSelected ? 'PhotoDetailBody_selected' : 'PhotoDetailBody_select')}
+                                    onClick={this.onTogglePhotoSelected}
+                                />
+                            ) : (
+                                <PhotoActionButtons
+                                    selectedSectionId={props.sectionId}
+                                    selectedPhotos={[ props.photo ]}
+                                    isShowingTrash={!!props.photo.trashed}
+                                    isShowingInfo={props.isShowingInfo}
+                                    openExport={props.openExport}
+                                    updatePhotoWork={props.updatePhotoWork}
+                                    setPhotosFlagged={props.setPhotosFlagged}
+                                    movePhotosToTrash={props.movePhotosToTrash}
+                                    restorePhotosFromTrash={props.restorePhotosFromTrash}
+                                    toggleShowInfo={props.toggleShowInfo}
+                                />
+                            )
+                        }
+                        showEditButton={!props.inSelectionMode}
                         isActive={props.isActive}
-                        sectionId={props.sectionId}
-                        photo={props.photo}
                         isFirst={props.isFirst}
                         isLast={props.isLast}
                         cameraMetrics={state.cameraMetrics}
-                        isShowingInfo={props.isShowingInfo}
                         setPreviousDetailPhoto={props.setPreviousDetailPhoto}
                         setNextDetailPhoto={props.setNextDetailPhoto}
                         setPhotoPosition={this.setPhotoPosition}
                         toggleDiff={props.toggleDiff}
                         enterCropMode={this.enterCropMode}
-                        toggleShowInfo={props.toggleShowInfo}
-                        updatePhotoWork={props.updatePhotoWork}
-                        setPhotosFlagged={props.setPhotosFlagged}
-                        movePhotosToTrash={props.movePhotosToTrash}
-                        restorePhotosFromTrash={props.restorePhotosFromTrash}
-                        openExport={props.openExport}
                         closeDetail={props.closeDetail}
                     />
                 }

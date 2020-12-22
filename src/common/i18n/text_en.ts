@@ -114,6 +114,12 @@ export default {
     PhotoActionButtons_photoInfo: 'Show information about selected photo',
     PhotoActionButtons_export: 'Export',
 
+    PhotoDetailPane_prevPhoto: 'Previous photo',
+    PhotoDetailPane_nextPhoto: 'Next photo',
+    PhotoDetailBody_selected: 'Selected',
+    PhotoDetailBody_select: 'Select',
+    PhotoDetailPane_edit: 'Edit',
+
     PhotoInfo_title: 'Info',
     PhotoInfo_showInFolder: 'Show photo in folder',
     PhotoInfo_copyPath: 'Copy path',
@@ -130,10 +136,6 @@ export default {
     PhotoInfo_exifTitle_ifd1: 'Thumbnail (IFD1)',
     PhotoInfo_noValue: 'Photo has no {0}',
     PhotoInfo_error_fetchPhotoSize: 'Getting photo size failed',
-
-    PhotoDetailPane_prevPhoto: 'Previous photo',
-    PhotoDetailPane_nextPhoto: 'Next photo',
-    PhotoDetailPane_edit: 'Edit',
 
     RotateButtonGroup_rotateLeft: 'Rotate left',
     RotateButtonGroup_rotateRight: 'Rotate right',

@@ -114,6 +114,12 @@ export default {
     PhotoActionButtons_photoInfo: 'Afficher les informations sur la photo sélectionnée',
     PhotoActionButtons_export: 'Exportez',
 
+    PhotoDetailPane_prevPhoto: 'Photo précédente',
+    PhotoDetailPane_nextPhoto: 'Photo suivante',
+    PhotoDetailBody_selected: ``,  // TODO: 'Selected'
+    PhotoDetailBody_select: ``,  // TODO: 'Select'
+    PhotoDetailPane_edit: 'Éditer',
+
     PhotoInfo_title: 'Info',
     PhotoInfo_showInFolder: 'Afficher la photo dans le dossier',
     PhotoInfo_copyPath: `Copier le chemin d'accès`,
@@ -131,20 +137,16 @@ export default {
     PhotoInfo_noValue: `La photo n'a pas {0}`,
     PhotoInfo_error_fetchPhotoSize: 'Obtention de la taille de la photo échouée',
 
-    PhotoDetailPane_prevPhoto: 'Photo précédente',
-    PhotoDetailPane_nextPhoto: 'Photo suivante',
-    PhotoDetailPane_edit: 'Éditer',
-
     RotateButtonGroup_rotateLeft: 'Rotation à gauche',
     RotateButtonGroup_rotateRight: 'Rotation à droite',
+
+    SelectionSummary_selected: '{0} sélectionné',
 
     Settings_title: 'Paramètres',
     Settings_selectPhotoDirs: 'Veuillez sélectionner les dossiers à scanner pour les images.',
     Settings_photoDirs: 'Dossiers à scanner pour les images:',
     Settings_addPhotoDir: 'Ajouter un dossier de photos',
     Settings_startScan: `Recherche d'images`,
-
-    SelectionSummary_selected: '{0} sélectionné',
 
     TagEditor_addTag: 'Ajouter un tag...',
     TagEditor_error_tagExists: 'Veuillez saisir un nouveau tag',

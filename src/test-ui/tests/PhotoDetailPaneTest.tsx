@@ -12,6 +12,7 @@ const defaultProps: Props = {
     style: { width: '100%', height: '100%', overflow: 'hidden' },
     isActive: true,
     devicePixelRatio: window.devicePixelRatio,
+    inSelectionMode: false,
     sectionId: 'dummy',
     photo: testBigPhoto,
     photoPrev: null,
@@ -21,11 +22,13 @@ const defaultProps: Props = {
     tags: [],
     isFirst: true,
     isLast: false,
+    isSelected: false,
     setPreviousDetailPhoto: action('setPreviousDetailPhoto'),
     setNextDetailPhoto: action('setNextDetailPhoto'),
     getFileSize(path: string): Promise<number> { return Promise.resolve(3380326) },
     readMetadataOfImage(imagePath: string): Promise<MetaData> { return Promise.resolve(testBigPhotoMetData) },
     getExifData(path: string): Promise<ExifData | null> { return Promise.resolve(null) },
+    setPhotoSelected: action('setPhotoSelected'),
     updatePhotoWork: action('updatePhotoWork'),
     setPhotosFlagged: action('setPhotosFlagged'),
     setPhotoTags: action('setPhotoTags'),
@@ -42,6 +45,18 @@ addSection('PhotoDetailPane')
         <PhotoDetailPane
             {...defaultProps}
             devicePixelRatio={window.devicePixelRatio}
+        />
+    ))
+    .add('selection mode', context => (
+        <PhotoDetailPane
+            {...defaultProps}
+            devicePixelRatio={window.devicePixelRatio}
+            inSelectionMode={true}
+            isSelected={!!context.state.isSelected}
+            setPhotoSelected={() => {
+                context.state.isSelected = !context.state.isSelected
+                context.forceUpdate()
+            }}
         />
     ))
     .add('loading', context => (

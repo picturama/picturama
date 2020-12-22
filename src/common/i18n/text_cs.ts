@@ -114,6 +114,12 @@ export default {
     PhotoActionButtons_photoInfo: 'Zobrazit informace o vybrané fotografii',
     PhotoActionButtons_export: 'Exportovat',
 
+    PhotoDetailPane_prevPhoto: 'Předchozí fotografie',
+    PhotoDetailPane_nextPhoto: 'Následující fotografie',
+    PhotoDetailBody_selected: ``,  // TODO: 'Selected'
+    PhotoDetailBody_select: ``,  // TODO: 'Select'
+    PhotoDetailPane_edit: 'Editovat',
+
     PhotoInfo_title: 'Informace',
     PhotoInfo_showInFolder: 'Zobrazit fotografii ve složce',
     PhotoInfo_copyPath: 'Kopírovat umístění',
@@ -130,10 +136,6 @@ export default {
     PhotoInfo_exifTitle_ifd1: 'Náhled (IFD1)',
     PhotoInfo_noValue: 'Fotografie nemá žádné {0}',
     PhotoInfo_error_fetchPhotoSize: 'Zjištění velikosti fotografie selhalo',
-
-    PhotoDetailPane_prevPhoto: 'Předchozí fotografie',
-    PhotoDetailPane_nextPhoto: 'Následující fotografie',
-    PhotoDetailPane_edit: 'Editovat',
 
     RotateButtonGroup_rotateLeft: 'Otočit doleva',
     RotateButtonGroup_rotateRight: 'Otočit doprava',

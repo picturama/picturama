@@ -30,6 +30,7 @@ interface OwnProps {
 
 interface StateProps {
     devicePixelRatio: number
+    inSelectionMode: boolean
     sectionId: PhotoSectionId
     photo: Photo
     photoPrev: Photo | null
@@ -39,6 +40,7 @@ interface StateProps {
     tags: string[]
     isFirst: boolean
     isLast: boolean
+    isSelected: boolean
 }
 
 interface DispatchProps {
@@ -47,6 +49,7 @@ interface DispatchProps {
     getFileSize(path: string): Promise<number>
     readMetadataOfImage(imagePath: string): Promise<MetaData>
     getExifData(path: string): Promise<ExifData | null>
+    setPhotoSelected(sectionId: PhotoSectionId, photoId: PhotoId, selected: boolean): void
     updatePhotoWork: (photo: Photo, update: (photoWork: PhotoWork) => void) => void
     setPhotosFlagged: (photos: Photo[], flag: boolean) => void
     setPhotoTags: (photo: Photo, tags: string[]) => void
@@ -114,6 +117,7 @@ export class PhotoDetailPane extends React.Component<Props, State> {
                     topBarClassName='PhotoDetailPane-topBar'
                     bodyClassName='PhotoDetailPane-body'
                     devicePixelRatio={props.devicePixelRatio}
+                    inSelectionMode={props.inSelectionMode}
                     isActive={props.isActive}
                     mode={state.mode}
                     isShowingInfo={state.isShowingInfo}
@@ -121,6 +125,7 @@ export class PhotoDetailPane extends React.Component<Props, State> {
                     photo={props.photo}
                     isFirst={props.isFirst}
                     isLast={props.isLast}
+                    isSelected={props.isSelected}
                     imagePath={getNonRawPath(props.photo)}
                     imagePathPrev={props.photoPrev && getNonRawPath(props.photoPrev)}
                     imagePathNext={props.photoNext && getNonRawPath(props.photoNext)}
@@ -130,6 +135,7 @@ export class PhotoDetailPane extends React.Component<Props, State> {
                     setNextDetailPhoto={props.setNextDetailPhoto}
                     toggleDiff={this.toggleDiff}
                     toggleShowInfo={this.toggleShowInfo}
+                    setPhotoSelected={props.setPhotoSelected}
                     updatePhotoWork={props.updatePhotoWork}
                     setPhotosFlagged={props.setPhotosFlagged}
                     movePhotosToTrash={props.movePhotosToTrash}
@@ -165,6 +171,7 @@ const Connected = connect<StateProps, DispatchProps, OwnProps, AppState>(
         return {
             ...props,
             devicePixelRatio: state.navigation.devicePixelRatio,
+            inSelectionMode: false,  // TODO
             sectionId: currentPhoto.sectionId,
             photo: getPhotoById(state, sectionId, currentPhoto.photoId)!,
             photoPrev: getPhotoByIndex(state, sectionId, currentPhoto.photoIndex - 1),
@@ -173,7 +180,8 @@ const Connected = connect<StateProps, DispatchProps, OwnProps, AppState>(
             photoWork: currentPhoto.photoWork,
             tags: getTagTitles(state),
             isFirst: currentPhoto.photoIndex === 0,
-            isLast: !section || currentPhoto.photoIndex === section.photoIds.length - 1
+            isLast: !section || currentPhoto.photoIndex === section.photoIds.length - 1,
+            isSelected: false,  // TODO
         }
     },
     dispatch => ({
@@ -182,6 +190,7 @@ const Connected = connect<StateProps, DispatchProps, OwnProps, AppState>(
         getFileSize: BackgroundClient.getFileSize,
         readMetadataOfImage: BackgroundClient.readMetadataOfImage,
         getExifData: BackgroundClient.getExifData,
+        setPhotoSelected: () => {},  // TODO
         updatePhotoWork,
         setPhotosFlagged,
         setPhotoTags,
