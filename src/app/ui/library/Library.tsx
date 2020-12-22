@@ -93,7 +93,7 @@ export class Library extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props)
         this.state = { isShowingInfo: false }
-        bindMany(this, 'openExport', 'clearHighlight', 'toggleShowInfo', 'getNonIdealStateDecorationWidth')
+        bindMany(this, 'openExport', 'toggleShowInfo', 'getNonIdealStateDecorationWidth')
     }
 
     componentDidUpdate(prevProps: Props, prevState) {
@@ -123,11 +123,6 @@ export class Library extends React.Component<Props, State> {
         if (props.selectedSectionId) {
             props.openExport(props.selectedSectionId, props.selectedPhotoIds)
         }
-    }
-
-    clearHighlight() {
-        const props = this.props
-        props.setSelectedPhotos(props.selectedSectionId, [])
     }
 
     toggleShowInfo() {
@@ -262,10 +257,8 @@ export class Library extends React.Component<Props, State> {
                 <LibraryBottomBar
                     className="Library-bottomBar"
                     leftItem={props.bottomBarLeftItem}
-                    highlightedCount={props.selectedPhotoIds.length}
-                    photosCount={props.photoCount}
+                    showSlider={props.photoCount > 0}
                     gridRowHeight={props.gridRowHeight}
-                    clearHighlight={this.clearHighlight}
                     setGridRowHeight={props.setGridRowHeight}
                 />
                 <PhotoInfo

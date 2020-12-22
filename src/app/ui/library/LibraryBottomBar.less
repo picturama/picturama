@@ -1,38 +1,11 @@
 @import "../../style/variables.less";
 
 .LibraryBottomBar {
-    position: relative;
+    padding: 0 2px;
+    border-right: 1px solid @blue-grey-900;
+    border-top-right-radius: 8px;
 }
 
-.LibraryBottomBar-selection {
-    display: inline-block;
-    background: @blue-grey-900;
-    height: 30px;
-    line-height: 30px;
-    vertical-align: middle;
-    border-radius: 5px;
-    padding: 0 10px;
-
-    &:not(:first-child) {
-        margin-left: 5px;
-    }
-}
-
-.LibraryBottomBar-deselectAll:before {
-    content: "|";
-    padding-right: 6px;
-}
-
-.LibraryBottomBar-center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.LibraryBottomBar-right {
-    position: absolute;
-    top: 50%;
-    right: 20px;
-    transform: translate(0, -50%);
+.LibraryBottomBar-slider {
+    margin: 0 16px;
 }

@@ -5,26 +5,33 @@
 .Library {
     position: relative;
 }
-.Library-topBar,
-.Library-bottomBar,
-.Library-body {
+.Library-topBar {
     position: absolute;
     left: 0;
+    top: 0;
     right: 0;
+    transition: right @transition-time ease-out;
 
     .Library.hasRightSidebar & {
         right: @sidebarWidth;
     }
 }
-.Library-topBar {
-    top: 0;
+.Library-body {
+    position: absolute;
+    top: @toolbarHeight;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    // We don't add a transition for right in order to avoid multiple relayouts of the Grid
+
+    .Library.hasRightSidebar & {
+        right: @sidebarWidth;
+    }
 }
 .Library-bottomBar {
-    bottom: 0
-}
-.Library-body {
-    top: @toolbarHeight;
-    bottom: @toolbarHeight;
+    position: absolute;
+    bottom: 0;
+    left: 0;
 }
 .Library-rightSidebar {
     position: absolute;

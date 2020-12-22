@@ -40,7 +40,7 @@ interface Props {
     className?: any
     style?: any
     children?: any
-    isTopBar?: boolean
+    isTopBar: boolean
     isLeft?: boolean
     isRight?: boolean
 }
@@ -50,7 +50,6 @@ export default class Toolbar extends React.Component<Props> {
     static Spacer = ToolbarSpacer
 
     static defaultProps: Partial<Props> = {
-        isTopBar: true,
         isLeft: false
     }
 

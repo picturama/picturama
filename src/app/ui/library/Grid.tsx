@@ -12,7 +12,7 @@ import { isMac } from 'app/UiConstants'
 import { GridSectionLayout, GridLayout, JustifiedLayoutBox } from 'app/UITypes'
 import { CommandGroupId, addCommandGroup, setCommandGroupEnabled, removeCommandGroup } from 'app/controller/HotkeyController'
 import { NailedGridPosition, GetGridLayoutFunction, PhotoGridPosition } from 'app/controller/LibraryController'
-import { gridScrollBarWidth } from 'app/style/variables'
+import { gridScrollBarWidth, toolbarHeight } from 'app/style/variables'
 import { getScrollbarSize } from 'app/util/DomUtil'
 
 import GridScrollBar from './GridScrollBar'
@@ -22,6 +22,8 @@ import './Grid.less'
 
 
 const gridSpacerHeight = 1
+const gridBottomPadding = toolbarHeight
+    // Add padding at the bottom, so the bottom bars (import and slider) don't cover a photo
 
 interface Props {
     className?: any
@@ -302,7 +304,7 @@ export default class Grid extends React.Component<Props, State> {
             return 0
         } else {
             const lastLayout = gridLayout.sectionLayouts[sectionCount - 1]
-            return lastLayout.sectionTop + sectionHeadHeight + lastLayout.containerHeight
+            return lastLayout.sectionTop + sectionHeadHeight + lastLayout.containerHeight + gridBottomPadding
         }
     }
 
