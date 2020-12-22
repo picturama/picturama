@@ -53,7 +53,7 @@ const pagesToKeep = 4
 const pagesToPreload = 3
 const averageAspect = 3 / 2
 const containerPadding = 10
-export const boxSpacing = 2
+export const boxSpacing = 4
 
 let prevSectionIds: PhotoSectionId[] = []
 let prevSectionById: PhotoSectionById = {}
