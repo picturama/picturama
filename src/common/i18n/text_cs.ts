@@ -44,8 +44,8 @@ export default {
     ExportDialog_customSizeSide_size: 'velikost',
     ExportDialog_privacy: 'Soukromí',
     ExportDialog_removeInfo: 'Odstranit doplňkové informace',
-    ExportDialog_removeInfo_desc: ``,  // TODO: `This removes extra information like EXIF-Tags from the exported photo. This is information about the camera used, the photo's location or similar.`
-    ExportDialog_removeInfo_jpgOnly: ``,  // TODO: 'Extra information is currently only supported for JPG. I.e. extra information is only exported if both the original photo and the exported photo are JPG.'
+    ExportDialog_removeInfo_desc: 'Odstranit EXIF informace (například informace o použitém fotoaparátu, nastavení fotoaparátu, lokace apod.)',  // TODO: `This removes extra information like EXIF-Tags from the exported photo. This is information about the camera used, the photo's location or similar.`
+    ExportDialog_removeInfo_jpgOnly: 'Další informace jsou pouze pro formát pro JPG (tzn. další informace se exportují pouze v případě, že jak původní fotografie, tak exportovaná fotografie jsou ve formátu JPG). “',  // TODO: 'Extra information is currently only supported for JPG. I.e. extra information is only exported if both the original photo and the exported photo are JPG.'
     ExportDialog_fileName: 'Název souboru',
     ExportDialog_fileName_likeOriginal: 'Jako originál',
     ExportDialog_fileName_sequence: 'sekvence',
