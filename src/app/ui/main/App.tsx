@@ -15,7 +15,6 @@ import ExportDialog from 'app/ui/export/ExportDialog'
 import Library from 'app/ui/library/Library'
 import LibraryFilterButton from 'app/ui/library/LibraryFilterButton'
 import ImportProgressButton from 'app/ui/ImportProgressButton'
-import PictureDiff from 'app/ui/PictureDiff'
 import SettingsPane from 'app/ui/SettingsPane'
 import { openSettingsAction } from 'app/state/actions'
 import { AppState, MainViewState } from 'app/state/StateTypes'
@@ -93,8 +92,6 @@ class App extends React.Component<Props> {
             mainView = <SettingsPane className='App-mainView'/>
         } else if (props.mainView === 'detail') {
             mainView = <PhotoDetailPane className='App-mainView' isActive={!modalView} />
-        } else if (props.mainView === 'diff') {
-            mainView = <PictureDiff className='App-mainView' />
         }
 
         return (

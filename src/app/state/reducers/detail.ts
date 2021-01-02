@@ -7,7 +7,7 @@ import {
 } from 'app/state/actionTypes'
 import { DetailState, DataState } from 'app/state/StateTypes'
 import { getLoadedSectionByIdFromDataState } from '../selectors'
-import { Photo, PhotoId } from 'common/CommonTypes'
+import { PhotoId } from 'common/CommonTypes'
 
 
 export const detail = (state: DetailState = null, dataState: DataState, action: Action): DetailState => {

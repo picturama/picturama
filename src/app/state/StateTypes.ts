@@ -19,7 +19,7 @@ export type NavigationState = {
     mainView: MainViewState
 }
 
-export type MainViewState = 'settings' | 'detail' | 'diff' | null
+export type MainViewState = 'settings' | 'detail' | null
 
 
 export type DataState = {

@@ -45,7 +45,6 @@ export interface Props {
     setMode(mode: DetailMode): void
     setPreviousDetailPhoto(): void
     setNextDetailPhoto(): void
-    toggleDiff(): void
     toggleShowInfo(): void
     setPhotoSelected(sectionId: PhotoSectionId, photoId: PhotoId, selected: boolean): void
     updatePhotoWork: (photo: Photo, update: (photoWork: PhotoWork) => void) => void
@@ -260,7 +259,6 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
                         setPreviousDetailPhoto={props.setPreviousDetailPhoto}
                         setNextDetailPhoto={props.setNextDetailPhoto}
                         setPhotoPosition={this.setPhotoPosition}
-                        toggleDiff={props.toggleDiff}
                         enterCropMode={this.enterCropMode}
                         closeDetail={props.closeDetail}
                     />

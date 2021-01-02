@@ -11,7 +11,7 @@ import PhotoInfo from 'app/ui/info/PhotoInfo'
 import { setDetailPhotoByIndex, setPreviousDetailPhoto, setNextDetailPhoto } from 'app/controller/DetailController'
 import { updatePhotoWork, movePhotosToTrash, setPhotosFlagged, restorePhotosFromTrash } from 'app/controller/PhotoController'
 import { setPhotoTags } from 'app/controller/PhotoTagController'
-import { openExportAction, openDiffAction } from 'app/state/actions'
+import { openExportAction } from 'app/state/actions'
 import { getPhotoById, getPhotoByIndex, getLoadedSectionById, getTagTitles } from 'app/state/selectors'
 import { AppState } from 'app/state/StateTypes'
 import BackgroundClient from 'app/BackgroundClient'
@@ -56,7 +56,6 @@ interface DispatchProps {
     movePhotosToTrash: (photos: Photo[]) => void
     restorePhotosFromTrash: (photos: Photo[]) => void
     openExport: (sectionId: PhotoSectionId, photoIds: PhotoId[]) => void
-    openDiff: () => void
     closeDetail: () => void
 }
 
@@ -72,7 +71,7 @@ export class PhotoDetailPane extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        bindMany(this, 'toggleDiff', 'toggleShowInfo', 'setMode')
+        bindMany(this, 'toggleShowInfo', 'setMode')
         this.state = {
             mode: 'view',
             isShowingInfo: false,
@@ -83,13 +82,6 @@ export class PhotoDetailPane extends React.Component<Props, State> {
         const { props, state } = this
         if (props.isActive !== prevProps.isActive || state.mode !== prevState.mode) {
             ipcRenderer.send('toggleExportMenu', props.isActive && state.mode === 'view')
-        }
-    }
-
-    private toggleDiff() {
-        const photoDetail = this.props.photoDetail
-        if (photoDetail && photoDetail.versions.length > 0) {
-            this.props.openDiff()
         }
     }
 
@@ -133,7 +125,6 @@ export class PhotoDetailPane extends React.Component<Props, State> {
                     setMode={this.setMode}
                     setPreviousDetailPhoto={props.setPreviousDetailPhoto}
                     setNextDetailPhoto={props.setNextDetailPhoto}
-                    toggleDiff={this.toggleDiff}
                     toggleShowInfo={this.toggleShowInfo}
                     setPhotoSelected={props.setPhotoSelected}
                     updatePhotoWork={props.updatePhotoWork}
@@ -197,7 +188,6 @@ const Connected = connect<StateProps, DispatchProps, OwnProps, AppState>(
         movePhotosToTrash,
         restorePhotosFromTrash,
         openExport: (sectionId: PhotoSectionId, photoIds: PhotoId[]) => dispatch(openExportAction(sectionId, photoIds)),
-        openDiff: () => dispatch(openDiffAction()),
         closeDetail: () => setDetailPhotoByIndex(null, null)
     })
 )(PhotoDetailPane)

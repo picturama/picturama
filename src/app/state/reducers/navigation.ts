@@ -1,5 +1,5 @@
 import { Action } from 'app/state/ActionType'
-import { SET_WEB_GL_SUPPORT, SET_DEVICE_PIXEL_RATIO, SET_FULL_SCREEN, OPEN_SETTINGS, CLOSE_SETTINGS, OPEN_DIFF, CLOSE_DIFF } from 'app/state/actionTypes'
+import { SET_WEB_GL_SUPPORT, SET_DEVICE_PIXEL_RATIO, SET_FULL_SCREEN, OPEN_SETTINGS, CLOSE_SETTINGS } from 'app/state/actionTypes'
 
 import { NavigationState, DetailState } from 'app/state/StateTypes'
 
@@ -33,13 +33,7 @@ export const navigation = (state: NavigationState = initialNavigationState, deta
                 ...state,
                 mainView: 'settings'
             }
-        case OPEN_DIFF:
-            return {
-                ...state,
-                mainView: 'diff'
-            }
         case CLOSE_SETTINGS:
-        case CLOSE_DIFF:
             return {
                 ...state,
                 mainView: null

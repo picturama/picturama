@@ -26,12 +26,11 @@ export interface Props {
     setPreviousDetailPhoto: () => void
     setNextDetailPhoto: () => void
     setPhotoPosition(photoPosition: RequestedPhotoPosition): void
-    toggleDiff(): void
     enterCropMode(): void
     closeDetail(): void
 }
 
-type CommandKeys = 'close' | 'toggleDiff' | 'prevPhoto' | 'nextPhoto' | 'edit'
+type CommandKeys = 'close' | 'prevPhoto' | 'nextPhoto' | 'edit'
 
 export default class ViewModeLayer extends React.Component<Props> {
 
@@ -44,7 +43,6 @@ export default class ViewModeLayer extends React.Component<Props> {
 
         this.commands = {
             close: { combo: 'esc', label: msg('common_backToLibrary'), onAction: props.closeDetail },
-            toggleDiff: { combo: 'd', label: 'Toggle diff' /* TODO: I18N */, onAction: props.toggleDiff },
             prevPhoto: { combo: 'left', enabled: () => !this.props.isFirst, label: msg('PhotoDetailPane_prevPhoto'), onAction: props.setPreviousDetailPhoto },
             nextPhoto: { combo: 'right', enabled: () => !this.props.isLast, label: msg('PhotoDetailPane_nextPhoto'), onAction: props.setNextDetailPhoto },
             edit: { combo: 'enter', enabled: () => this.props.showEditButton, label: msg('PhotoDetailPane_edit'), onAction: props.enterCropMode },

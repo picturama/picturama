@@ -35,7 +35,6 @@ const defaultProps: Props = {
     movePhotosToTrash: action('movePhotosToTrash'),
     restorePhotosFromTrash: action('restorePhotosFromTrash'),
     openExport: action('openExport'),
-    openDiff: action('openDiff'),
     closeDetail: action('closeDetail'),
 }
 

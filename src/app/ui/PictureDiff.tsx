@@ -1,3 +1,6 @@
+// TODO: Revive Legacy code of 'version' feature
+/*
+
 import classNames from 'classnames'
 import React from 'react'
 import { connect } from 'react-redux'
@@ -8,7 +11,6 @@ import { getNonRawPath } from 'common/util/DataUtil'
 import { fileUrlFromPath } from 'common/util/TextUtil'
 
 import { CommandGroupId, addCommandGroup, removeCommandGroup } from 'app/controller/HotkeyController'
-import { closeDiffAction } from 'app/state/actions'
 import { getPhotoById } from 'app/state/selectors'
 import { AppState } from 'app/state/StateTypes'
 
@@ -29,7 +31,7 @@ interface StateProps {
 }
 
 interface DispatchProps {
-    closeDiff: () => {}
+    closeDiff: () => void
 }
 
 interface Props extends OwnProps, StateProps, DispatchProps {
@@ -130,8 +132,9 @@ const Connected = connect<StateProps, DispatchProps, OwnProps, AppState>(
         }
     },
     {
-        closeDiff: closeDiffAction
+        closeDiff: () => { throw new Error('Not implemented') }
     }
 )(PictureDiff)
 
 export default Connected
+*/

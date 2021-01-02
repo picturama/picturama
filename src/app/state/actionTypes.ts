@@ -40,9 +40,6 @@ export const INIT_DEVICES = 'INIT_DEVICES'
 export const ADD_DEVICE = 'ADD_DEVICE'
 export const REMOVE_DEVICE = 'REMOVE_DEVICE'
 
-export const OPEN_DIFF = 'OPEN_DIFF'
-export const CLOSE_DIFF = 'CLOSE_DIFF'
-
 export const OPEN_EXPORT = 'OPEN_EXPORT'
 export const CLOSE_EXPORT = 'CLOSE_EXPORT'
 export const SET_EXPORT_OPTIONS = 'SET_EXPORT_OPTIONS'
