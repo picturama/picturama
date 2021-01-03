@@ -1,40 +1,34 @@
 import React from 'react'
 
-import { MetaData, ExifData } from 'common/CommonTypes'
-
 import { PhotoDetailPane, Props } from 'app/ui/detail/PhotoDetailPane'
 
 import {addSection, action} from 'test-ui/core/UiTester'
-import { testBigPhoto, testBigPhotoMetData } from 'test-ui/util/MockData'
+import { mockLibrarySelectionController, mockPhotoActionController, testBigPhoto, testBigPhotoMetData } from 'test-ui/util/MockData'
+import { FetchState } from 'app/UITypes'
 
 
 const defaultProps: Props = {
     style: { width: '100%', height: '100%', overflow: 'hidden' },
     isActive: true,
     devicePixelRatio: window.devicePixelRatio,
-    inSelectionMode: false,
     sectionId: 'dummy',
     photo: testBigPhoto,
     photoPrev: null,
     photoNext: null,
     photoWork: {},
-    photoDetail: { versions: [], tags: [] },
+    selection: null,
     tags: [],
     isFirst: true,
     isLast: false,
-    isSelected: false,
+    showInfo: false,
+    infoPhoto: undefined,
+    infoPhotoData: undefined,
+    photoActionController: mockPhotoActionController,
+    librarySelectionController: mockLibrarySelectionController,
     setPreviousDetailPhoto: action('setPreviousDetailPhoto'),
     setNextDetailPhoto: action('setNextDetailPhoto'),
-    getFileSize(path: string): Promise<number> { return Promise.resolve(3380326) },
-    readMetadataOfImage(imagePath: string): Promise<MetaData> { return Promise.resolve(testBigPhotoMetData) },
-    getExifData(path: string): Promise<ExifData | null> { return Promise.resolve(null) },
-    setPhotoSelected: action('setPhotoSelected'),
-    updatePhotoWork: action('updatePhotoWork'),
-    setPhotosFlagged: action('setPhotosFlagged'),
     setPhotoTags: action('setPhotoTags'),
-    movePhotosToTrash: action('movePhotosToTrash'),
-    restorePhotosFromTrash: action('restorePhotosFromTrash'),
-    openExport: action('openExport'),
+    setShowInfo: action('setShowInfo'),
     closeDetail: action('closeDetail'),
 }
 
@@ -46,15 +40,46 @@ addSection('PhotoDetailPane')
             devicePixelRatio={window.devicePixelRatio}
         />
     ))
+    .add('info', context => (
+        <PhotoDetailPane
+            {...defaultProps}
+            devicePixelRatio={window.devicePixelRatio}
+            showInfo={true}
+            infoPhoto={defaultProps.photo}
+            infoPhotoData={{
+                fetchState: FetchState.IDLE,
+                sectionId: defaultProps.sectionId,
+                photoId: defaultProps.photo.id,
+                photoDetail: {
+                    versions: [],
+                    tags: []
+                },
+                masterFileSize: 3380326,
+                metaData: testBigPhotoMetData,
+                exifData: null
+            }}
+        />
+    ))
     .add('selection mode', context => (
         <PhotoDetailPane
             {...defaultProps}
             devicePixelRatio={window.devicePixelRatio}
-            inSelectionMode={true}
-            isSelected={!!context.state.isSelected}
-            setPhotoSelected={() => {
-                context.state.isSelected = !context.state.isSelected
-                context.forceUpdate()
+            selection={{
+                totalSelectedCount: 1,
+                sectionSelectionById: {
+                    [defaultProps.sectionId]: {
+                        sectionId: defaultProps.sectionId,
+                        selectedCount: 1,
+                        selectedPhotosById: context.state.isSelected ? { [defaultProps.photo.id]: true } : {}
+                    }
+                }
+            }}
+            librarySelectionController={{
+                ...mockLibrarySelectionController,
+                setPhotoSelected: () => {
+                    context.state.isSelected = !context.state.isSelected
+                    context.forceUpdate()
+                }
             }}
         />
     ))
@@ -63,7 +88,6 @@ addSection('PhotoDetailPane')
             {...defaultProps}
             devicePixelRatio={window.devicePixelRatio}
             photoWork={null}
-            photoDetail={null}
         />
     ))
     .add('error', context => (

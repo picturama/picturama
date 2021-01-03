@@ -96,6 +96,7 @@ export default class ViewModeLayer extends React.Component<Props> {
             <>
                 <Toolbar
                     className={classnames(props.topBarClassName, 'ViewModeLayer-toolbar')}
+                    isTopBar={true}
                     isLeft={true}
                     isRight={props.isTopBarRight}
                 >

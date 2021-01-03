@@ -3,10 +3,7 @@ import { connect } from 'react-redux'
 import classnames from 'classnames'
 import { Dialog, Classes, Button, Label, HTMLSelect, Collapse, Card, Checkbox, Spinner } from '@blueprintjs/core'
 
-import {
-    PhotoId, PhotoById, LoadedPhotoSection, photoRenderFormats, PhotoExportOptions, PhotoExportCustomSizeSide,
-    PhotoExportSizeType, PhotoExportFileNameStyle, PhotoExportProgress
-} from 'common/CommonTypes'
+import { photoRenderFormats, PhotoExportOptions, PhotoExportCustomSizeSide, PhotoExportSizeType, PhotoExportFileNameStyle, PhotoExportProgress } from 'common/CommonTypes'
 import { msg, splitMsg } from 'common/i18n/i18n'
 import { bindMany } from 'common/util/LangUtil'
 import { formatNumber } from 'common/util/TextUtil'
@@ -14,7 +11,8 @@ import { formatNumber } from 'common/util/TextUtil'
 import { CustomSizeSideWidth, CustomSizeSideHeight, CustomSizeSideSize, customSizeSideIconSize } from 'app/ui/widget/icon/export'
 import { SvgIconFactory } from 'app/ui/widget/icon/SvgIcon'
 import { setExportOptionsAction, toggleShowExportRemoveInfoDescAction } from 'app/state/actions'
-import { AppState } from 'app/state/StateTypes'
+import { AppState, PhotoCollection } from 'app/state/StateTypes'
+import { getCollectionSize } from 'app/util/PhotoCollectionResolver'
 
 import ExportDialogController from './ExportDialogController'
 
@@ -33,8 +31,7 @@ export interface OwnProps {
 }
 
 interface StateProps {
-    photoIds: PhotoId[]
-    photoData: PhotoById
+    photos: PhotoCollection
     exportOptions: PhotoExportOptions
     showRemoveInfoDesc: boolean
     progress: PhotoExportProgress | null
@@ -137,13 +134,14 @@ export class ExportDialog extends React.Component<Props, State> {
             content = this.renderForm()
         }
 
+        const photosCount = getCollectionSize(props.photos)
         return (
             <Dialog
                 className='ExportDialog'
                 usePortal={props.usePortal}
                 isOpen={state.isOpen}
                 icon='export'
-                title={props.photoIds.length === 1 ? msg('ExportDialog_title_one') : msg('ExportDialog_title_more', props.photoIds.length)}
+                title={photosCount === 1 ? msg('ExportDialog_title_one') : msg('ExportDialog_title_more', photosCount)}
                 canOutsideClickClose={!props.progress}
                 canEscapeKeyClose={!props.progress}
                 isCloseButtonShown={!props.progress}
@@ -324,8 +322,7 @@ const Connected = connect<StateProps, DispatchProps, OwnProps, AppState>(
         const exportState = state.export!
         return {
             ...props,
-            photoIds: exportState.photoIds,
-            photoData: (state.data.sections.byId[exportState.sectionId] as LoadedPhotoSection).photoData,
+            photos: exportState.photos,
             exportOptions: exportState.exportOptions,
             showRemoveInfoDesc: exportState.showRemoveInfoDesc,
             progress: exportState.progress,

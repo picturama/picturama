@@ -7,6 +7,9 @@ import { PhotoId, Photo, PhotoSectionId, PhotoSection, isLoadedPhotoSection } fr
 import CancelablePromise from 'common/util/CancelablePromise'
 import { bindMany } from 'common/util/LangUtil'
 
+import { LibrarySelectionController } from 'app/controller/LibrarySelectionController'
+import { isPhotoSelectedInSection } from 'app/state/selectors'
+import { SectionSelectionState } from 'app/state/StateTypes'
 import { selectionButtonSize } from 'app/style/variables'
 import { GridSectionLayout } from 'app/UITypes'
 import RedCheckCircle from 'app/ui/widget/icon/RedCheckCircle'
@@ -25,12 +28,11 @@ export interface Props {
     inSelectionMode: boolean
     section: PhotoSection
     layout: GridSectionLayout
-    selectedPhotoIds: PhotoId[] | 'all' | null
+    activePhotoId: PhotoId | null
+    sectionSelection?: SectionSelectionState
+    librarySelectionController: LibrarySelectionController
     getThumbnailSrc: (photo: Photo) => string
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => CancelablePromise<string>
-    setActivePhoto(sectionId: PhotoSectionId, photoId: PhotoId): void
-    setSectionSelected(sectionId: PhotoSectionId, selected: boolean): void
-    setPhotoSelected(sectionId: PhotoSectionId, photoId: PhotoId, selected: boolean): void
     showPhotoDetails(sectionId: PhotoSectionId, photoId: PhotoId): void
 }
 
@@ -43,7 +45,7 @@ export default class GridSection extends React.Component<Props> {
 
     private onToggleSectionSelected() {
         const { props } = this
-        props.setSectionSelected(props.section.id, props.selectedPhotoIds !== 'all')
+        props.librarySelectionController.setSectionSelected(props.section.id, props.sectionSelection?.selectedPhotosById !== 'all')
     }
 
     private renderPictures() {
@@ -51,7 +53,8 @@ export default class GridSection extends React.Component<Props> {
         if (!props.layout.boxes || props.layout.fromBoxIndex == null || props.layout.toBoxIndex == null) {
             return
         }
-
+        
+        const { activePhotoId } = props
         const toBoxIndex = props.layout.toBoxIndex
         let elems: JSX.Element[] = []
         if (isLoadedPhotoSection(props.section)) {
@@ -65,12 +68,11 @@ export default class GridSection extends React.Component<Props> {
                         sectionId={props.section.id}
                         photo={photoData[photoId]}
                         layoutBox={props.layout.boxes[photoIndex]}
-                        isActive={props.selectedPhotoIds === 'all' || props.selectedPhotoIds?.indexOf(photoId) !== -1}
-                        isSelected={false}
+                        isActive={photoId === activePhotoId}
+                        isSelected={isPhotoSelectedInSection(photoId, props.sectionSelection)}
+                        librarySelectionController={props.librarySelectionController}
                         getThumbnailSrc={props.getThumbnailSrc}
                         createThumbnail={props.createThumbnail}
-                        setActivePhoto={props.setActivePhoto}
-                        setPhotoSelected={props.setPhotoSelected}
                         showPhotoDetails={props.showPhotoDetails}
                     />
                 )
@@ -96,7 +98,7 @@ export default class GridSection extends React.Component<Props> {
     }
 
     render() {
-        const props = this.props
+        const { props } = this
 
         return (
             <div className={classNames(props.className, 'GridSection')} style={props.style}>
@@ -107,7 +109,7 @@ export default class GridSection extends React.Component<Props> {
                             minimal={true}
                             icon={
                                 !props.inSelectionMode ? <FaCheckCircle/> :
-                                props.selectedPhotoIds === 'all' ? <RedCheckCircle size={selectionButtonSize}/> :
+                                props.sectionSelection?.selectedPhotosById === 'all' ? <RedCheckCircle size={selectionButtonSize}/> :
                                 <FaRegCircle/>}
                             onClick={this.onToggleSectionSelected}
                         />

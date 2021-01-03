@@ -6,6 +6,7 @@ import { setLocale } from 'common/i18n/i18n'
 
 import BackgroundClient from 'app/BackgroundClient'
 import { init as initForegroundService } from 'app/ForegroundService'
+import { init as initInfoController } from 'app/controller/InfoController'
 import App from 'app/ui/main/App'
 import { initAction, setWebGLSupport, setDevicePixelRatioAction } from 'app/state/actions'
 import store from 'app/state/store'
@@ -34,6 +35,7 @@ Promise
     .then(([ uiConfig, settings, backgroundReady ]) => {
         setLocale(uiConfig.locale)
         initForegroundService()
+        initInfoController()
         store.dispatch(initAction(uiConfig, settings))
 
         detectDevicePixelRatioChanges()

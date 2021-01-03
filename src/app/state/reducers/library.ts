@@ -5,10 +5,10 @@ import { PhotoFilter } from 'common/CommonTypes'
 import { defaultGridRowHeight } from 'app/UiConstants'
 import { Action } from 'app/state/ActionType'
 import {
-    SET_GRID_ROW_HEIGHT, SET_SELECTED_PHOTOS, FETCH_SECTIONS_REQUEST, FETCH_SECTIONS_SUCCESS, FETCH_SECTIONS_FAILURE,
-    CHANGE_PHOTOS, SET_LIBRARY_INFO_PHOTO_REQUEST, SET_LIBRARY_INFO_PHOTO_SUCCESS, SET_PHOTO_TAGS, EMPTY_TRASH
+    SET_GRID_ROW_HEIGHT, FETCH_SECTIONS_REQUEST, FETCH_SECTIONS_SUCCESS, FETCH_SECTIONS_FAILURE,
+    CHANGE_PHOTOS, SET_LIBRARY_ACTIVE_PHOTO, SET_LIBRARY_SELECTION, EMPTY_TRASH, SET_DETAIL_PHOTO
 } from 'app/state/actionTypes'
-import { LibraryState, DisplayState, SelectionState, InfoState } from 'app/state/StateTypes'
+import { LibraryState, DisplayState, SelectionState, InfoState, PhotoLibraryPosition } from 'app/state/StateTypes'
 
 
 const initialDisplayState: DisplayState = {
@@ -45,75 +45,39 @@ const filter = (state: PhotoFilter = initialFilterState, action: Action): PhotoF
 }
 
 
-const initialSelectionState: SelectionState = {
-    sectionId: null,
-    photoIds: []
-}
-
-const selection = (state: SelectionState = initialSelectionState, action: Action): SelectionState => {
+const activePhoto = (state: PhotoLibraryPosition | null = null, action: Action): PhotoLibraryPosition | null => {
     switch (action.type) {
-        case FETCH_SECTIONS_SUCCESS:
-        case FETCH_SECTIONS_FAILURE:
-            return initialSelectionState
-        case CHANGE_PHOTOS: {
-            const removeUpdatedPhotos = action.payload.update.trashed !== undefined
-            if (removeUpdatedPhotos) {
-                return {
-                    sectionId: null,
-                    photoIds: []
-                }
+        case SET_LIBRARY_ACTIVE_PHOTO:
+            return action.payload
+        case SET_LIBRARY_SELECTION:
+            if (action.payload.activePhoto && action.payload.activePhoto.photoId !== state?.photoId) {
+                return action.payload.activePhoto
             } else {
                 return state
             }
-        }
-        case EMPTY_TRASH: {
-            const trashedPhotoIds = action.payload.trashedPhotoIds
-            return {
-                ...state,
-                photoIds: state.photoIds.filter(photoId => trashedPhotoIds.indexOf(photoId) === -1)
-            }
-        }
-        case SET_SELECTED_PHOTOS:
-            return {
-                sectionId: action.payload.sectionId,
-                photoIds: [ ...action.payload.photoIds ]
-            }
+        case SET_DETAIL_PHOTO:
+            return { sectionId: action.payload.sectionId, photoId: action.payload.photoId }
         default:
             return state
     }
 }
 
-
-const info = (state: InfoState = null, action: Action): InfoState => {
+const selection = (state: SelectionState | null = null, action: Action): SelectionState | null => {
     switch (action.type) {
-        case SET_LIBRARY_INFO_PHOTO_REQUEST:
-            if (action.payload.sectionId && action.payload.photoId) {
-                return {
-                    sectionId: action.payload.sectionId,
-                    photoId: action.payload.photoId,
-                    photoDetail: null
-                }
-            } else {
-                return null
-            }
-        case SET_LIBRARY_INFO_PHOTO_SUCCESS:
-            return state && {
-                ...state,
-                photoDetail: action.payload.photoDetail
-            }
-        case SET_PHOTO_TAGS:
-            if (state && state.photoId === action.payload.photoId && state.photoDetail) {
-                return {
-                    ...state,
-                    photoDetail: {
-                        ...state.photoDetail,
-                        tags: action.payload.tags
-                    }
-                }
-            }
         case FETCH_SECTIONS_SUCCESS:
         case FETCH_SECTIONS_FAILURE:
+        case EMPTY_TRASH:
             return null
+        case CHANGE_PHOTOS: {
+            const removeUpdatedPhotos = action.payload.update.trashed !== undefined
+            if (removeUpdatedPhotos) {
+                return null
+            } else {
+                return state
+            }
+        }
+        case SET_LIBRARY_SELECTION:
+            return action.payload.selection
         default:
             return state
     }
@@ -123,6 +87,6 @@ const info = (state: InfoState = null, action: Action): InfoState => {
 export const library = combineReducers<LibraryState>({
     display,
     filter,
+    activePhoto,
     selection,
-    info
 })

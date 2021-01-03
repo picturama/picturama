@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { Button, NonIdealState } from '@blueprintjs/core'
+import { Button, MaybeElement, NonIdealState } from '@blueprintjs/core'
 import classNames from 'classnames'
 
 import { msg } from 'common/i18n/i18n'
@@ -10,10 +10,12 @@ import { ImportProgress } from 'common/CommonTypes'
 import BackgroundClient from 'app/BackgroundClient'
 import { createGlobalCommands } from 'app/controller/GlobalCommandController'
 import { addCommandGroup, Command, CommandGroupId, removeCommandGroup } from 'app/controller/HotkeyController'
+import { defaultLibrarySelectionController } from 'app/controller/LibrarySelectionController'
 import PhotoDetailPane from 'app/ui/detail/PhotoDetailPane'
 import ExportDialog from 'app/ui/export/ExportDialog'
 import Library from 'app/ui/library/Library'
 import LibraryFilterButton from 'app/ui/library/LibraryFilterButton'
+import SelectionSummary from 'app/ui/library/SelectionSummary'
 import ImportProgressButton from 'app/ui/ImportProgressButton'
 import SettingsPane from 'app/ui/SettingsPane'
 import { openSettingsAction } from 'app/state/actions'
@@ -35,6 +37,7 @@ interface StateProps {
     hasNativeTrafficLightButtons: boolean
     showWindowsButtons: boolean
     globalCommands: Command[] | null
+    selectedCount: number
     mainView: MainViewState
     importProgress: ImportProgress | null
     showExport: boolean
@@ -42,6 +45,7 @@ interface StateProps {
 
 interface DispatchProps {
     toggleFullScreen(): void
+    clearSelection(): void
     openSettings(): void
     toggleImportPaused(): void
     cancelImport(): void
@@ -94,27 +98,39 @@ class App extends React.Component<Props> {
             mainView = <PhotoDetailPane className='App-mainView' isActive={!modalView} />
         }
 
+        let libraryTopBarLeftItem: MaybeElement
+        if (props.selectedCount === 0) {
+            libraryTopBarLeftItem = (
+                <>
+                    {props.isFullScreen &&
+                        <Button
+                            minimal={true}
+                            icon='minimize'
+                            onClick={props.toggleFullScreen}
+                        />
+                    }
+                    <LibraryFilterButton/>
+                    <Button
+                        minimal={true}
+                        icon='cog'
+                        onClick={props.openSettings}
+                    />
+                </>
+            )
+        } else {
+            libraryTopBarLeftItem = (
+                <SelectionSummary
+                    selectedCount={props.selectedCount}
+                    onClearSelection={props.clearSelection}
+                />
+            )
+        }
+
         return (
             <div className={classNames('App', { hasNativeTrafficLightButtons: props.hasNativeTrafficLightButtons, hasWindowsButtons: props.showWindowsButtons })}>
                 <Library
                     className='App-container'
-                    topBarLeftItem={
-                        <>
-                            {props.isFullScreen &&
-                                <Button
-                                    minimal={true}
-                                    icon='minimize'
-                                    onClick={props.toggleFullScreen}
-                                />
-                            }
-                            <LibraryFilterButton/>
-                            <Button
-                                minimal={true}
-                                icon='cog'
-                                onClick={props.openSettings}
-                            />
-                        </>
-                    }
+                    topBarLeftItem={libraryTopBarLeftItem}
                     bottomBarLeftItem={props.importProgress &&
                         <ImportProgressButton
                             progress={props.importProgress}
@@ -147,6 +163,7 @@ const Connected = connect<StateProps, DispatchProps, OwnProps, AppState>(
             hasNativeTrafficLightButtons: uiConfig.windowStyle === 'nativeTrafficLight' && !state.navigation.isFullScreen,
             showWindowsButtons: uiConfig.windowStyle === 'windowsButtons',
             globalCommands: uiConfig.hasNativeMenu ? null : createGlobalCommands(),
+            selectedCount: state.library.selection?.totalSelectedCount ?? 0,
             mainView: state.navigation.mainView,
             importProgress: state.import && state.import.progress,
             showExport: !!state.export,
@@ -154,6 +171,7 @@ const Connected = connect<StateProps, DispatchProps, OwnProps, AppState>(
     },
     dispatch => ({
         toggleFullScreen() { BackgroundClient.toggleFullScreen() },
+        clearSelection() { defaultLibrarySelectionController.clearSelection() },
         toggleImportPaused() { BackgroundClient.toggleImportPaused() },
         cancelImport() { BackgroundClient.cancelImport() },
         ...bindActionCreators({

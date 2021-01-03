@@ -15,6 +15,7 @@ import { FetchState } from 'app/UITypes'
 
 assertRendererProcess()
 
+
 export function setDetailPhotoById(sectionId: PhotoSectionId, photoId: PhotoId | null) {
     const state = store.getState()
     const section = getLoadedSectionById(state, sectionId)
@@ -44,21 +45,16 @@ new SerialUpdater({
         const detailState = state.detail
         return {
             photo: detailState && getPhotoById(state, detailState.currentPhoto.sectionId, detailState.currentPhoto.photoId),
-            needsData: !!(detailState && !detailState.currentPhoto.photoDetail && detailState.currentPhoto.fetchState === FetchState.IDLE)
+            needsData: !!(detailState && !detailState.currentPhoto.photoWork && detailState.currentPhoto.fetchState === FetchState.IDLE)
         }
     },
     async runUpdate({ photo, needsData }) {
         if (photo && needsData) {
             const photoId = photo.id
             store.dispatch(fetchDetailPhotoDataAction.request({ photoId }))
-            return new CancelablePromise(Promise.all(
-                [
-                    BackgroundClient.fetchPhotoDetail(photo.id),
-                    BackgroundClient.fetchPhotoWorkOfPhoto(photo)
-                ]))
-                .then(results => {
-                    const [ photoDetail, photoWork ] = results
-                    store.dispatch(fetchDetailPhotoDataAction.success({ photoId, photoDetail, photoWork }))
+            return new CancelablePromise(BackgroundClient.fetchPhotoWorkOfPhoto(photo))
+                .then(photoWork => {
+                    store.dispatch(fetchDetailPhotoDataAction.success({ photoId, photoWork }))
                 })
                 .catch(error => {
                     if (!isCancelError(error)) {

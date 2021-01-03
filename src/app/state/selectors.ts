@@ -1,6 +1,6 @@
 import { PhotoId, Photo, PhotoSectionId, TagId, isLoadedPhotoSection, LoadedPhotoSection } from 'common/CommonTypes'
 
-import { AppState, DataState } from './StateTypes'
+import { AppState, DataState, SectionSelectionState, SelectionState } from './StateTypes'
 
 
 export function getPhotoByIndex(state: AppState, sectionId: PhotoSectionId, photoIndex: number): Photo | null {
@@ -32,4 +32,37 @@ export function getTagTitles(state: AppState): string[] {
         prevTagIds = tagIds
     }
     return cachedTagTitles
+}
+
+
+export const getSectionSelections = (() => {
+    const cacheSymbol = Symbol('sectionSelections')
+    return function(selection: SelectionState): SectionSelectionState[] {
+        let result = selection[cacheSymbol] as SectionSelectionState[] | undefined
+        if (!result) {
+            result = Object.values(selection.sectionSelectionById) as SectionSelectionState[]
+            selection[cacheSymbol] = result
+        }
+        return result
+    }
+})()
+
+
+export function isPhotoSelected(sectionId: PhotoSectionId, photoId: PhotoId, selection: SelectionState | null): boolean {
+    return !!selection && isPhotoSelectedInSection(photoId, selection.sectionSelectionById[sectionId])
+}
+
+export function isPhotoSelectedInSection(photoId: PhotoId, sectionSelection: SectionSelectionState | null | undefined): boolean {
+    return !!(sectionSelection && (sectionSelection.selectedPhotosById === 'all' || sectionSelection.selectedPhotosById[photoId]))
+}
+
+
+export function getInfoPhoto(state: AppState): Photo | undefined {
+    const { photoData } = state.info
+    if (!photoData) {
+        return undefined
+    }
+
+    const infoPhotoSection = state.data.sections.byId[photoData.sectionId]
+    return isLoadedPhotoSection(infoPhotoSection) ? infoPhotoSection.photoData[photoData.photoId] : undefined
 }

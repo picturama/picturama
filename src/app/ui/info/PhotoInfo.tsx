@@ -1,16 +1,18 @@
 import { clipboard } from 'electron'
 import classNames from 'classnames'
 import React from 'react'
-import { Button, Icon, NonIdealState, Popover, Position, Classes, Menu, MenuItem } from '@blueprintjs/core'
+import { Button, Icon, NonIdealState, Popover, Position, Classes, Menu, MenuItem, MaybeElement } from '@blueprintjs/core'
 import moment from 'moment'
 
-import { Photo, PhotoDetail, MetaData, ExifData, ExifSegment, allExifSegments } from 'common/CommonTypes'
+import { Photo, ExifData, ExifSegment, allExifSegments } from 'common/CommonTypes'
 import { msg, hasMsg } from 'common/i18n/i18n'
 import { bindMany } from 'common/util/LangUtil'
 import { getMasterPath } from 'common/util/DataUtil'
 import { formatNumber } from 'common/util/TextUtil'
 
 import BackgroundClient from 'app/BackgroundClient'
+import { InfoPhotoData } from 'app/state/StateTypes'
+import { FetchState } from 'app/UITypes'
 import MiniWorldMap from 'app/ui/widget/MiniWorldMap'
 import Toolbar from 'app/ui/widget/Toolbar'
 import FaIcon from 'app/ui/widget/icon/FaIcon'
@@ -33,99 +35,30 @@ const exifFilters: { [K in ExifSegment]?: string[] } = {
 	icc:       ['ProfileVersion', 'ProfileClass', 'ColorSpaceData', 'ProfileConnectionSpace', 'ProfileFileSignature', 'DeviceManufacturer', 'RenderingIntent', 'ProfileCreator', 'ProfileDescription'],
 }
 
-interface FileInfo {
-    state: 'pending' | 'done'
-    masterFileSize: number | null
-    metaData: MetaData | null
-    exifData: ExifData | null
-}
-
 export interface Props {
     style?: any
     className?: any
     isActive: boolean
-    photo: Photo | null
-    photoDetail: PhotoDetail | null
+    photo?: Photo
+    photoData?: InfoPhotoData
     tags: string[]
     closeInfo: () => void
-    getFileSize(path: string): Promise<number>
-    readMetadataOfImage(imagePath: string): Promise<MetaData>
-    getExifData(path: string): Promise<ExifData | null>
     setPhotoTags(photo: Photo, tags: string[]): void
 }
 
 interface State {
-    fileInfo: FileInfo
     showExif: boolean
     showAllOfExifSegment: { [K in ExifSegment]?: true }
 }
 
 export default class PhotoInfo extends React.Component<Props, State> {
 
-    private isFetchingFileInfo = false
-
     constructor(props: Props) {
         super(props)
         bindMany(this, 'showPhotoInFolder', 'copyPhotoPath', 'copyCoordinates', 'toggleExif')
         this.state = {
-            fileInfo: { state: 'pending', masterFileSize: null, metaData: null, exifData: null },
             showExif: false,
             showAllOfExifSegment: {},
-        }
-    }
-
-    componentDidMount() {
-        this.updateFileInfo()
-    }
-
-    componentDidUpdate(prevProps: Props, prevState: State) {
-        const { props, state } = this
-        if (props.photo !== prevProps.photo) {
-            this.setState({ fileInfo: { state: 'pending', masterFileSize: null, metaData: null, exifData: null } })
-            if (props.isActive) {
-                this.updateFileInfo()
-            }
-        } else if (props.photo && props.isActive && state.fileInfo.state === 'pending') {
-            this.updateFileInfo()
-        }
-    }
-
-    private updateFileInfo() {
-        const { props } = this
-        const { photo } = props
-        if (photo && !this.isFetchingFileInfo) {
-            this.isFetchingFileInfo = true
-            const masterPath = getMasterPath(photo)
-            Promise.all(
-                [
-                    props.getFileSize(masterPath)
-                        .catch(error => {
-                            console.warn('Fetching master file size failed', error)
-                            return null
-                        }),
-                    props.readMetadataOfImage(masterPath)
-                        .catch(error => {
-                            console.warn('Fetching meta data failed', error)
-                            return null
-                        }),
-                    props.getExifData(masterPath)
-                        .catch(error => {
-                            console.warn('Fetching EXIF data failed', error)
-                            return null
-                        }),
-                ])
-                .then(([ masterFileSize, metaData, exifData ]) => {
-                    this.isFetchingFileInfo = false
-                    if (photo === props.photo) {
-                        this.setState({ fileInfo: { state: 'done', masterFileSize, metaData, exifData } })
-                    } else {
-                        // The photo has changed in the mean time -> Fetch again
-                        this.updateFileInfo()
-                    }
-                })
-                .catch(error => {
-                    console.warn('Updating file info failed', error)
-                })
         }
     }
 
@@ -149,7 +82,7 @@ export default class PhotoInfo extends React.Component<Props, State> {
     }
 
     private getCoordinates(): { lat: number, lon: number } | null {
-        const { exifData } = this.state.fileInfo
+        const exifData = this.props.photoData?.exifData
         if (exifData && exifData.gps && typeof exifData.gps.latitude === 'number' && typeof exifData.gps.longitude === 'number') {
             return { lat: exifData.gps.latitude, lon: exifData.gps.longitude }
         } else {
@@ -173,16 +106,15 @@ export default class PhotoInfo extends React.Component<Props, State> {
 
     render() {
         const { props, state } = this
-        const { photo } = props
-        const { fileInfo } = state
-        const { metaData } = fileInfo
-        const coordinates = this.getCoordinates()
+        const { photo, photoData } = props
 
-        let body
+        let body: MaybeElement
         if (!props.isActive) {
             body = null
-        } else if (photo) {
+        } else if (photo && photoData) {
+            const { metaData } = photoData
             const momentCreated = moment(photo.created_at)
+            const coordinates = this.getCoordinates()
 
             body = (
                 <>
@@ -213,7 +145,7 @@ export default class PhotoInfo extends React.Component<Props, State> {
                             <div className="PhotoInfo-minorInfo hasColumns">
                                 <div>{formatImageMegaPixel(photo.master_width, photo.master_height)}</div>
                                 <div>{`${photo.master_width} \u00d7 ${photo.master_height}`}</div>
-                                <div>{renderPhotoSize(fileInfo.state === 'done' ? fileInfo.masterFileSize : fileInfo.state)}</div>
+                                <div>{renderPhotoSize(photoData)}</div>
                             </div>
                             {(photo.edited_width !== photo.master_width || photo.edited_height !== photo.master_height) &&
                                 <div className='PhotoInfo-minorInfo isCentered'>
@@ -251,7 +183,7 @@ export default class PhotoInfo extends React.Component<Props, State> {
                         <TagEditor
                             className="PhotoInfo-tagEditor PhotoInfo-infoBody"
                             photo={props.photo}
-                            photoDetail={props.photoDetail}
+                            photoDetail={photoData.photoDetail}
                             tags={props.tags}
                             setPhotoTags={props.setPhotoTags}
                         />
@@ -276,7 +208,7 @@ export default class PhotoInfo extends React.Component<Props, State> {
                             </div>
                         </div>
                     }
-                    {fileInfo.exifData &&
+                    {photoData.exifData &&
                         <div className='PhotoInfo-infoRow'>
                             <Icon className='PhotoInfo-infoIcon' icon='th' iconSize={infoIconSize} />
                             <div className='PhotoInfo-infoBody'>
@@ -290,8 +222,8 @@ export default class PhotoInfo extends React.Component<Props, State> {
                             </div>
                         </div>
                     }
-                    {fileInfo.exifData && state.showExif &&
-                        this.renderExifData(fileInfo.exifData)
+                    {photoData.exifData && state.showExif &&
+                        this.renderExifData(photoData.exifData)
                     }
                 </>
             )
@@ -382,8 +314,9 @@ function formatImageMegaPixel(width, height): string {
     return `${formatNumber(sizeMp, 1)} MP`
 }
 
-function renderPhotoSize(bytes: number | 'pending' | null): string | JSX.Element {
-    if (bytes === 'pending') {
+function renderPhotoSize(photoData: InfoPhotoData): string | JSX.Element {
+    const bytes = photoData.masterFileSize
+    if (photoData.fetchState === FetchState.FETCHING) {
         return '...'
     } else if (bytes === null) {
         return (

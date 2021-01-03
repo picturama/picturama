@@ -1,11 +1,14 @@
 import { PhotoWork, PhotoSectionId, Photo, PhotoFilter, PhotoId } from 'common/CommonTypes'
 import { getMasterPath, getThumbnailUrl } from 'common/util/DataUtil'
+import { rotate } from 'common/util/EffectsUtil'
 import { assertRendererProcess } from 'common/util/ElectronUtil'
 
 import BackgroundClient from 'app/BackgroundClient'
 import { showError } from 'app/ErrorPresenter'
 import store from 'app/state/store'
 import { fetchTotalPhotoCountAction, fetchSectionsAction, changePhotoWorkAction, changePhotosAction } from 'app/state/actions'
+import { PhotoCollection, SelectionState } from 'app/state/StateTypes'
+import { getPhotosOfCollection } from 'app/util/PhotoCollectionResolver'
 
 
 assertRendererProcess()
@@ -121,15 +124,26 @@ export function updatePhotoVersion(version: VersionType) {  // Type should be `V
 }
 */
 
-export function setPhotosFlagged(photos: Photo[], flagged: boolean) {
+
+export function rotatePhotos(photos: PhotoCollection, turns: number) {
+    getPhotosOfCollection(photos)
+        .then(photos => {
+            for (const photo of photos) {
+                updatePhotoWork(photo, photoWork => rotate(photoWork, turns, true))
+            }
+        })
+
+}
+
+export function setPhotosFlagged(photos: PhotoCollection, flagged: boolean) {
     updatePhotos(photos, { flag: flagged ? 1 : 0 })
 }
 
-export function movePhotosToTrash(photos: Photo[]) {
+export function movePhotosToTrash(photos: PhotoCollection) {
     updatePhotos(photos, { trashed: 1 })
 }
 
-export function restorePhotosFromTrash(photos: Photo[]) {
+export function restorePhotosFromTrash(photos: PhotoCollection) {
     updatePhotos(photos, { trashed: 0 })
 }
 
@@ -137,7 +151,17 @@ export function updatePhoto(photo: Photo, update: Partial<Photo>) {
     updatePhotos([ photo ], update)
 }
 
-export function updatePhotos(photos: Photo[], update: Partial<Photo>) {
+
+export function updatePhotos(photos: PhotoCollection, update: Partial<Photo>) {
+    doUpdatePhotos(photos, update)
+        .catch(error => {
+            showError('Updating photos failed', error)
+        })
+}
+
+async function doUpdatePhotos(photos: PhotoCollection, update: Partial<Photo>): Promise<void> {
+    photos = await getPhotosOfCollection(photos)
+
     let updatePhotoWorkPromise: Promise<any> | null = null
     if (update.hasOwnProperty('flag')) {
         updatePhotoWorkPromise = Promise.all(photos.map(photo =>
@@ -154,15 +178,11 @@ export function updatePhotos(photos: Photo[], update: Partial<Photo>) {
     }
 
     const photoIds = photos.map(photo => photo.id)
-    Promise.all([
+    await Promise.all([
         updatePhotoWorkPromise,
         BackgroundClient.updatePhotos(photoIds, update)
     ])
-    .then(() => {
-        const changedPhotos = photos.map(photo => ({ ...photo, ...update } as Photo))
-        store.dispatch(changePhotosAction(changedPhotos, update))
-    })
-    .catch(error => {
-        showError('Updating photos failed', error)
-    })
+
+    const changedPhotos = photos.map(photo => ({ ...photo, ...update } as Photo))
+    store.dispatch(changePhotosAction(changedPhotos, update))
 }

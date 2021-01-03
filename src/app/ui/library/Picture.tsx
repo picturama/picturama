@@ -9,11 +9,12 @@ import CancelablePromise, { isCancelError } from 'common/util/CancelablePromise'
 import { bindMany, getErrorCode } from 'common/util/LangUtil'
 import { PhotoId, Photo, PhotoSectionId } from 'common/CommonTypes'
 
+import { LibrarySelectionController } from 'app/controller/LibrarySelectionController'
+import { selectionButtonSize } from 'app/style/variables'
 import { JustifiedLayoutBox } from 'app/UITypes'
 import RedCheckCircle from 'app/ui/widget/icon/RedCheckCircle'
 
 import './Picture.less'
-import { selectionButtonSize } from 'app/style/variables'
 
 
 export interface Props {
@@ -32,10 +33,9 @@ export interface Props {
      * `false` if it is pre-deselected.
      */
     preselected?: boolean
+    librarySelectionController: LibrarySelectionController
     getThumbnailSrc: (photo: Photo) => string
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => CancelablePromise<string>
-    setActivePhoto(sectionId: PhotoSectionId, photoId: PhotoId): void
-    setPhotoSelected(sectionId: PhotoSectionId, photoId: PhotoId, selected: boolean): void
     showPhotoDetails(sectionId: PhotoSectionId, photoId: PhotoId): void
 }
 
@@ -151,7 +151,7 @@ export default class Picture extends React.Component<Props, State> {
         const { props } = this
         event.stopPropagation()
         event.preventDefault()
-        props.setPhotoSelected(props.sectionId, props.photo.id, !props.isSelected)
+        props.librarySelectionController.setPhotoSelected(props.sectionId, props.photo.id, !props.isSelected)
     }
 
     private onSetPhotoActive(event: React.MouseEvent) {
@@ -159,7 +159,10 @@ export default class Picture extends React.Component<Props, State> {
         event.stopPropagation()
         event.preventDefault()
         if (!props.isActive) {
-            props.setActivePhoto(props.sectionId, props.photo.id)
+            props.librarySelectionController.setActivePhoto({
+                sectionId: props.sectionId,
+                photoId: props.photo.id
+            })
         }
     }
 

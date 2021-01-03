@@ -7,6 +7,11 @@
 
 import { IKeyCombo, getKeyCombo, getKeyComboString, comboMatches, parseKeyCombo } from '@blueprintjs/core'
 
+import { assertRendererProcess } from 'common/util/ElectronUtil'
+
+
+assertRendererProcess()
+
 
 export interface Command {
     /** Hotkey combination string, such as "space" or "cmd+n". */

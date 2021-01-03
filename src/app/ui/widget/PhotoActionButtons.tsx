@@ -1,29 +1,24 @@
-import classNames from 'classnames'
 import React from 'react'
 import { Button, Classes } from '@blueprintjs/core'
 
-import { PhotoId, Photo, PhotoWork, PhotoSectionId } from 'common/CommonTypes'
 import { msg } from 'common/i18n/i18n'
-import { rotate } from 'common/util/EffectsUtil'
 import { bindMany } from 'common/util/LangUtil'
 import { formatNumber } from 'common/util/TextUtil'
 
+import { PhotoActionController } from 'app/controller/PhotoActionController'
+import { PhotoCollection } from 'app/state/StateTypes'
 import toaster from 'app/Toaster'
 import MdRestoreFromTrash from 'app/ui/widget/icon/MdRestoreFromTrash'
+import { getCollectionSize } from 'app/util/PhotoCollectionResolver'
 
 import RotateButtonGroup from './RotateButtonGroup'
 
 
 interface Props {
-    selectedSectionId: PhotoSectionId | null
-    selectedPhotos: Photo[]
+    selectedPhotos: PhotoCollection | null
     isShowingTrash: boolean
     isShowingInfo: boolean
-    openExport: (sectionId: PhotoSectionId, photoIds: PhotoId[]) => void
-    updatePhotoWork: (photo: Photo, update: (photoWork: PhotoWork) => void) => void
-    setPhotosFlagged: (photos: Photo[], flag: boolean) => void
-    movePhotosToTrash: (photos: Photo[]) => void
-    restorePhotosFromTrash: (photos: Photo[]) => void
+    photoActionController: PhotoActionController
     toggleShowInfo: () => void
 }
 
@@ -35,71 +30,61 @@ export default class PhotoActionButtons extends React.Component<Props> {
     }
 
     private onRotate(turns: number) {
-        const props = this.props
-        for (const photo of props.selectedPhotos) {
-            props.updatePhotoWork(photo, photoWork => rotate(photoWork, turns, true))
+        const { props } = this
+        if (props.selectedPhotos) {
+            props.photoActionController.rotatePhotos(props.selectedPhotos, turns)
         }
     }
 
-    toggleFlagged() {
-        const props = this.props
-        const newFlagged = !this.getSelectedAreFlagged()
-
-        let photosToChange: Photo[] = []
-        for (const photo of props.selectedPhotos) {
-            if (!!photo.flag !== newFlagged) {
-                photosToChange.push(photo)
-            }
-        }
-
-        this.props.setPhotosFlagged(photosToChange, newFlagged)
-    }
-
-    getSelectedAreFlagged() {
-        const props = this.props
-        if (!props.selectedSectionId || props.selectedPhotos.length === 0) {
-            return false
-        } else {
-            for (const photo of props.selectedPhotos) {
-                if (!photo.flag) {
-                    return false
-                }
-            }
-            return true
+    private toggleFlagged() {
+        const { props } = this
+        if (props.selectedPhotos) {
+            const newFlagged = !this.getSelectedAreFlagged()
+            props.photoActionController.setPhotosFlagged(props.selectedPhotos, newFlagged)
         }
     }
 
-    moveToTrash() {
-        const selectedPhotos = this.props.selectedPhotos
-        this.props.movePhotosToTrash(selectedPhotos)
-        toaster.show({
-            icon: 'tick',
-            message: selectedPhotos.length === 1 ? msg('PhotoActionButtons_movedToTrash_one') : msg('PhotoActionButtons_movedToTrash_more', formatNumber(selectedPhotos.length)),
-            intent: 'success'
-        })
+    private getSelectedAreFlagged() {
+        const { props } = this
+        return props.photoActionController.getPhotosAreFlagged(props.selectedPhotos)
     }
 
-    restoreFromTrash() {
-        const selectedPhotos = this.props.selectedPhotos
-        this.props.restorePhotosFromTrash(selectedPhotos)
-        toaster.show({
-            icon: 'tick',
-            message: selectedPhotos.length === 1 ? msg('PhotoActionButtons_restoredFromTrash_one') : msg('PhotoActionButtons_restoredFromTrash_more', formatNumber(selectedPhotos.length)),
-            intent: 'success'
-        })
+    private moveToTrash() {
+        const { props } = this
+        if (props.selectedPhotos) {
+            const photosCount = getCollectionSize(props.selectedPhotos)
+            props.photoActionController.movePhotosToTrash(props.selectedPhotos)
+            toaster.show({
+                icon: 'tick',
+                message: photosCount === 1 ? msg('PhotoActionButtons_movedToTrash_one') : msg('PhotoActionButtons_movedToTrash_more', formatNumber(photosCount)),
+                intent: 'success'
+            })
+        }
     }
 
-    openExport() {
+    private restoreFromTrash() {
+        const { props } = this
+        if (props.selectedPhotos) {
+            const photosCount = getCollectionSize(props.selectedPhotos)
+            props.photoActionController.restorePhotosFromTrash(props.selectedPhotos)
+            toaster.show({
+                icon: 'tick',
+                message: photosCount === 1 ? msg('PhotoActionButtons_restoredFromTrash_one') : msg('PhotoActionButtons_restoredFromTrash_more', formatNumber(photosCount)),
+                intent: 'success'
+            })
+        }
+    }
+
+    private openExport() {
         const props = this.props
-        const selectedPhotoIds = props.selectedPhotos.map(photo => photo.id)
-        if (props.selectedSectionId) {
-            props.openExport(props.selectedSectionId, selectedPhotoIds)
+        if (props.selectedPhotos) {
+            props.photoActionController.openExport(props.selectedPhotos)
         }
     }
 
     render() {
         const props = this.props
-        const hasSelection = props.selectedPhotos.length > 0
+        const hasSelection = getCollectionSize(props.selectedPhotos) > 0
         const selectedAreFlagged = this.getSelectedAreFlagged()
 
         // TODO: Revive Legacy code of 'version' feature

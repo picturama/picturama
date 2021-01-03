@@ -9,8 +9,7 @@ export const exportReducer = (state: ExportState = null, dataState: DataState, a
     switch (action.type) {
         case OPEN_EXPORT:
             return {
-                sectionId: action.payload.sectionId, 
-                photoIds: action.payload.photoIds,
+                photos: action.payload.photos,
                 exportOptions: dataState.settings.exportOptions || createDefaultExportOptions(),
                 showRemoveInfoDesc: false,
                 progress: null,

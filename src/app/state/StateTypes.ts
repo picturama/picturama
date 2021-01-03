@@ -1,4 +1,4 @@
-import { PhotoId, TagId, TagById, Device, PhotoSectionId, PhotoSectionById, Settings, UiConfig, PhotoDetail, PhotoWork, ImportProgress, PhotoFilter, PhotoExportOptions, PhotoExportProgress} from 'common/CommonTypes'
+import { PhotoId, TagId, TagById, Device, PhotoSectionId, PhotoSectionById, Settings, UiConfig, PhotoDetail, PhotoWork, ImportProgress, PhotoFilter, PhotoExportOptions, PhotoExportProgress, MetaData, ExifData, Photo} from 'common/CommonTypes'
 import { FetchState } from 'app/UITypes'
 
 
@@ -7,6 +7,7 @@ export type AppState = {
     data: DataState
     library: LibraryState
     detail: DetailState
+    info: InfoState
     import: ImportState
     export: ExportState
 }
@@ -31,29 +32,46 @@ export type DataState = {
 }
 
 
-export type LibraryState = {
+export interface LibraryState {
     readonly display: DisplayState
     readonly filter: PhotoFilter
-    readonly selection: SelectionState
-    readonly info: InfoState
+    /**
+     * The active photo. This is the photo on which the last action was performed
+     * (like viewing in detail, selecting or deseleting).
+     * 
+     * The active photo ...
+     *   - acts as anchor for shift-(de)selection
+     *   - has the keyboard focus
+     */
+    readonly activePhoto: PhotoLibraryPosition | null
+    readonly selection: SelectionState | null
 }
 
-export type DisplayState = {
+export interface DisplayState {
     /** The target row height of the grid. The grid won't hit this value exactly, as it depends on the layout. */
     readonly gridRowHeight: number
 }
 
-export type SelectionState = {
-    readonly sectionId: PhotoSectionId | null
-    readonly photoIds: PhotoId[]
+/**
+ * The position of a photo in the library view
+ */
+export interface PhotoLibraryPosition {
+    sectionId: PhotoSectionId
+    photoId: PhotoId
 }
 
-export type InfoState = {
+export interface SelectionState {
+    readonly totalSelectedCount: number
+    readonly sectionSelectionById: { [K in PhotoSectionId]?: SectionSelectionState }
+}
+
+export interface SectionSelectionState {
     readonly sectionId: PhotoSectionId
-    readonly photoId: PhotoId
-    /** Is `null` while loading */
-    readonly photoDetail: PhotoDetail | null
-} | null
+    readonly selectedCount: number
+    readonly selectedPhotosById: 'all' | { [K in PhotoId]?: true }
+}
+
+export type PhotoCollection = Photo | Photo[] | PhotoLibraryPosition | SelectionState
 
 
 export type TagsState = {
@@ -81,11 +99,27 @@ export type DetailState = {
         readonly photoIndex: number
         readonly photoId: PhotoId
         /** Is `null` while loading */
-        readonly photoDetail: PhotoDetail | null
-        /** Is `null` while loading */
         readonly photoWork: PhotoWork | null
     }
 } | null
+
+
+export interface InfoState {
+    readonly showInLibrary: boolean
+    readonly showInDetail: boolean
+    readonly photoData?: InfoPhotoData
+}
+
+export interface InfoPhotoData {
+    fetchState: FetchState
+    sectionId: PhotoSectionId
+    photoId: PhotoId
+    /** Is `null` while loading */
+    photoDetail: PhotoDetail | null
+    masterFileSize: number | null
+    metaData: MetaData | null
+    exifData: ExifData | null
+}
 
 
 export type ImportState = {
@@ -94,8 +128,7 @@ export type ImportState = {
 
 
 export type ExportState = {
-    readonly sectionId: PhotoSectionId
-    readonly photoIds: PhotoId[]
+    readonly photos: PhotoCollection
     readonly exportOptions: PhotoExportOptions
     readonly showRemoveInfoDesc: boolean
     readonly progress: PhotoExportProgress | null

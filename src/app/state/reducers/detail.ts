@@ -1,13 +1,14 @@
+import { PhotoId } from 'common/CommonTypes'
+
 import { FetchState } from 'app/UITypes'
 import { Action } from 'app/state/ActionType'
 import {
     SET_DETAIL_PHOTO, FETCH_DETAIL_PHOTO_DATA_REQUEST, FETCH_DETAIL_PHOTO_DATA_SUCCESS, FETCH_DETAIL_PHOTO_DATA_FAILURE,
     CLOSE_DETAIL, CHANGE_PHOTOWORK,
-    FETCH_SECTIONS_SUCCESS, SET_PHOTO_TAGS, CHANGE_PHOTOS, EMPTY_TRASH, FETCH_SECTIONS_FAILURE
+    FETCH_SECTIONS_SUCCESS, CHANGE_PHOTOS, EMPTY_TRASH, FETCH_SECTIONS_FAILURE
 } from 'app/state/actionTypes'
+import { getLoadedSectionByIdFromDataState } from 'app/state/selectors'
 import { DetailState, DataState } from 'app/state/StateTypes'
-import { getLoadedSectionByIdFromDataState } from '../selectors'
-import { PhotoId } from 'common/CommonTypes'
 
 
 export const detail = (state: DetailState = null, dataState: DataState, action: Action): DetailState => {
@@ -19,8 +20,7 @@ export const detail = (state: DetailState = null, dataState: DataState, action: 
                     sectionId: action.payload.sectionId,
                     photoIndex: action.payload.photoIndex,
                     photoId: action.payload.photoId,
-                    photoDetail: null,
-                    photoWork: null
+                    photoWork: null,
                 }
             }
         case FETCH_DETAIL_PHOTO_DATA_REQUEST:
@@ -46,7 +46,6 @@ export const detail = (state: DetailState = null, dataState: DataState, action: 
                     currentPhoto: {
                         ...state.currentPhoto,
                         fetchState: FetchState.IDLE,
-                        photoDetail: action.payload.photoDetail,
                         photoWork: action.payload.photoWork
                     }
                 }
@@ -63,21 +62,6 @@ export const detail = (state: DetailState = null, dataState: DataState, action: 
                         fetchState: FetchState.FAILURE
                     }
                 }
-            }
-        case SET_PHOTO_TAGS:
-            if (state && state.currentPhoto.photoId === action.payload.photoId && state.currentPhoto.photoDetail) {
-                return {
-                    ...state,
-                    currentPhoto: {
-                        ...state.currentPhoto,
-                        photoDetail: {
-                            ...state.currentPhoto.photoDetail,
-                            tags: action.payload.tags
-                        }
-                    }
-                }
-            } else {
-                return state
             }
         case CHANGE_PHOTOWORK:
             if (state && state.currentPhoto.photoId === action.payload.photoId) {
@@ -125,7 +109,6 @@ export const detail = (state: DetailState = null, dataState: DataState, action: 
                             sectionId,
                             photoIndex,
                             photoId,
-                            photoDetail: null,
                             photoWork: null
                         }
                     }

@@ -1,5 +1,6 @@
 import { Tag, PhotoSectionId, isLoadedPhotoSection } from 'common/CommonTypes'
 import { ImportProgress } from 'common/CommonTypes'
+import { assertRendererProcess } from 'common/util/ElectronUtil'
 
 import { fetchSections, fetchTotalPhotoCount } from 'app/controller/PhotoController'
 import { setTags } from 'app/controller/PhotoTagController'
@@ -7,6 +8,9 @@ import { setImportProgressAction } from 'app/state/actions'
 import store from 'app/state/store'
 
 import { observeStore } from 'app/util/ReduxUtil'
+
+
+assertRendererProcess()
 
 
 /** The interval in which to update the library grid while running an import (in ms) */

@@ -4,7 +4,6 @@ import { createDefaultExportOptions } from 'app/state/reducers/export'
 import { ExportDialog, Props } from 'app/ui/export/ExportDialog'
 
 import { addSection, action, TestContext } from 'test-ui/core/UiTester'
-import { testBigPhoto } from 'test-ui/util/MockData'
 import { PhotoExportOptions } from 'common/CommonTypes'
 
 
@@ -18,8 +17,10 @@ function createDefaultProps(context: TestContext): Props {
     return {
         usePortal: false,
 
-        photoIds: [ testBigPhoto.id ],
-        photoData: { [testBigPhoto.id]: testBigPhoto },
+        photos: {
+            totalSelectedCount: 7,
+            sectionSelectionById: {}
+        },
         exportOptions: context.state.exportOptions,
         showRemoveInfoDesc: context.state.showRemoveInfoDesc || false,
         progress: null,
@@ -61,7 +62,6 @@ addSection('ExportDialog')
     .add('progress', context => (
         <ExportDialog
             {...createDefaultProps(context)}
-            photoIds={[1,2,3,4,5]}
-            progress={{ processed: 2, total: 5 }}
+            progress={{ processed: 2, total: 7 }}
         />
     ))

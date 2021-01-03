@@ -8,7 +8,7 @@ import { addErrorCode } from 'common/util/LangUtil'
 import { fileUrlFromPath } from 'common/util/TextUtil'
 
 import { defaultGridRowHeight } from 'app/UiConstants'
-import { GridLayout } from 'app/UITypes'
+import { FetchState, GridLayout } from 'app/UITypes'
 import { sectionHeadHeight } from 'app/ui/library/GridSection'
 import { Library, Props } from 'app/ui/library/Library'
 import { LibraryFilterButton } from 'app/ui/library/LibraryFilterButton'
@@ -16,7 +16,7 @@ import SelectionSummary from 'app/ui/library/SelectionSummary'
 import ImportProgressButton from 'app/ui/ImportProgressButton'
 
 import { addSection, action, TestContext } from 'test-ui/core/UiTester'
-import { testBigPhotoMetData, testLandscapePhoto, testPanoramaPhoto, testPhotos } from 'test-ui/util/MockData'
+import { mockLibrarySelectionController, mockPhotoActionController, testBigPhotoMetData, testLandscapePhoto, testPanoramaPhoto, testPhotos } from 'test-ui/util/MockData'
 import { createRandomDummyPhoto, createSection, createLayoutForSection } from 'test-ui/util/TestUtil'
 
 
@@ -33,7 +33,6 @@ function createDefaultProps(context: TestContext): Props {
         topBarLeftItem: renderTopBarLeftItem({ type: 'all' }),
         isActive: true,
 
-        inSelectionMode: false,
         hasPhotoDirs: true,
         isFetching: false,
         isImporting: false,
@@ -44,21 +43,21 @@ function createDefaultProps(context: TestContext): Props {
         sectionById: {
             [defaultSectionId]: defaultSection
         } as PhotoSectionById,
-        selectedSectionId: null,
-        selectedPhotoIds: [],
-        infoPhoto: null,
-        infoPhotoDetail: null,
+        activePhoto: null,
+        selection: null,
+        showInfo: false,
+        infoPhoto: undefined,
+        infoPhotoData: undefined,
         tags: [ 'Flower', 'Panorama' ],
         gridRowHeight: sharedGridRowHeight,
+        photoActionController: mockPhotoActionController,
+        librarySelectionController: mockLibrarySelectionController,
 
         fetchTotalPhotoCount: action('fetchTotalPhotoCount'),
         fetchSections: action('fetchSections'),
         fetchTags: action('fetchTags'),
         getGridLayout,
         getThumbnailSrc: (photo: Photo) => fileUrlFromPath(getNonRawPath(photo)),
-        getFileSize(path: string): Promise<number> { return Promise.resolve(3380326) },
-        readMetadataOfImage(imagePath: string): Promise<MetaData> { return Promise.resolve(testBigPhotoMetData) },
-        getExifData(path: string): Promise<ExifData | null> { return Promise.resolve(null) },
         createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => {
             if (photo.master_filename === 'dummy') {
                 return new CancelablePromise<string>(() => {})
@@ -72,15 +71,9 @@ function createDefaultProps(context: TestContext): Props {
             sharedGridRowHeight = gridRowHeight
             context.forceUpdate()
         },
-        setSelectedPhotos: action('setSelectedPhotos'),
         setDetailPhotoById: action('setDetailPhotoById'),
-        setInfoPhoto: action('setInfoPhoto'),
-        openExport: action('openExport'),
-        setPhotosFlagged: action('setPhotosFlagged'),
         setPhotoTags: action('setPhotoTags'),
-        updatePhotoWork: action('updatePhotoWork'),
-        movePhotosToTrash: action('movePhotosToTrash'),
-        restorePhotosFromTrash: action('restorePhotosFromTrash'),
+        setShowInfo: action('setShowInfo'),
         startScanning: action('startScanning'),
     }
 }
@@ -149,10 +142,7 @@ addSection('Library')
     .add('active photo', context => (
         <Library
             {...createDefaultProps(context)}
-            selectedSectionId={defaultSectionId}
-            selectedPhotoIds={[ testLandscapePhoto.id ]}
-            infoPhoto={testLandscapePhoto}
-            infoPhotoDetail={{ versions:[], tags: [] }}
+            activePhoto={{ sectionId: defaultSectionId, photoId: defaultSection.photoIds[2] }}
         />
     ))
     .add('selection mode', context => (
@@ -160,17 +150,49 @@ addSection('Library')
             {...createDefaultProps(context)}
             topBarLeftItem={
                 <SelectionSummary
-                    selectedCount={1}
+                    selectedCount={3}
                     onClearSelection={action('onClearSelection')}
                 />
             }
-            inSelectionMode={true}
-            selectedSectionId={defaultSectionId}
-            selectedPhotoIds={[ testLandscapePhoto.id ]}
-            infoPhoto={testLandscapePhoto}
-            infoPhotoDetail={{ versions:[], tags: [] }}
+            selection={{
+                totalSelectedCount: 3,
+                sectionSelectionById: {
+                    [defaultSectionId]: {
+                        sectionId: defaultSectionId,
+                        selectedCount: 3,
+                        selectedPhotosById: {
+                            [defaultSection.photoIds[2]]: true,
+                            [defaultSection.photoIds[3]]: true,
+                            [defaultSection.photoIds[5]]: true,
+                        }
+                    }
+                }
+            }}
         />
     ))
+    .add('info', context => {
+        const infoPhotoId = defaultSection.photoIds[2]
+        return (
+            <Library
+                {...createDefaultProps(context)}
+                activePhoto={{ sectionId: defaultSectionId, photoId: infoPhotoId }}
+                showInfo={true}
+                infoPhoto={defaultSection.photoData[infoPhotoId]}
+                infoPhotoData={{
+                    fetchState: FetchState.IDLE,
+                    sectionId: defaultSectionId,
+                    photoId: infoPhotoId,
+                    photoDetail: {
+                        versions: [],
+                        tags: []
+                    },
+                    masterFileSize: 3380326,
+                    metaData: testBigPhotoMetData,
+                    exifData: null
+                }}
+            />
+        )
+    })
     .add('panorama', context => {
         let photos = [ ...defaultPhotos ]
         photos.splice(2, 0, testPanoramaPhoto)
@@ -327,12 +349,25 @@ addSection('Library')
     .add('Trash with selection', context => (
         <Library
             {...createDefaultProps(context)}
-            topBarLeftItem={renderTopBarLeftItem({ type: 'trash' })}
+            topBarLeftItem={
+                <SelectionSummary
+                    selectedCount={1}
+                    onClearSelection={action('onClearSelection')}
+                />
+            }
             libraryFilterType={'trash'}
-            selectedSectionId={defaultSectionId}
-            selectedPhotoIds={[ testLandscapePhoto.id ]}
-            infoPhoto={testLandscapePhoto}
-            infoPhotoDetail={{ versions:[], tags: [] }}
+            selection={{
+                totalSelectedCount: 1,
+                sectionSelectionById: {
+                    [defaultSectionId]: {
+                        sectionId: defaultSectionId,
+                        selectedCount: 1,
+                        selectedPhotosById: {
+                            [testLandscapePhoto.id]: true,
+                        }
+                    }
+                }
+            }}
         />
     ))
 

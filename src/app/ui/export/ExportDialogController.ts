@@ -2,17 +2,19 @@ import notifier from 'node-notifier'
 
 import { msg } from 'common/i18n/i18n'
 import { bindMany } from 'common/util/LangUtil'
-import { PhotoExportOptions, Photo, LoadedPhotoSection } from 'common/CommonTypes'
+import { PhotoExportOptions } from 'common/CommonTypes'
 
 import { closeExportAction, setExportProgressAction, setSettingsAction } from 'app/state/actions'
+import { PhotoCollection } from 'app/state/StateTypes'
 import store from 'app/state/store'
 import BackgroundClient from 'app/BackgroundClient'
 import { showError } from 'app/ErrorPresenter'
+import { getPhotosOfCollection } from 'app/util/PhotoCollectionResolver'
 
 
 interface ExportInfo {
     exportOptions: PhotoExportOptions
-    photos: Photo[]
+    photos: PhotoCollection
     isCancelled: boolean
 }
 
@@ -31,10 +33,9 @@ class ExportDialogController {
 
         const state = store.getState()
         const exportState = state.export!
-        const photoData = (state.data.sections.byId[exportState.sectionId] as LoadedPhotoSection).photoData
         const exportInfo: ExportInfo = {
             exportOptions: exportState.exportOptions,
-            photos: exportState.photoIds.map(photoId => photoData[photoId]),
+            photos: exportState.photos,
             isCancelled: false
         }
 
@@ -62,7 +63,6 @@ class ExportDialogController {
 
 async function runExport(exportInfo: ExportInfo): Promise<void> {
     const { exportOptions } = exportInfo
-    const photoCount = exportInfo.photos.length
 
     // Select target folder
 
@@ -89,13 +89,15 @@ async function runExport(exportInfo: ExportInfo): Promise<void> {
 
     // Export photos
 
+    const photos = await getPhotosOfCollection(exportInfo.photos)
+    const photoCount = photos.length
     for (let photoIndex = 0; photoIndex < photoCount; photoIndex++) {
         store.dispatch(setExportProgressAction({
             processed: photoIndex,
             total: photoCount
         }))
 
-        const photo = exportInfo.photos[photoIndex]
+        const photo = photos[photoIndex]
         await BackgroundClient.exportPhoto(photo, photoIndex, exportOptions)
         if (exportInfo.isCancelled) {
             return

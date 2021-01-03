@@ -1,7 +1,12 @@
 import { remote } from 'electron'
 
+import { assertRendererProcess } from 'common/util/ElectronUtil'
+
 import BackgroundClient from 'app/BackgroundClient'
 import { Command } from 'app/controller/HotkeyController'
+
+
+assertRendererProcess()
 
 
 /**

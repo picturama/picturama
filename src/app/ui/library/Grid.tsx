@@ -5,13 +5,14 @@ import { ResizeSensor, IResizeEntry } from '@blueprintjs/core'
 
 import { PhotoId, Photo, PhotoSectionId, PhotoSectionById, isLoadedPhotoSection } from 'common/CommonTypes'
 import CancelablePromise from 'common/util/CancelablePromise'
-import { bindMany, cloneArrayWithItemRemoved } from 'common/util/LangUtil'
+import { bindMany } from 'common/util/LangUtil'
 
 import { showError } from 'app/ErrorPresenter'
-import { isMac } from 'app/UiConstants'
 import { GridSectionLayout, GridLayout, JustifiedLayoutBox } from 'app/UITypes'
 import { CommandGroupId, addCommandGroup, setCommandGroupEnabled, removeCommandGroup } from 'app/controller/HotkeyController'
 import { NailedGridPosition, GetGridLayoutFunction, PhotoGridPosition } from 'app/controller/LibraryController'
+import { LibrarySelectionController } from 'app/controller/LibrarySelectionController'
+import { PhotoLibraryPosition, SelectionState } from 'app/state/StateTypes'
 import { gridScrollBarWidth, toolbarHeight } from 'app/style/variables'
 import { getScrollbarSize } from 'app/util/DomUtil'
 
@@ -27,17 +28,16 @@ const gridBottomPadding = toolbarHeight
 
 interface Props {
     className?: any
-    inSelectionMode: boolean
     isActive: boolean
     sectionIds: PhotoSectionId[]
     sectionById: PhotoSectionById
-    selectedSectionId: PhotoSectionId | null
-    selectedPhotoIds: PhotoId[]
+    activePhoto: PhotoLibraryPosition | null
+    selection: SelectionState | null
     gridRowHeight: number
+    librarySelectionController: LibrarySelectionController
     getGridLayout: GetGridLayoutFunction
     getThumbnailSrc: (photo: Photo) => string
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => CancelablePromise<string>
-    setSelectedPhotos: (sectionId: PhotoSectionId, photoIds: PhotoId[]) => void
     setDetailPhotoById: (sectionId: PhotoSectionId, photoId: PhotoId) => void
 }
 
@@ -61,16 +61,16 @@ export default class Grid extends React.Component<Props, State> {
 
         this.state = { scrollTop: 0, viewportWidth: 0, viewportHeight: 0 }
 
-        bindMany(this, 'setActivePhoto', 'showPhotoDetails', 'onEnter', 'onResize', 'onScroll', 'setScrollTop',
-            'moveHighlightLeft', 'moveHighlightRight', 'moveHighlightUp', 'moveHighlightDown')
+        bindMany(this, 'showPhotoDetails', 'onEnter', 'onResize', 'onScroll', 'setScrollTop',
+            'moveActivePhotoLeft', 'moveActivePhotoRight', 'moveActivePhotoUp', 'moveActivePhotoDown')
     }
 
     componentDidMount() {
         this.commandGroupId = addCommandGroup([
-            { combo: 'left', onAction: this.moveHighlightLeft },
-            { combo: 'right', onAction: this.moveHighlightRight },
-            { combo: 'up', onAction: this.moveHighlightUp },
-            { combo: 'down', onAction: this.moveHighlightDown },
+            { combo: 'left', onAction: this.moveActivePhotoLeft },
+            { combo: 'right', onAction: this.moveActivePhotoRight },
+            { combo: 'up', onAction: this.moveActivePhotoUp },
+            { combo: 'down', onAction: this.moveActivePhotoDown },
             { combo: 'enter', onAction: this.onEnter },
         ])
     }
@@ -106,8 +106,8 @@ export default class Grid extends React.Component<Props, State> {
         this.gridLayout = this.getGridLayout(nextProps, nextState)
 
         return this.gridLayout !== prevGridLayout
-            || nextProps.selectedSectionId !== prevProps.selectedSectionId
-            || nextProps.selectedPhotoIds !== prevProps.selectedPhotoIds
+            || nextProps.activePhoto !== prevProps.activePhoto
+            || nextProps.selection !== prevProps.selection
             || nextState.scrollTop !== prevState.scrollTop
     }
 
@@ -142,32 +142,14 @@ export default class Grid extends React.Component<Props, State> {
             props.gridRowHeight, this.nailedGridPosition)
     }
 
-    private setActivePhoto(sectionId: PhotoSectionId, photoId: PhotoId) {
-        const props = this.props
-
-        //if (sectionId === props.selectedSectionId && isMac ? event.metaKey : event.ctrlKey) {
-        //    const photoIndex = props.selectedPhotoIds.indexOf(photoId)
-        //    const highlight = props.selectedPhotoIds && photoIndex === -1
-        //    if (highlight) {
-        //        if (photoIndex === -1) {
-        //            props.setSelectedPhotos(sectionId, [ ...props.selectedPhotoIds, photoId ])
-        //        }
-        //    } else {
-        //        props.setSelectedPhotos(sectionId, cloneArrayWithItemRemoved(props.selectedPhotoIds, photoId))
-        //    }
-        //} else {
-            props.setSelectedPhotos(sectionId, [ photoId ])
-        //}
-    }
-
     private showPhotoDetails(sectionId: PhotoSectionId, photoId: PhotoId) {
         this.props.setDetailPhotoById(sectionId, photoId)
     }
 
     private onEnter() {
         const props = this.props
-        if (props.selectedSectionId && props.selectedPhotoIds.length === 1) {
-            props.setDetailPhotoById(props.selectedSectionId, props.selectedPhotoIds[0])
+        if (props.activePhoto) {
+            props.setDetailPhotoById(props.activePhoto.sectionId, props.activePhoto.photoId)
         }
     }
 
@@ -189,76 +171,20 @@ export default class Grid extends React.Component<Props, State> {
         }
     }
 
-    private moveHighlightLeft() {
-        this.moveHighlight('left')
+    private moveActivePhotoLeft() {
+        this.props.librarySelectionController.moveActivePhoto('left')
     }
 
-    private moveHighlightRight() {
-        this.moveHighlight('right')
+    private moveActivePhotoRight() {
+        this.props.librarySelectionController.moveActivePhoto('right')
     }
 
-    private moveHighlightUp() {
-        this.moveHighlight('up')
+    private moveActivePhotoUp() {
+        this.props.librarySelectionController.moveActivePhoto('up')
     }
 
-    private moveHighlightDown() {
-        this.moveHighlight('down')
-    }
-
-    private moveHighlight(move: 'left' | 'right' | 'up' | 'down') {
-        const { props } = this
-        const { selectedSectionId } = props
-
-        if (!selectedSectionId) {
-            return
-        }
-
-        const selectedSection = props.sectionById[selectedSectionId]
-        if (!isLoadedPhotoSection(selectedSection)) {
-            return
-        }
-
-        let currentPhotoIndex = selectedSection.photoIds.indexOf(props.selectedPhotoIds[0])
-
-        let nextPhotoIndex = currentPhotoIndex
-        if (move === 'left' || move === 'right') {
-            nextPhotoIndex = currentPhotoIndex + (move === 'left' ? -1 : 1)
-        } else if (this.gridLayout) {
-            const selectedSectionIndex = props.sectionIds.indexOf(selectedSectionId)
-            const sectionLayout = this.gridLayout.sectionLayouts[selectedSectionIndex]
-            if (sectionLayout && sectionLayout.boxes) {
-                const currentPhotoBox = sectionLayout.boxes[currentPhotoIndex]
-                if (currentPhotoBox) {
-                    const currentPhotoCenterX = currentPhotoBox.left + currentPhotoBox.width / 2
-                    const moveUp = move === 'up'
-                    let prevRowTopY = -1
-                    let bestBoxCenterXDiff = Number.POSITIVE_INFINITY
-                    for (let boxIndex = currentPhotoIndex + (moveUp ? -1 : 1); moveUp ? boxIndex >= 0 : boxIndex < sectionLayout.boxes.length; moveUp ? boxIndex-- : boxIndex++) {
-                        const box = sectionLayout.boxes[boxIndex]
-                        if (box.top !== currentPhotoBox.top) {
-                            if (prevRowTopY === -1) {
-                                prevRowTopY = box.top
-                            } else if (box.top !== prevRowTopY) {
-                                // We are one row to far
-                                break
-                            }
-
-                            const boxCenterX = box.left + box.width / 2
-                            const boxCenterXDiff = Math.abs(currentPhotoCenterX - boxCenterX)
-                            if (boxCenterXDiff < bestBoxCenterXDiff) {
-                                bestBoxCenterXDiff = boxCenterXDiff
-                                nextPhotoIndex = boxIndex
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        const nextPhotoId = selectedSection.photoIds[nextPhotoIndex]
-        if (nextPhotoId) {
-            props.setSelectedPhotos(selectedSection.id, [ nextPhotoId ])
-        }
+    private moveActivePhotoDown() {
+        this.props.librarySelectionController.moveActivePhoto('down')
     }
 
     private renderVisibleSections() {
@@ -268,6 +194,7 @@ export default class Grid extends React.Component<Props, State> {
             return
         }
 
+        const { activePhoto } = props
         let result: JSX.Element[] = []
         for (let sectionIndex = gridLayout.fromSectionIndex; sectionIndex < gridLayout.toSectionIndex; sectionIndex++) {
             const sectionId = props.sectionIds[sectionIndex]
@@ -282,15 +209,14 @@ export default class Grid extends React.Component<Props, State> {
                     key={sectionId}
                     className="Grid-section"
                     style={{ top: layout.sectionTop, width: state.viewportWidth, height: sectionHeadHeight + layout.containerHeight }}
-                    inSelectionMode={props.inSelectionMode}
+                    inSelectionMode={!!props.selection}
                     section={props.sectionById[sectionId]}
                     layout={layout}
-                    selectedPhotoIds={props.selectedPhotoIds}
+                    activePhotoId={(activePhoto?.sectionId === sectionId) ? activePhoto.photoId : null}
+                    sectionSelection={props.selection?.sectionSelectionById[sectionId]}
+                    librarySelectionController={props.librarySelectionController}
                     getThumbnailSrc={props.getThumbnailSrc}
                     createThumbnail={props.createThumbnail}
-                    setActivePhoto={this.setActivePhoto}
-                    setSectionSelected={() => {}}
-                    setPhotoSelected={() => {}}
                     showPhotoDetails={this.showPhotoDetails}
                 />
             )

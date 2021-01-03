@@ -1,9 +1,10 @@
 import createLayout from 'justified-layout'
 
 import { profileLibraryLayout, profileThumbnailRenderer } from 'common/LogConstants'
-import { PhotoSectionId, PhotoSectionById, LoadedPhotoSection, isLoadedPhotoSection, Photo, PhotoId } from 'common/CommonTypes'
+import { PhotoSectionId, PhotoSectionById, LoadedPhotoSection, isLoadedPhotoSection, Photo, PhotoId, PhotoSet } from 'common/CommonTypes'
 import CancelablePromise, { isCancelError } from 'common/util/CancelablePromise'
 import { getMasterPath } from 'common/util/DataUtil'
+import { assertRendererProcess } from 'common/util/ElectronUtil'
 import Profiler from 'common/util/Profiler'
 import SerialJobQueue from 'common/util/SerialJobQueue'
 
@@ -11,10 +12,14 @@ import BackgroundClient from 'app/BackgroundClient'
 import { showError } from 'app/ErrorPresenter'
 import { GridSectionLayout, GridLayout, JustifiedLayoutBox } from 'app/UITypes'
 import { sectionHeadHeight } from 'app/ui/library/GridSection'
-import { forgetSectionPhotosAction, fetchSectionPhotosAction, setLibraryInfoPhotoAction } from 'app/state/actions'
+import { forgetSectionPhotosAction, fetchSectionPhotosAction } from 'app/state/actions'
 import store from 'app/state/store'
 
 import { getThumbnailSrc } from './PhotoController'
+import { collectionContainsSection } from 'app/util/PhotoCollectionResolver'
+
+
+assertRendererProcess()
 
 
 /**
@@ -65,6 +70,10 @@ let prevGridRowHeight = -1
 
 let isFetchingSectionPhotos = false
 
+
+export function getPrevGridLayout(): GridLayout {
+    return prevGridLayout
+}
 
 export type GetGridLayoutFunction = typeof getGridLayout
 
@@ -307,7 +316,6 @@ export function createDummyLayoutBoxes(viewportWidth: number, gridRowHeight: num
 function forgetAndFetchSections(sectionIds: PhotoSectionId[], sectionById: PhotoSectionById,
     viewportTop: number, viewportHeight: number, sectionLayouts: GridSectionLayout[])
 {
-    let sectionIdsToProtect: { [index: string]: true } | null = null
     let sectionIdsToForget: { [index: string]: true } | null = null
     let sectionIdsToLoad: PhotoSectionId[] | null = null
 
@@ -326,17 +334,11 @@ function forgetAndFetchSections(sectionIds: PhotoSectionId[], sectionById: Photo
         const sectionBottom = sectionTop + sectionHeadHeight + layout.containerHeight
         if (isLoadedPhotoSection(section)) {
             const keepSection = sectionBottom > keepMinY && sectionTop < keepMaxY
-            if (!keepSection) {
-                if (!sectionIdsToProtect) {
-                    sectionIdsToProtect = getSectionIdsToProtect()
+            if (!keepSection && !isProtectedSection(sectionId)) {
+                if (!sectionIdsToForget) {
+                    sectionIdsToForget = {}
                 }
-
-                if (!sectionIdsToProtect[sectionId]) {
-                    if (!sectionIdsToForget) {
-                        sectionIdsToForget = {}
-                    }
-                    sectionIdsToForget[sectionId] = true
-                }
+                sectionIdsToForget[sectionId] = true
             }
         } else if (!isFetchingSectionPhotos) {
             const loadSection = sectionBottom > preloadMinY && sectionTop < preloadMaxY
@@ -354,76 +356,37 @@ function forgetAndFetchSections(sectionIds: PhotoSectionId[], sectionById: Photo
         const nailedSectionIdsToForget = sectionIdsToForget
         setTimeout(() => store.dispatch(forgetSectionPhotosAction(nailedSectionIdsToForget)))
     }
-    if (sectionIdsToLoad) {
+
+    if (sectionIdsToLoad && !isFetchingSectionPhotos) {
+        isFetchingSectionPhotos = true
         fetchSectionPhotos(sectionIdsToLoad)
-    }
-}
-
-
-function getSectionIdsToProtect(): { [index: string]: true } {
-    const state = store.getState()
-    let sectionsToProtect = {}
-
-    const selectedSectionId = state.library.selection.sectionId
-    if (selectedSectionId) {
-        sectionsToProtect[selectedSectionId] = true
-    }
-
-    if (state.library.info) {
-        sectionsToProtect[state.library.info.sectionId] = true
-    }
-
-    if (state.detail) {
-        sectionsToProtect[state.detail.currentPhoto.sectionId] = true
-    }
-
-    if (state.export) {
-        sectionsToProtect[state.export.sectionId] = true
-    }
-
-    return sectionsToProtect
-}
-
-
-function fetchSectionPhotos(sectionIds: PhotoSectionId[]) {
-    if (isFetchingSectionPhotos) {
-        return
-    }
-
-    const filter = store.getState().library.filter
-
-    isFetchingSectionPhotos = true
-    BackgroundClient.fetchSectionPhotos(sectionIds, filter)
-        .then(photoSets => {
-            isFetchingSectionPhotos = false
-            store.dispatch(fetchSectionPhotosAction(sectionIds, photoSets))
-        })
-        .catch(error => {
-            isFetchingSectionPhotos = false
-            showError(`Fetching photos for sections ${sectionIds.join(', ')} failed`, error)
-        })
-}
-
-
-let runningInfoPhotoDetailPromise: CancelablePromise<void> | null = null
-
-export function setInfoPhoto(sectionId: PhotoSectionId | null, photoId: PhotoId | null) {
-    store.dispatch(setLibraryInfoPhotoAction.request({ sectionId, photoId }))
-    if (runningInfoPhotoDetailPromise) {
-        runningInfoPhotoDetailPromise.cancel()
-        runningInfoPhotoDetailPromise = null
-    }
-
-    if (photoId) {
-        runningInfoPhotoDetailPromise = new CancelablePromise(BackgroundClient.fetchPhotoDetail(photoId))
-            .then(photoDetail => store.dispatch(setLibraryInfoPhotoAction.success({ photoDetail })))
             .catch(error => {
-                if (!isCancelError(error)) {
-                    store.dispatch(setLibraryInfoPhotoAction.failure(error))
-                    showError('Fetching photo detail failed', error)
-                }
+                showError(`Fetching photos for sections ${sectionIds.join(', ')} failed`, error)
+            })
+            .finally(() => {
+                isFetchingSectionPhotos = false
             })
     }
+}
+
+
+function isProtectedSection(sectionId: PhotoSectionId): boolean {
+    const state = store.getState()
+    return !!(
+        state.library.selection?.sectionSelectionById[sectionId] ||
+        (sectionId === state.library.activePhoto?.sectionId) ||
+        (sectionId === state.detail?.currentPhoto.sectionId) ||
+        (sectionId === state.info.photoData?.sectionId) ||
+        collectionContainsSection(state.export?.photos, sectionId)
+    )
+}
+
+
+export async function fetchSectionPhotos(sectionIds: PhotoSectionId[]): Promise<PhotoSet[]> {
+    const { filter } = store.getState().library
+    const photoSets = await BackgroundClient.fetchSectionPhotos(sectionIds, filter)
+    store.dispatch(fetchSectionPhotosAction(sectionIds, photoSets))
+    return photoSets
 }
 
 

@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { addSection, action } from 'test-ui/core/UiTester'
-import { testDarkPhoto, testLightPhoto } from 'test-ui/util/MockData'
+import { mockLibrarySelectionController, testDarkPhoto, testLightPhoto } from 'test-ui/util/MockData'
 
 import { Photo, PhotoSectionId } from 'common/CommonTypes'
 import CancelablePromise from 'common/util/CancelablePromise'
@@ -17,7 +17,9 @@ import Picture, { Props } from 'app/ui/library/Picture'
 
 const testWrapperPadding = 40
 
-const defaultPropsCommon: Omit<Props, 'photo' | 'layoutBox'> = {
+type BaseTestProps = Omit<Props, 'librarySelectionController'>
+
+const defaultPropsCommon: Omit<Props, 'photo' | 'layoutBox' | 'librarySelectionController'> = {
     inSelectionMode: false,
     sectionId: 'test-section',
     isActive: false,
@@ -30,12 +32,10 @@ const defaultPropsCommon: Omit<Props, 'photo' | 'layoutBox'> = {
             return new CancelablePromise<string>(Promise.resolve(fileUrlFromPath(getNonRawPath(photo))))
         }
     },
-    setActivePhoto: action('setActivePhoto'),
-    setPhotoSelected: action('setPhotoSelected'),
     showPhotoDetails: action('showPhotoDetails'),
 }
 
-const defaultPropsLight: Props = {
+const defaultPropsLight: BaseTestProps = {
     ...defaultPropsCommon,
     photo: testLightPhoto,
     layoutBox: {
@@ -47,7 +47,7 @@ const defaultPropsLight: Props = {
     },
 }
 
-const defaultPropsDark: Props = {
+const defaultPropsDark: BaseTestProps = {
     ...defaultPropsCommon,
     photo: testDarkPhoto,
     layoutBox: {
@@ -85,7 +85,7 @@ addSection('Picture')
                         </>
                     )
 
-                    function renderPicture(props: Props) {
+                    function renderPicture(props: BaseTestProps) {
                         const photoId = props.photo.id
                         return (
                             <Picture
@@ -95,16 +95,19 @@ addSection('Picture')
                                 isActive={context.state.activePhotoId === photoId}
                                 isSelected={context.state.selectedIds?.[photoId]}
                                 preselected={params.isPreSelected ? true : params.isPreDeselected ? false : undefined}
-                                setActivePhoto={() => {
-                                    context.state.activePhotoId = photoId
-                                    context.forceUpdate()
-                                }}
-                                setPhotoSelected={(sectionId, photoId, selected) => {
-                                    if (!context.state.selectedIds) {
-                                        context.state.selectedIds = {}
-                                    }
-                                    context.state.selectedIds[photoId] = selected
-                                    context.forceUpdate()
+                                librarySelectionController={{
+                                    ...mockLibrarySelectionController,
+                                    setActivePhoto: () => {
+                                        context.state.activePhotoId = photoId
+                                        context.forceUpdate()
+                                    },
+                                    setPhotoSelected: (sectionId, photoId, selected) => {
+                                        if (!context.state.selectedIds) {
+                                            context.state.selectedIds = {}
+                                        }
+                                        context.state.selectedIds[photoId] = selected
+                                        context.forceUpdate()
+                                    },
                                 }}
                             />
                         )

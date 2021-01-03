@@ -3,10 +3,11 @@ import classNames from 'classnames'
 import React from 'react'
 import { Button, MaybeElement, Alert } from '@blueprintjs/core'
 
-import { PhotoId, Photo, PhotoWork, PhotoSectionId } from 'common/CommonTypes'
 import { msg } from 'common/i18n/i18n'
 import { bindMany } from 'common/util/LangUtil'
 
+import { PhotoActionController } from 'app/controller/PhotoActionController'
+import { PhotoCollection } from 'app/state/StateTypes'
 import PhotoActionButtons from 'app/ui/widget/PhotoActionButtons'
 import Toolbar from 'app/ui/widget/Toolbar'
 
@@ -16,16 +17,11 @@ import './LibraryTopBar.less'
 interface Props {
     className?: any
     leftItem?: MaybeElement
-    selectedSectionId: PhotoSectionId | null
-    selectedPhotos: Photo[]
+    selectedPhotos: PhotoCollection | null
     isShowingTrash: boolean
     isShowingInfo: boolean
     photosCount: number
-    openExport: (sectionId: PhotoSectionId, photoIds: PhotoId[]) => void
-    updatePhotoWork: (photo: Photo, update: (photoWork: PhotoWork) => void) => void
-    setPhotosFlagged: (photos: Photo[], flag: boolean) => void
-    movePhotosToTrash: (photos: Photo[]) => void
-    restorePhotosFromTrash: (photos: Photo[]) => void
+    photoActionController: PhotoActionController
     toggleShowInfo: () => void
 }
 
@@ -78,15 +74,10 @@ export default class LibraryTopBar extends React.Component<Props, State> {
                     />
                 }
                 <PhotoActionButtons
-                    selectedSectionId={props.selectedSectionId}
                     selectedPhotos={props.selectedPhotos}
                     isShowingTrash={props.isShowingTrash}
                     isShowingInfo={props.isShowingInfo}
-                    openExport={props.openExport}
-                    updatePhotoWork={props.updatePhotoWork}
-                    setPhotosFlagged={props.setPhotosFlagged}
-                    movePhotosToTrash={props.movePhotosToTrash}
-                    restorePhotosFromTrash={props.restorePhotosFromTrash}
+                    photoActionController={props.photoActionController}
                     toggleShowInfo={props.toggleShowInfo}
                 />
 

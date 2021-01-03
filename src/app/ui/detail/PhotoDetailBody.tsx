@@ -9,6 +9,10 @@ import { CameraMetrics, CameraMetricsBuilder, RequestedPhotoPosition, PhotoPosit
 import { Size, zeroSize, Insets, zeroInsets, Rect } from 'common/util/GeometryTypes'
 import { bindMany, isShallowEqual } from 'common/util/LangUtil'
 
+import { LibrarySelectionController } from 'app/controller/LibrarySelectionController'
+import { PhotoActionController } from 'app/controller/PhotoActionController'
+import { isPhotoSelected } from 'app/state/selectors'
+import { SelectionState } from 'app/state/StateTypes'
 import RedCheckCircle from 'app/ui/widget/icon/RedCheckCircle'
 import PhotoActionButtons from 'app/ui/widget/PhotoActionButtons'
 
@@ -29,7 +33,7 @@ export interface Props {
     topBarClassName: string
     bodyClassName: string
     devicePixelRatio: number
-    inSelectionMode: boolean
+    selection: SelectionState | null
     isActive: boolean
     mode: DetailMode
     isShowingInfo: boolean
@@ -37,21 +41,16 @@ export interface Props {
     photo: Photo
     isFirst: boolean
     isLast: boolean
-    isSelected: boolean
     imagePath: string
     imagePathPrev: string | null
     imagePathNext: string | null
     photoWork: PhotoWork | null
+    photoActionController: PhotoActionController
+    librarySelectionController: LibrarySelectionController
     setMode(mode: DetailMode): void
     setPreviousDetailPhoto(): void
     setNextDetailPhoto(): void
     toggleShowInfo(): void
-    setPhotoSelected(sectionId: PhotoSectionId, photoId: PhotoId, selected: boolean): void
-    updatePhotoWork: (photo: Photo, update: (photoWork: PhotoWork) => void) => void
-    setPhotosFlagged: (photos: Photo[], flag: boolean) => void
-    movePhotosToTrash: (photos: Photo[]) => void
-    restorePhotosFromTrash: (photos: Photo[]) => void
-    openExport: (sectionId: PhotoSectionId, photoIds: PhotoId[]) => void
     closeDetail(): void
 }
 
@@ -170,7 +169,8 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
 
     private onTogglePhotoSelected() {
         const { props } = this
-        props.setPhotoSelected(props.sectionId, props.photo.id, !props.isSelected)
+        const isSelected = isPhotoSelected(props.sectionId, props.photo.id, props.selection)
+        props.librarySelectionController.setPhotoSelected(props.sectionId, props.photo.id, !isSelected)
     }
 
     private setPhotoPosition(photoPosition: PhotoPosition) {
@@ -188,7 +188,7 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
     private onCropDone() {
         const { editedPhotoWork } = this.state
         if (editedPhotoWork) {
-            this.props.updatePhotoWork(this.props.photo, photoWork => {
+            this.props.photoActionController.updatePhotoWork(this.props.photo, photoWork => {
                 for (const key of Object.keys(photoWork)) {
                     delete photoWork[key]
                 }
@@ -205,6 +205,7 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
 
     render() {
         const { props, state } = this
+        const isSelected = isPhotoSelected(props.sectionId, props.photo.id, props.selection)
         return (
             <div className={classnames(props.className, 'PhotoDetailBody')}>
                 <ResizeSensor onResize={this.onResize}>
@@ -227,31 +228,26 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
                         bodyClassName={props.bodyClassName}
                         isTopBarRight={!props.isShowingInfo}
                         topBarRightItem={
-                            props.inSelectionMode ? (
+                            props.selection ? (
                                 <Button
                                     className='PhotoDetailBody-toggleSelected'
                                     intent='primary'
-                                    active={props.isSelected}
-                                    icon={props.isSelected ? <RedCheckCircle size={16}/> : <FaCheckCircle style={{ fontSize: 16 }}/>}
-                                    text={msg(props.isSelected ? 'PhotoDetailBody_selected' : 'PhotoDetailBody_select')}
+                                    active={isSelected}
+                                    icon={isSelected ? <RedCheckCircle size={16}/> : <FaCheckCircle style={{ fontSize: 16 }}/>}
+                                    text={msg(isSelected ? 'PhotoDetailBody_selected' : 'PhotoDetailBody_select')}
                                     onClick={this.onTogglePhotoSelected}
                                 />
                             ) : (
                                 <PhotoActionButtons
-                                    selectedSectionId={props.sectionId}
-                                    selectedPhotos={[ props.photo ]}
+                                    selectedPhotos={props.photo}
                                     isShowingTrash={!!props.photo.trashed}
                                     isShowingInfo={props.isShowingInfo}
-                                    openExport={props.openExport}
-                                    updatePhotoWork={props.updatePhotoWork}
-                                    setPhotosFlagged={props.setPhotosFlagged}
-                                    movePhotosToTrash={props.movePhotosToTrash}
-                                    restorePhotosFromTrash={props.restorePhotosFromTrash}
+                                    photoActionController={props.photoActionController}
                                     toggleShowInfo={props.toggleShowInfo}
                                 />
                             )
                         }
-                        showEditButton={!props.inSelectionMode}
+                        showEditButton={!props.selection}
                         isActive={props.isActive}
                         isFirst={props.isFirst}
                         isLast={props.isLast}

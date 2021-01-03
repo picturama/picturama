@@ -11,7 +11,7 @@ import { gridBg } from 'app/style/variables'
 import GridSection, { Props } from 'app/ui/library/GridSection'
 
 import { addSection, action } from 'test-ui/core/UiTester'
-import { createTestPhotoId, testBigPhoto, testPanoramaPhoto, testPortraitPhoto } from 'test-ui/util/MockData'
+import { createTestPhotoId, mockLibrarySelectionController, testBigPhoto, testPanoramaPhoto, testPortraitPhoto } from 'test-ui/util/MockData'
 import { createSection, createRandomDummyPhoto, createLayoutForSection } from 'test-ui/util/TestUtil'
 
 
@@ -29,7 +29,9 @@ const defaultProps: Props = {
     inSelectionMode: false,
     section: defaultSection,
     layout: defaultLayout,
-    selectedPhotoIds: null,
+    activePhotoId: null,
+    sectionSelection: undefined,
+    librarySelectionController: mockLibrarySelectionController,
     getThumbnailSrc: (photo: Photo) => fileUrlFromPath(getNonRawPath(photo)),
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => {
         if (photo.master_filename === 'dummy') {
@@ -38,9 +40,6 @@ const defaultProps: Props = {
             return new CancelablePromise<string>(Promise.resolve(fileUrlFromPath(getNonRawPath(photo))))
         }
     },
-    setActivePhoto: action('setActivePhoto'),
-    setSectionSelected: action('setSectionSelected'),
-    setPhotoSelected: action('setPhotoSelected'),
     showPhotoDetails: action('showPhotoDetails'),
 }
 
@@ -56,20 +55,22 @@ addSection('GridSection')
         <GridSection
             {...defaultProps}
             inSelectionMode={true}
-            selectedPhotoIds={[ testPortraitPhoto.id ]}
+            sectionSelection={{
+                sectionId: defaultSection.id,
+                selectedCount: 1,
+                selectedPhotosById: { [testPortraitPhoto.id]: true }
+            }}
         />
     ))
     .add('selection mode (all)', context => (
         <GridSection
             {...defaultProps}
             inSelectionMode={true}
-            selectedPhotoIds='all'
-        />
-    ))
-    .add('selection', context => (
-        <GridSection
-            {...defaultProps}
-            selectedPhotoIds={[ testPortraitPhoto.id ]}
+            sectionSelection={{
+                sectionId: defaultSection.id,
+                selectedCount: 2,
+                selectedPhotosById: 'all'
+            }}
         />
     ))
     .add('creating thumbnails', context => {
@@ -107,10 +108,6 @@ addSection('GridSection')
                     toBoxIndex: photoCount,
                     boxes: createDummyLayoutBoxes(viewportWidth, defaultGridRowHeight, containerHeight, photoCount)
                 }}
-                selectedPhotoIds={null}
             />
         )
     })
-
-
-    createDummyLayoutBoxes

@@ -12,7 +12,7 @@ const StringMultiSelect = MultiSelect.ofType<string>()
 
 interface Props {
     className?: any
-    photo: Photo | null
+    photo?: Photo
     photoDetail: PhotoDetail | null
     tags: string[]
     setPhotoTags: (photo: Photo, tags: string[]) => void
