@@ -1,14 +1,24 @@
-import { isLoadedPhotoSection, PhotoId, PhotoSectionId } from 'common/CommonTypes'
+import { isLoadedPhotoSection, LoadedPhotoSection, PhotoId, PhotoSectionId } from 'common/CommonTypes'
 import { assertRendererProcess } from 'common/util/ElectronUtil'
 
 import { setLibraryActivePhotoAction, setLibrarySelectionAction } from 'app/state/actions'
 import { PhotoLibraryPosition, SectionSelectionState, SelectionState } from 'app/state/StateTypes'
 import store from 'app/state/store'
+import { GridSectionLayout } from 'app/UITypes'
 
 import { getPrevGridLayout } from './LibraryController'
 
 
 assertRendererProcess()
+
+
+/**
+ * The center in x-direction of the photo where the user started navigating using up and down keys.
+ * This x-position will be used to determine the best matching photo in the row below or above. We keep using the same
+ * x-position as long the user navigates with up/down, so the same photos will get active when the user changes the
+ * direction.
+ */
+let prevUpDownActivePhotoCenterX: number | null
 
 
 export type MoveDirection = 'left' | 'right' | 'up' | 'down'
@@ -26,64 +36,74 @@ export interface LibrarySelectionController {
 export const defaultLibrarySelectionController: LibrarySelectionController = {
 
     setActivePhoto(activePhoto: PhotoLibraryPosition | null): void {
+        prevUpDownActivePhotoCenterX = null
         store.dispatch(setLibraryActivePhotoAction(activePhoto))
     },
 
     moveActivePhoto(direction: MoveDirection): void {
         const state = store.getState()
+        const { sections } = state.data
         const { activePhoto } = state.library
 
         if (!activePhoto) {
             return
         }
 
-        const activePhotoSection = state.data.sections.byId[activePhoto.sectionId]
-        if (!isLoadedPhotoSection(activePhotoSection)) {
+        const activeSection = sections.byId[activePhoto.sectionId]
+        if (!isLoadedPhotoSection(activeSection)) {
             return
         }
 
-        let activePhotoIndex = activePhotoSection.photoIds.indexOf(activePhoto.photoId)
+        let activePhotoIndex = activeSection.photoIds.indexOf(activePhoto.photoId)
 
-        let nextPhotoIndex = activePhotoIndex
+        let nextSection: LoadedPhotoSection | undefined = activeSection
+        let nextPhotoIndex: number | null = activePhotoIndex
         if (direction === 'left' || direction === 'right') {
-            nextPhotoIndex += (direction === 'left' ? -1 : 1)
+            prevUpDownActivePhotoCenterX = null
+            const indexDelta = (direction === 'left' ? -1 : 1)
+            nextPhotoIndex += indexDelta
+            if (nextPhotoIndex < 0 || nextPhotoIndex >= activeSection.count) {
+                // Try the next section
+                const activeSectionIndex = sections.ids.indexOf(activePhoto.sectionId)
+                const nextSectionIndex = activeSectionIndex + indexDelta
+                const nextSectionId = sections.ids[nextSectionIndex]
+                const nextSectionCandidate = sections.byId[nextSectionId]
+                if (isLoadedPhotoSection(nextSectionCandidate)) {
+                    nextSection = nextSectionCandidate
+                    nextPhotoIndex = (direction === 'left' ? (nextSection.count - 1) : 0)
+                }
+            }
         } else {
             const gridLayout = getPrevGridLayout()
-            const activePhotoSectionIndex = state.data.sections.ids.indexOf(activePhoto.sectionId)
-            const sectionLayout = gridLayout.sectionLayouts[activePhotoSectionIndex]
+            const activeSectionIndex = sections.ids.indexOf(activePhoto.sectionId)
+            const sectionLayout = gridLayout.sectionLayouts[activeSectionIndex]
             if (sectionLayout && sectionLayout.boxes) {
                 const currentPhotoBox = sectionLayout.boxes[activePhotoIndex]
                 if (currentPhotoBox) {
-                    const currentPhotoCenterX = currentPhotoBox.left + currentPhotoBox.width / 2
-                    const moveUp = (direction === 'up')
-                    let prevRowTopY = -1
-                    let bestBoxCenterXDiff = Number.POSITIVE_INFINITY
-                    for (let boxIndex = activePhotoIndex + (moveUp ? -1 : 1); moveUp ? boxIndex >= 0 : boxIndex < sectionLayout.boxes.length; moveUp ? boxIndex-- : boxIndex++) {
-                        const box = sectionLayout.boxes[boxIndex]
-                        if (box.top !== currentPhotoBox.top) {
-                            if (prevRowTopY === -1) {
-                                prevRowTopY = box.top
-                            } else if (box.top !== prevRowTopY) {
-                                // We are one row to far
-                                break
-                            }
-
-                            const boxCenterX = box.left + box.width / 2
-                            const boxCenterXDiff = Math.abs(currentPhotoCenterX - boxCenterX)
-                            if (boxCenterXDiff < bestBoxCenterXDiff) {
-                                bestBoxCenterXDiff = boxCenterXDiff
-                                nextPhotoIndex = boxIndex
-                            }
+                    if (prevUpDownActivePhotoCenterX === null) {
+                        prevUpDownActivePhotoCenterX = currentPhotoBox.left + currentPhotoBox.width / 2
+                    }
+                    const moveUp = direction === 'up'
+                    nextPhotoIndex = findPhotoIndexOfNextRowAtX(prevUpDownActivePhotoCenterX, sectionLayout, moveUp, activePhotoIndex)
+                    if (nextPhotoIndex === null) {
+                        // Try the next section
+                        const nextSectionIndex = activeSectionIndex + (moveUp ? -1 : 1)
+                        const nextSectionLayout = gridLayout.sectionLayouts[nextSectionIndex]
+                        const nextSectionId = sections.ids[nextSectionIndex]
+                        const nextSectionCandidate = sections.byId[nextSectionId]
+                        if (isLoadedPhotoSection(nextSectionCandidate)) {
+                            nextSection = nextSectionCandidate
+                            nextPhotoIndex = findPhotoIndexOfNextRowAtX(prevUpDownActivePhotoCenterX, nextSectionLayout, moveUp)
                         }
                     }
                 }
             }
         }
 
-        const nextPhotoId = activePhotoSection.photoIds[nextPhotoIndex]
-        if (nextPhotoId) {
+        const nextPhotoId = (nextPhotoIndex !== null) && nextSection?.photoIds[nextPhotoIndex]
+        if (nextPhotoId && nextPhotoId !== activePhoto.photoId) {
             store.dispatch(setLibraryActivePhotoAction({
-                sectionId: activePhoto.sectionId,
+                sectionId: nextSection.id,
                 photoId: nextPhotoId,
             }))
         }
@@ -222,4 +242,48 @@ export const defaultLibrarySelectionController: LibrarySelectionController = {
 //        }
 //    }
 
+}
+
+
+function findPhotoIndexOfNextRowAtX(preferredX: number, sectionLayout: GridSectionLayout | undefined, moveUp: boolean,
+    startPhotoIndex?: number): number | null
+{
+    if (!sectionLayout || !sectionLayout.boxes) {
+        return null
+    }
+
+    let startRowTop: number
+    let firstPhotoIndexToCheck: number
+    const startPhotoBox = (startPhotoIndex !== undefined) ? sectionLayout.boxes[startPhotoIndex] : undefined
+    if (startPhotoBox) {
+        startRowTop = startPhotoBox.top
+        firstPhotoIndexToCheck = startPhotoIndex! + (moveUp ? -1 : 1)
+    } else {
+        startRowTop = -1
+        firstPhotoIndexToCheck = moveUp ? (sectionLayout.boxes.length - 1) : 0
+    }
+
+    let prevRowTop = -1
+    let bestBoxCenterXDiff = Number.POSITIVE_INFINITY
+    let bestPhotoIndex: number | null = null
+    for (let boxIndex = firstPhotoIndexToCheck; moveUp ? boxIndex >= 0 : boxIndex < sectionLayout.boxes.length; moveUp ? boxIndex-- : boxIndex++) {
+        const box = sectionLayout.boxes[boxIndex]
+        if (box.top !== startRowTop) {
+            if (prevRowTop === -1) {
+                prevRowTop = box.top
+            } else if (box.top !== prevRowTop) {
+                // We are one row too far
+                break
+            }
+
+            const boxCenterX = box.left + box.width / 2
+            const boxCenterXDiff = Math.abs(preferredX - boxCenterX)
+            if (boxCenterXDiff < bestBoxCenterXDiff) {
+                bestBoxCenterXDiff = boxCenterXDiff
+                bestPhotoIndex = boxIndex
+            }
+        }
+    }
+
+    return bestPhotoIndex
 }

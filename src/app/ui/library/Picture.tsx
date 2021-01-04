@@ -10,7 +10,7 @@ import { bindMany, getErrorCode } from 'common/util/LangUtil'
 import { PhotoId, Photo, PhotoSectionId } from 'common/CommonTypes'
 
 import { LibrarySelectionController } from 'app/controller/LibrarySelectionController'
-import { selectionButtonSize } from 'app/style/variables'
+import { selectionButtonSize, toolbarHeight } from 'app/style/variables'
 import { JustifiedLayoutBox } from 'app/UITypes'
 import RedCheckCircle from 'app/ui/widget/icon/RedCheckCircle'
 
@@ -99,11 +99,12 @@ export default class Picture extends React.Component<Props, State> {
 
             if (scrollParentElem) {
                 const scrollParentRect = scrollParentElem.getBoundingClientRect()
-                const extraSpacing = 10
+                const extraSpacingTop = 10
+                const extraSpacingBottom = 10 + toolbarHeight
                 if (rect.bottom > scrollParentRect.bottom) {
-                    scrollParentElem.scrollTop += rect.bottom - scrollParentRect.bottom + extraSpacing
+                    scrollParentElem.scrollTop += rect.bottom - scrollParentRect.bottom + extraSpacingBottom
                 } else if (rect.top < scrollParentRect.top) {
-                    scrollParentElem.scrollTop += rect.top - scrollParentRect.top - extraSpacing
+                    scrollParentElem.scrollTop += rect.top - scrollParentRect.top - extraSpacingTop
                 }
             }
         }
