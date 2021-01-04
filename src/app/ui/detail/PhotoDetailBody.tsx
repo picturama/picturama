@@ -1,7 +1,7 @@
 import React from 'react'
 import classnames from 'classnames'
 import { ResizeSensor, IResizeEntry, Spinner, NonIdealState, Classes, Button } from '@blueprintjs/core'
-import { FaCheckCircle } from 'react-icons/fa'
+import { FaRegCircle } from 'react-icons/fa'
 
 import { ExifOrientation, PhotoWork, PhotoSectionId, Photo, PhotoId } from 'common/CommonTypes'
 import { msg } from 'common/i18n/i18n'
@@ -233,7 +233,7 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
                                     className='PhotoDetailBody-toggleSelected'
                                     intent='primary'
                                     active={isSelected}
-                                    icon={isSelected ? <RedCheckCircle size={16}/> : <FaCheckCircle style={{ fontSize: 16 }}/>}
+                                    icon={isSelected ? <RedCheckCircle size={16}/> : <FaRegCircle style={{ fontSize: 16 }}/>}
                                     text={msg(isSelected ? 'PhotoDetailBody_selected' : 'PhotoDetailBody_select')}
                                     onClick={this.onTogglePhotoSelected}
                                 />
