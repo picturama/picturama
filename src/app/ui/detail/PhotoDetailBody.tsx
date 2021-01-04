@@ -226,6 +226,7 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
                     <ViewModeLayer
                         topBarClassName={props.topBarClassName}
                         bodyClassName={props.bodyClassName}
+                        inSelectionMode={!!props.selection}
                         isTopBarRight={!props.isShowingInfo}
                         topBarRightItem={
                             props.selection ? (
@@ -255,6 +256,7 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
                         setPreviousDetailPhoto={props.setPreviousDetailPhoto}
                         setNextDetailPhoto={props.setNextDetailPhoto}
                         setPhotoPosition={this.setPhotoPosition}
+                        togglePhotoSelected={this.onTogglePhotoSelected}
                         enterCropMode={this.enterCropMode}
                         closeDetail={props.closeDetail}
                     />

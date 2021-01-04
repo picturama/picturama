@@ -12,6 +12,7 @@ import { GridSectionLayout, GridLayout, JustifiedLayoutBox } from 'app/UITypes'
 import { CommandGroupId, addCommandGroup, setCommandGroupEnabled, removeCommandGroup } from 'app/controller/HotkeyController'
 import { NailedGridPosition, GetGridLayoutFunction, PhotoGridPosition } from 'app/controller/LibraryController'
 import { LibrarySelectionController } from 'app/controller/LibrarySelectionController'
+import { isPhotoSelected } from 'app/state/selectors'
 import { PhotoLibraryPosition, SelectionState } from 'app/state/StateTypes'
 import { gridScrollBarWidth, toolbarHeight } from 'app/style/variables'
 import { getScrollbarSize } from 'app/util/DomUtil'
@@ -61,7 +62,7 @@ export default class Grid extends React.Component<Props, State> {
 
         this.state = { scrollTop: 0, viewportWidth: 0, viewportHeight: 0 }
 
-        bindMany(this, 'showPhotoDetails', 'onEnter', 'onResize', 'onScroll', 'setScrollTop',
+        bindMany(this, 'showPhotoDetails', 'onShowActiveInDetail', 'onToggleActiveSelected', 'onResize', 'onScroll', 'setScrollTop',
             'moveActivePhotoLeft', 'moveActivePhotoRight', 'moveActivePhotoUp', 'moveActivePhotoDown')
     }
 
@@ -71,7 +72,8 @@ export default class Grid extends React.Component<Props, State> {
             { combo: 'right', onAction: this.moveActivePhotoRight },
             { combo: 'up', onAction: this.moveActivePhotoUp },
             { combo: 'down', onAction: this.moveActivePhotoDown },
-            { combo: 'enter', onAction: this.onEnter },
+            { combo: 'space', onAction: this.onToggleActiveSelected },
+            { combo: 'enter', onAction: this.onShowActiveInDetail },
         ])
     }
 
@@ -146,8 +148,17 @@ export default class Grid extends React.Component<Props, State> {
         this.props.setDetailPhotoById(sectionId, photoId)
     }
 
-    private onEnter() {
-        const props = this.props
+    private onToggleActiveSelected() {
+        const { props } = this
+        if (props.activePhoto) {
+            const { sectionId, photoId } = props.activePhoto
+            const isSelected = isPhotoSelected(sectionId, photoId, props.selection)
+            props.librarySelectionController.setPhotoSelected(sectionId, photoId, !isSelected)
+        }
+    }
+
+    private onShowActiveInDetail() {
+        const { props } = this
         if (props.activePhoto) {
             props.setDetailPhotoById(props.activePhoto.sectionId, props.activePhoto.photoId)
         }

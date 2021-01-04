@@ -16,6 +16,7 @@ import ViewModeOverlay from './ViewModeOverlay'
 export interface Props {
     topBarClassName: string
     bodyClassName: string
+    inSelectionMode: boolean
     isTopBarRight: boolean
     topBarRightItem?: MaybeElement
     showEditButton: boolean
@@ -26,11 +27,12 @@ export interface Props {
     setPreviousDetailPhoto: () => void
     setNextDetailPhoto: () => void
     setPhotoPosition(photoPosition: RequestedPhotoPosition): void
+    togglePhotoSelected(): void
     enterCropMode(): void
     closeDetail(): void
 }
 
-type CommandKeys = 'close' | 'prevPhoto' | 'nextPhoto' | 'edit'
+type CommandKeys = 'close' | 'prevPhoto' | 'nextPhoto' | 'toggleSelected' | 'edit'
 
 export default class ViewModeLayer extends React.Component<Props> {
 
@@ -45,6 +47,7 @@ export default class ViewModeLayer extends React.Component<Props> {
             close: { combo: 'esc', label: msg('common_backToLibrary'), onAction: props.closeDetail },
             prevPhoto: { combo: 'left', enabled: () => !this.props.isFirst, label: msg('PhotoDetailPane_prevPhoto'), onAction: props.setPreviousDetailPhoto },
             nextPhoto: { combo: 'right', enabled: () => !this.props.isLast, label: msg('PhotoDetailPane_nextPhoto'), onAction: props.setNextDetailPhoto },
+            toggleSelected: { combo: 'space', enabled: () => !!this.props.inSelectionMode, onAction: props.togglePhotoSelected },
             edit: { combo: 'enter', enabled: () => this.props.showEditButton, label: msg('PhotoDetailPane_edit'), onAction: props.enterCropMode },
         }
     }
