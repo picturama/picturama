@@ -141,6 +141,7 @@ export default {
     RotateButtonGroup_rotateRight: 'Otočit doprava',
 
     SelectionSummary_selected: '{0} vybráno',
+    SelectionSummary_clearSelection: ``,  // TODO: 'Clear selection'
 
     Settings_title: 'Nastavení',
     Settings_selectPhotoDirs: 'Vyberte prosím složky, ve kterých budou vyhledány fotografie.',

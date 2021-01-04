@@ -26,6 +26,7 @@ export default class SelectionSummary extends React.Component<Props> {
                 <Button
                     icon='cross'
                     minimal={true}
+                    title={msg('SelectionSummary_clearSelection')}
                     onClick={props.onClearSelection}
                 />
             </div>

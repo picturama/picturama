@@ -141,6 +141,7 @@ export default {
     RotateButtonGroup_rotateRight: 'Nach rechts drehen',
 
     SelectionSummary_selected: '{0} ausgewählt',
+    SelectionSummary_clearSelection: 'Auswahl aufheben',
 
     Settings_title: 'Einstellungen',
     Settings_selectPhotoDirs: 'Bitte wähle die Ordner aus, die nach Fotos gescannt werden sollen.',

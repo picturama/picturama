@@ -141,6 +141,7 @@ export default {
     RotateButtonGroup_rotateRight: '向右旋转',
 
     SelectionSummary_selected: ``,  // TODO: '{0} selected'
+    SelectionSummary_clearSelection: ``,  // TODO: 'Clear selection'
 
     Settings_title: '设置',
     Settings_selectPhotoDirs: '请选择要扫描图像的文件夹',

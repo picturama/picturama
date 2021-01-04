@@ -141,6 +141,7 @@ export default {
     RotateButtonGroup_rotateRight: 'Rotar a la derecha',
 
     SelectionSummary_selected: '{0} selectionados',
+    SelectionSummary_clearSelection: ``,  // TODO: 'Clear selection'
 
     Settings_title: 'Ajustes',
     Settings_selectPhotoDirs: 'Por favor, selecciona carpetas para escanear imágenes.',
