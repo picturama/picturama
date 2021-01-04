@@ -251,7 +251,7 @@ export default class Picture extends React.Component<Props, State> {
                 onMouseEnter={this.onMouseEnter}
                 onMouseLeave={this.onMouseLeave}
                 onClick={props.inSelectionMode ? this.onToggleSelection : this.onSetPhotoActive}
-                onDoubleClick={this.onShowDetails}
+                onDoubleClick={props.inSelectionMode ? undefined : this.onShowDetails}
             >
                 {state.thumbnailSrc &&
                     <img
