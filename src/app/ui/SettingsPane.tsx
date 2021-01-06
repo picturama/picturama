@@ -82,6 +82,7 @@ export class SettingsPane extends React.Component<Props> {
                 <LogoDecoration getDecorationWidth={this.getDecorationWidth}/>
                 <Toolbar
                     className="SettingsPane-topBar"
+                    isTopBar={true}
                     isLeft={true}
                 >
                     <Button onClick={this.onClose}>
