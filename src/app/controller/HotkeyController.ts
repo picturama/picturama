@@ -7,6 +7,7 @@
 
 import { IKeyCombo, getKeyCombo, getKeyComboString, comboMatches, parseKeyCombo } from '@blueprintjs/core'
 
+import { msg } from 'common/i18n/i18n'
 import { assertRendererProcess } from 'common/util/ElectronUtil'
 
 import { setShiftPressedAction } from 'app/state/actions'
@@ -81,13 +82,24 @@ export function isCommandEnabled(command: Command): boolean {
 }
 
 export function getCommandLabel(command: Command): string {
-    let combo = command.combo
+    return formatCommandLabel(command.label, command.combo)
+}
+
+export function formatCommandLabel(label: string | null | undefined, combo: string): string {
+    const formattedCombo = formatCombo(combo)
+    return label ? `${label} ${formattedCombo}` : formattedCombo
+}
+
+export function formatCombo(combo: string): string {
     switch (combo) {
         case 'left': combo = '\u21E6'; break
         case 'right': combo = '\u21E8'; break
+        case 'enter': combo = '\u23CE'; break
+        case 'space':
+            combo = msg(`key_${combo}` as any)
+            break;
     }
-    const formattedCombo = `[${combo}]`
-    return command.label ? `${command.label} ${formattedCombo}` : formattedCombo
+    return `[${combo}]`
 }
 
 export function getCommandButtonProps(command: Command): { disabled: boolean, title: string, onClick: () => void } {

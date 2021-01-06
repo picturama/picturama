@@ -6,6 +6,8 @@ export default {
     common_error_photoNotExisting: '照片不存在',
     common_error_photoNotExisting_desc: '这张照片已经不在上次扫描时的位置了,也许它已经被移动、删除或它在一个不再连接的磁盘上',
 
+    key_space: ``,  // TODO: 'Space'
+
     App_error_noWebGL_title: '没有WebGL',
     App_error_noWebGL_desc: 'Picturama需要有3D加速的图形卡才能运作,请查看系统设置中是否可以激活3D加速并重新启动Picturama',
 
@@ -100,6 +102,9 @@ export default {
     MainMenu_toggleUiTester: '切换UI界面',
     MainMenu_reloadUi: '加载UI',
 
+    Picture_showDetails: ``,  // TODO: 'View photo'
+    Picture_select: ``,  // TODO: 'Select'
+    Picture_deselect: ``,  // TODO: 'Deselect'
     Picture_error_createThumbnail: '创建缩略图失败',
 
     PhotoActionButtons_movedToTrash_one: '已将照片移动到垃圾桶',

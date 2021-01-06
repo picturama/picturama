@@ -10,11 +10,16 @@ import { bindMany, getErrorCode } from 'common/util/LangUtil'
 import { PhotoId, Photo, PhotoSectionId } from 'common/CommonTypes'
 
 import { LibrarySelectionController } from 'app/controller/LibrarySelectionController'
+import { formatCommandLabel } from 'app/controller/HotkeyController'
 import { selectionButtonSize, toolbarHeight } from 'app/style/variables'
 import { JustifiedLayoutBox } from 'app/UITypes'
 import RedCheckCircle from 'app/ui/widget/icon/RedCheckCircle'
 
 import './Picture.less'
+
+
+export const showDetailsCombo = 'enter'
+export const toggleSelectedCombo = 'space'
 
 
 export interface Props {
@@ -282,6 +287,7 @@ export default class Picture extends React.Component<Props, State> {
                     <Button className='Picture-overlay Picture-showDetails'
                         icon={<Icon iconSize={18} icon='zoom-in'/>}
                         minimal={true}
+                        title={formatCommandLabel(msg('Picture_showDetails'), showDetailsCombo)}
                         onClick={this.onShowDetails}
                     />
                 }
@@ -289,6 +295,7 @@ export default class Picture extends React.Component<Props, State> {
                     <Button className={classNames('Picture-overlay Picture-toggleSelection')}
                         minimal={true}
                         icon={renderToggleSelectionIcon(props.isSelected, props.inSelectionMode, props.preselected)}
+                        title={formatCommandLabel(msg(((props.preselected !== null) ? !props.preselected : props.isSelected) ? 'Picture_select' : 'Picture_deselect'), toggleSelectedCombo)}
                         onClick={this.onToggleSelection}
                     />
                 }

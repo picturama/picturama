@@ -6,6 +6,8 @@ export default {
     common_error_photoNotExisting: `Foto no encontrada`,
     common_error_photoNotExisting_desc: `Esta foto ya no se encuentra donde estaba ubicada en el último escaneo. Quizás fue movida, borrada o se encuentra en un disco que no está conectado`,
 
+    key_space: ``,  // TODO: 'Space'
+
     App_error_noWebGL_title: `WebGL deshabilitado`,
     App_error_noWebGL_desc: `Picturama necesita una tarjeta gráfica con aceleración 3D para poder funcionar. Por favor revisa en la configuración de tu sistema si es posible activar la aceleración 3D y reinicia Picturama.`,
 
@@ -100,6 +102,9 @@ export default {
     MainMenu_toggleUiTester: `Mostrar probador de UI`,
     MainMenu_reloadUi: `Recargar UI`,
 
+    Picture_showDetails: ``,  // TODO: 'View photo'
+    Picture_select: ``,  // TODO: 'Select'
+    Picture_deselect: ``,  // TODO: 'Deselect'
     Picture_error_createThumbnail: `Falló la creación de la miniatura`,
 
     PhotoActionButtons_movedToTrash_one: 'Mover foto a la papelera',

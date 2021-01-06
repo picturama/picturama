@@ -19,6 +19,7 @@ import { getScrollbarSize } from 'app/util/DomUtil'
 
 import GridScrollBar from './GridScrollBar'
 import GridSection, { sectionHeadHeight } from './GridSection'
+import { showDetailsCombo, toggleSelectedCombo } from './Picture'
 
 import './Grid.less'
 
@@ -73,8 +74,8 @@ export default class Grid extends React.Component<Props, State> {
             { combo: 'right', onAction: this.moveActivePhotoRight },
             { combo: 'up', onAction: this.moveActivePhotoUp },
             { combo: 'down', onAction: this.moveActivePhotoDown },
-            { combo: 'space', onAction: this.onToggleActiveSelected },
-            { combo: 'enter', onAction: this.onShowActiveInDetail },
+            { combo: toggleSelectedCombo, onAction: this.onToggleActiveSelected },
+            { combo: showDetailsCombo, onAction: this.onShowActiveInDetail },
         ])
     }
 

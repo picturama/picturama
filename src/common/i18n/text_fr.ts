@@ -6,6 +6,8 @@ export default {
     common_error_photoNotExisting: `Cette photo n'existe pas.`,
     common_error_photoNotExisting_desc: `Cette photo n'est plus à l'endroit où elle se trouvait lors du dernier scan. Elle a peut-être été déplacée, supprimée ou se trouve sur un disque qui n'est plus connecté`,
 
+    key_space: ``,  // TODO: 'Space'
+
     App_error_noWebGL_title: 'WebGL non supporté.',
     App_error_noWebGL_desc: `Pour fonctionner, Picturama a besoin d'une carte graphique avec accélération 3D. Veuillez vérifier dans les paramètres du système si vous pouvez activer l'accélération 3D et redémarrer Picturama.`,
 
@@ -100,6 +102,9 @@ export default {
     MainMenu_toggleUiTester: `Activer l'interface de test`,
     MainMenu_reloadUi: `Recharger l'interface`,
 
+    Picture_showDetails: ``,  // TODO: 'View photo'
+    Picture_select: ``,  // TODO: 'Select'
+    Picture_deselect: ``,  // TODO: 'Deselect'
     Picture_error_createThumbnail: 'La création de la miniature a échoué',
 
     PhotoActionButtons_movedToTrash_one: 'Déplacement de la photo à la corbeille',

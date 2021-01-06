@@ -6,6 +6,8 @@ export default {
     common_error_photoNotExisting: 'Fotografie už neexistuje',
     common_error_photoNotExisting_desc: 'Tato fotografie již není tam, kde byla při posledním vyhledání. Možná byla přesunuta, odstraněna nebo se nachází na disku, který již není připojen.',
 
+    key_space: ``,  // TODO: 'Space'
+
     App_error_noWebGL_title: 'Žádné WebGL',
     App_error_noWebGL_desc: 'Picturama vyžaduje grafickou kartu s 3D akcelerací. Podívejte se prosím do systémových nastavení, zda je možné aktivovat 3D akceleraci a restartujte Picturama.',
 
@@ -100,6 +102,9 @@ export default {
     MainMenu_toggleUiTester: 'Zapnout UI testera',
     MainMenu_reloadUi: 'Znovu nahrát UI',
 
+    Picture_showDetails: ``,  // TODO: 'View photo'
+    Picture_select: ``,  // TODO: 'Select'
+    Picture_deselect: ``,  // TODO: 'Deselect'
     Picture_error_createThumbnail: 'Vytváření náhledu selhalo',
 
     PhotoActionButtons_movedToTrash_one: 'Fotografie přesunuta do koše',

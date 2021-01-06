@@ -6,6 +6,8 @@ export default {
     common_error_photoNotExisting: 'Foto ist nicht mehr da',
     common_error_photoNotExisting_desc: 'Dieses Foto nicht mehr da wo es beim letzten Scan war. Evtl. wurde es verschoben, gelöscht oder es befindet sich auf einem Datenträger, der nun nicht mehr angeschlossen ist.',
 
+    key_space: 'Leertaste',
+
     App_error_noWebGL_title: 'Kein WebGL',
     App_error_noWebGL_desc: 'Picturama benötigt eine Grafikkarte mit 3D-Beschleunigung um zu funktionieren. Bitte schaue in den System-Einstellungen, ob Du 3D-Beschleunigung aktivieren kannst und starte Picturama dann neu.',
 
@@ -100,6 +102,9 @@ export default {
     MainMenu_toggleUiTester: `UI-Tester anzeigen`,
     MainMenu_reloadUi: `Oberfläche neu laden`,
 
+    Picture_showDetails: 'Foto ansehen',
+    Picture_select: 'Auswählen',
+    Picture_deselect: 'Abwählen',
     Picture_error_createThumbnail: 'Konnte Vorschaubild nicht erstellen',
 
     PhotoActionButtons_movedToTrash_one: 'Foto wurde in den Papierkorb gelegt',

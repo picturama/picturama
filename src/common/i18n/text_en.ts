@@ -6,6 +6,8 @@ export default {
     common_error_photoNotExisting: 'Photo is no longer there',
     common_error_photoNotExisting_desc: 'This photo is no longer where it was on the last scan. Maybe it has been moved, deleted or it is on a disk that is no longer connected.',
 
+    key_space: 'Space',
+
     App_error_noWebGL_title: 'No WebGL',
     App_error_noWebGL_desc: 'Picturama needs a graphic card with 3D acceleration in order to function. Please have a look in the system settings whether you can activate 3D acceleration and restart Picturama.',
 
@@ -100,6 +102,9 @@ export default {
     MainMenu_toggleUiTester: 'Toggle UI Tester',
     MainMenu_reloadUi: 'Reload UI',
 
+    Picture_showDetails: 'View photo',
+    Picture_select: 'Select',
+    Picture_deselect: 'Deselect',
     Picture_error_createThumbnail: 'Creating thumbnail failed',
 
     PhotoActionButtons_movedToTrash_one: 'Moved photo to trash',
