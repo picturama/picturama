@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux'
 
-import { PhotoFilter } from 'common/CommonTypes'
+import { PhotoFilter, PhotoSectionId } from 'common/CommonTypes'
 
 import { defaultGridRowHeight } from 'app/UiConstants'
 import { Action } from 'app/state/ActionType'
@@ -8,7 +8,7 @@ import {
     SET_GRID_ROW_HEIGHT, FETCH_SECTIONS_REQUEST, FETCH_SECTIONS_SUCCESS, FETCH_SECTIONS_FAILURE,
     CHANGE_PHOTOS, SET_LIBRARY_ACTIVE_PHOTO, SET_LIBRARY_HOVER_PHOTO, SET_LIBRARY_SELECTION, EMPTY_TRASH, SET_DETAIL_PHOTO
 } from 'app/state/actionTypes'
-import { LibraryState, DisplayState, SelectionState, InfoState, PhotoLibraryPosition } from 'app/state/StateTypes'
+import { LibraryState, DisplayState, SectionSelectionState, SelectionState, PhotoLibraryPosition } from 'app/state/StateTypes'
 
 
 const initialDisplayState: DisplayState = {
@@ -76,6 +76,28 @@ const hoverPhoto = (state: PhotoLibraryPosition | null = null, action: Action): 
 const selection = (state: SelectionState | null = null, action: Action): SelectionState | null => {
     switch (action.type) {
         case FETCH_SECTIONS_SUCCESS:
+            if (!state) {
+                return null
+            } else {
+                const prevSectionSelectionById = state.sectionSelectionById
+                let totalSelectedCount = 0
+                const sectionSelectionById: { [K in PhotoSectionId]?: SectionSelectionState } = {}
+                for (const section of action.payload.sections) {
+                    const prevSectionSelection = prevSectionSelectionById[section.id]
+                    if (prevSectionSelection) {
+                        let nextSectionSelection = prevSectionSelection
+                        if (prevSectionSelection.selectedPhotosById === 'all' && prevSectionSelection.selectedCount !== section.count) {
+                            nextSectionSelection = {
+                                ...prevSectionSelection,
+                                selectedCount: section.count
+                            }
+                        }
+                        totalSelectedCount += nextSectionSelection.selectedCount
+                        sectionSelectionById[section.id] = nextSectionSelection
+                    }
+                }
+                return (totalSelectedCount === 0) ? null : { totalSelectedCount, sectionSelectionById }
+            }
         case FETCH_SECTIONS_FAILURE:
         case EMPTY_TRASH:
             return null
