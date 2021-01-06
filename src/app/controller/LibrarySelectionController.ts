@@ -1,7 +1,8 @@
 import { isLoadedPhotoSection, LoadedPhotoSection, PhotoId, PhotoSectionId } from 'common/CommonTypes'
 import { assertRendererProcess } from 'common/util/ElectronUtil'
 
-import { setLibraryActivePhotoAction, setLibrarySelectionAction } from 'app/state/actions'
+import { setLibraryActivePhotoAction, setLibraryHoverPhotoAction, setLibrarySelectionAction } from 'app/state/actions'
+import { getPreselectionRange } from 'app/state/selectors'
 import { PhotoLibraryPosition, SectionSelectionState, SelectionState } from 'app/state/StateTypes'
 import store from 'app/state/store'
 import { GridSectionLayout } from 'app/UITypes'
@@ -26,9 +27,11 @@ export type MoveDirection = 'left' | 'right' | 'up' | 'down'
 
 export interface LibrarySelectionController {
     setActivePhoto(activePhoto: PhotoLibraryPosition | null): void
+    setHoverPhoto(activePhoto: PhotoLibraryPosition | null): void
     moveActivePhoto(direction: MoveDirection): void
     setSectionSelected(sectionId: PhotoSectionId, selected: boolean): void
     setPhotoSelected(sectionId: PhotoSectionId, photoId: PhotoId, selected: boolean): void
+    applyPreselection(): void
     clearSelection(): void
 }
 
@@ -38,6 +41,10 @@ export const defaultLibrarySelectionController: LibrarySelectionController = {
     setActivePhoto(activePhoto: PhotoLibraryPosition | null): void {
         prevUpDownActivePhotoCenterX = null
         store.dispatch(setLibraryActivePhotoAction(activePhoto))
+    },
+
+    setHoverPhoto(hoverPhoto: PhotoLibraryPosition | null): void {
+        store.dispatch(setLibraryHoverPhotoAction(hoverPhoto))
     },
 
     moveActivePhoto(direction: MoveDirection): void {
@@ -217,6 +224,65 @@ export const defaultLibrarySelectionController: LibrarySelectionController = {
             }
             store.dispatch(setLibrarySelectionAction(nextSelection, { sectionId, photoId }))
         }
+    },
+
+    applyPreselection() {
+        const state = store.getState()
+        const preselectionRange = getPreselectionRange(state)
+        const prevSelection = state.library.selection
+        const { sections } = state.data
+        if (!preselectionRange || !prevSelection) {
+            return
+        }
+
+        const { selected, startSectionIndex, endSectionIndex } = preselectionRange
+        let nextTotalSelectedCount = prevSelection.totalSelectedCount
+        const nextSectionSelectionById = { ...prevSelection.sectionSelectionById }
+        for (let sectionIndex = startSectionIndex; sectionIndex <= endSectionIndex; sectionIndex++) {
+            const sectionId = sections.ids[sectionIndex]
+            const section = sections.byId[sectionId]
+            const prevSectionSelection = prevSelection.sectionSelectionById[sectionId]
+
+            let nextSectionSelection: SectionSelectionState | null = null
+            if (sectionIndex !== startSectionIndex && sectionIndex !== endSectionIndex) {
+                nextSectionSelection = selected ? { sectionId, selectedCount: section.count, selectedPhotosById: 'all' } : null
+            } else if (isLoadedPhotoSection(section)) {
+                const prevSelectedPhotosById = prevSectionSelection?.selectedPhotosById
+                const startPhotoIndex = (sectionIndex === startSectionIndex) ? preselectionRange.startPhotoIndex : 0
+                const endPhotoIndex   = (sectionIndex === endSectionIndex) ? preselectionRange.endPhotoIndex : (section.count - 1)
+
+                let selectedCount = 0
+                let selectedPhotosById: 'all' | { [K in PhotoId]?: true } = {}
+                for (let photoIndex = 0; photoIndex < section.photoIds.length; photoIndex++) {
+                    const photoId = section.photoIds[photoIndex]
+                    if ((photoIndex >= startPhotoIndex && photoIndex <= endPhotoIndex) ?
+                        selected :
+                        (prevSelectedPhotosById === 'all' || prevSelectedPhotosById?.[photoId]))
+                    {
+                        selectedCount++
+                        selectedPhotosById[photoId] = true
+                    }
+                }
+                if (selectedCount === section.count) {
+                    selectedPhotosById = 'all'
+                }
+
+                nextSectionSelection = (selectedCount) ? { sectionId, selectedCount, selectedPhotosById } : null
+            }
+
+            nextTotalSelectedCount += (nextSectionSelection?.selectedCount ?? 0) - (prevSectionSelection?.selectedCount ?? 0)
+            if (nextSectionSelection) {
+                nextSectionSelectionById[sectionId] = nextSectionSelection
+            } else {
+                delete nextSectionSelectionById[sectionId]
+            }
+        }
+
+        store.dispatch(setLibrarySelectionAction(
+            nextTotalSelectedCount ?
+                { totalSelectedCount: nextTotalSelectedCount, sectionSelectionById: nextSectionSelectionById } :
+                null,
+            state.library.hoverPhoto || undefined))
     },
 
     clearSelection() {

@@ -221,8 +221,10 @@ export const mockPhotoActionController: PhotoActionController = {
 
 export const mockLibrarySelectionController: LibrarySelectionController = {
     setActivePhoto: action('setActivePhoto'),
+    setHoverPhoto: action('setHoverPhoto'),
     moveActivePhoto: action('moveActivePhoto'),
     setSectionSelected: action('setSectionSelected'),
     setPhotoSelected: action('setPhotoSelected'),
+    applyPreselection: action('applyPreselection'),
     clearSelection: action('clearSelection'),
 }

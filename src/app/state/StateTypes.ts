@@ -15,8 +15,9 @@ export type AppState = {
 
 export type NavigationState = {
     devicePixelRatio: number
-    isFullScreen: boolean
     hasWebGLSupport: boolean
+    isFullScreen: boolean
+    isShiftPressed: boolean
     mainView: MainViewState
 }
 
@@ -44,6 +45,8 @@ export interface LibraryState {
      *   - has the keyboard focus
      */
     readonly activePhoto: PhotoLibraryPosition | null
+    /** The photo over which the mouse is currently hovering */
+    readonly hoverPhoto: PhotoLibraryPosition | null
     readonly selection: SelectionState | null
 }
 
@@ -72,6 +75,16 @@ export interface SectionSelectionState {
 }
 
 export type PhotoCollection = Photo | Photo[] | PhotoLibraryPosition | SelectionState
+
+export interface PreselectionRange {
+    selected: boolean
+    startSectionIndex: number
+    startPhotoIndex: number
+    endSectionIndex: number
+    endPhotoIndex: number
+}
+
+export type SectionPreselection = 'all' | 'none' | { selected: boolean, startPhotoIndex: number, endPhotoIndex: number }
 
 
 export type TagsState = {

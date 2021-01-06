@@ -9,7 +9,7 @@ import { bindMany } from 'common/util/LangUtil'
 
 import { LibrarySelectionController } from 'app/controller/LibrarySelectionController'
 import { isPhotoSelectedInSection } from 'app/state/selectors'
-import { SectionSelectionState } from 'app/state/StateTypes'
+import { SectionPreselection, SectionSelectionState } from 'app/state/StateTypes'
 import { selectionButtonSize } from 'app/style/variables'
 import { GridSectionLayout } from 'app/UITypes'
 import RedCheckCircle from 'app/ui/widget/icon/RedCheckCircle'
@@ -30,6 +30,7 @@ export interface Props {
     layout: GridSectionLayout
     activePhotoId: PhotoId | null
     sectionSelection?: SectionSelectionState
+    sectionPreselection?: SectionPreselection
     librarySelectionController: LibrarySelectionController
     getThumbnailSrc: (photo: Photo) => string
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => CancelablePromise<string>
@@ -70,6 +71,7 @@ export default class GridSection extends React.Component<Props> {
                         layoutBox={props.layout.boxes[photoIndex]}
                         isActive={photoId === activePhotoId}
                         isSelected={isPhotoSelectedInSection(photoId, props.sectionSelection)}
+                        preselected={getPhotoPreselection(photoIndex, props.sectionPreselection)}
                         librarySelectionController={props.librarySelectionController}
                         getThumbnailSrc={props.getThumbnailSrc}
                         createThumbnail={props.createThumbnail}
@@ -122,4 +124,18 @@ export default class GridSection extends React.Component<Props> {
         );
     }
 
+}
+
+
+function getPhotoPreselection(photoIndex: number, sectionPreselection?: SectionPreselection): boolean | undefined {
+    if (!sectionPreselection) {
+        return undefined
+    } else if (sectionPreselection === 'all') {
+        return true
+    } else if (sectionPreselection === 'none') {
+        return false
+    }
+
+    const isPhotoInRange = photoIndex >= sectionPreselection.startPhotoIndex && photoIndex <= sectionPreselection.endPhotoIndex
+    return isPhotoInRange ? sectionPreselection.selected : undefined
 }

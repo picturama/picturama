@@ -4,10 +4,11 @@ import { PhotoId, Photo, Tag, Device, PhotoDetail, PhotoWork, PhotoSection, Phot
 import { ImportProgress } from 'common/CommonTypes'
 
 import {
-    INIT, SET_WEB_GL_SUPPORT, SET_DEVICE_PIXEL_RATIO, SET_FULL_SCREEN, OPEN_SETTINGS, SET_SETTINGS, CLOSE_SETTINGS, SET_GRID_ROW_HEIGHT,
+    INIT, SET_DEVICE_PIXEL_RATIO, SET_WEB_GL_SUPPORT, SET_FULL_SCREEN, SET_SHIFT_PRESSED,
+    OPEN_SETTINGS, SET_SETTINGS, CLOSE_SETTINGS, SET_GRID_ROW_HEIGHT,
     SET_DETAIL_PHOTO, FETCH_DETAIL_PHOTO_DATA_REQUEST, FETCH_DETAIL_PHOTO_DATA_SUCCESS, FETCH_DETAIL_PHOTO_DATA_FAILURE,
-    CLOSE_DETAIL, SET_LIBRARY_ACTIVE_PHOTO, SET_LIBRARY_SELECTION, FETCH_TOTAL_PHOTO_COUNT, FETCH_SECTIONS_REQUEST,
-    FETCH_SECTIONS_SUCCESS, FETCH_SECTIONS_FAILURE,
+    CLOSE_DETAIL, SET_LIBRARY_ACTIVE_PHOTO, SET_LIBRARY_HOVER_PHOTO, SET_LIBRARY_SELECTION, FETCH_TOTAL_PHOTO_COUNT,
+    FETCH_SECTIONS_REQUEST, FETCH_SECTIONS_SUCCESS, FETCH_SECTIONS_FAILURE,
     FETCH_SECTION_PHOTOS, FORGET_SECTION_PHOTOS,
     CHANGE_PHOTOWORK, CHANGE_PHOTOS, EMPTY_TRASH, SET_SHOW_INFO, SET_INFO_PHOTO_DATA, SET_INFO_PHOTO_DATA_FAILURE,
     SET_IMPORT_PROGRESS, FETCH_TAGS, SET_PHOTO_TAGS,
@@ -18,9 +19,10 @@ import { PhotoCollection, PhotoLibraryPosition, SelectionState } from './StateTy
 
 
 export const initAction = (uiConfig: UiConfig, settings: Settings) => action(INIT, { uiConfig, settings })
-export const setWebGLSupport = (hasWebGLSupport: boolean) => action(SET_WEB_GL_SUPPORT, hasWebGLSupport)
 export const setDevicePixelRatioAction = (devicePixelRatio: number) => action(SET_DEVICE_PIXEL_RATIO, devicePixelRatio)
+export const setWebGLSupport = (hasWebGLSupport: boolean) => action(SET_WEB_GL_SUPPORT, hasWebGLSupport)
 export const setFullScreenAction = (isFullScreen: boolean) => action(SET_FULL_SCREEN, isFullScreen)
+export const setShiftPressedAction = (isShiftPressed: boolean) => action(SET_SHIFT_PRESSED, isShiftPressed)
 export const openSettingsAction = () => action(OPEN_SETTINGS)
 export const setSettingsAction = (settings: Settings) => action(SET_SETTINGS, settings)
 export const closeSettingsAction = () => action(CLOSE_SETTINGS)
@@ -32,6 +34,7 @@ export const fetchDetailPhotoDataAction = createAsyncAction(FETCH_DETAIL_PHOTO_D
 export const closeDetailAction = () => action(CLOSE_DETAIL)
 
 export const setLibraryActivePhotoAction = (activePhoto: PhotoLibraryPosition | null) => action(SET_LIBRARY_ACTIVE_PHOTO, activePhoto)
+export const setLibraryHoverPhotoAction = (hoverPhoto: PhotoLibraryPosition | null) => action(SET_LIBRARY_HOVER_PHOTO, hoverPhoto)
 export const setLibrarySelectionAction = (selection: SelectionState | null, activePhoto?: PhotoLibraryPosition) => action(SET_LIBRARY_SELECTION, { selection, activePhoto })
 
 export const fetchTotalPhotoCountAction = (totalPhotoCount: number) => action(FETCH_TOTAL_PHOTO_COUNT, { totalPhotoCount })

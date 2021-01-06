@@ -45,6 +45,7 @@ function createDefaultProps(context: TestContext): Props {
         } as PhotoSectionById,
         activePhoto: null,
         selection: null,
+        preselectionRange: null,
         showInfo: false,
         infoPhoto: undefined,
         infoPhotoData: undefined,
@@ -168,6 +169,57 @@ addSection('Library')
                     }
                 }
             }}
+        />
+    ))
+    .add('pre-selection', context => (
+        <Library
+            {...createDefaultProps(context)}
+            topBarLeftItem={
+                <SelectionSummary
+                    selectedCount={3}
+                    onClearSelection={action('onClearSelection')}
+                />
+            }
+            activePhoto={{ sectionId: defaultSectionId, photoId: defaultSection.photoIds[2] }}
+            selection={{
+                totalSelectedCount: 2,
+                sectionSelectionById: {
+                    [defaultSectionId]: {
+                        sectionId: defaultSectionId,
+                        selectedCount: 2,
+                        selectedPhotosById: {
+                            [defaultSection.photoIds[2]]: true,
+                            [defaultSection.photoIds[4]]: true,
+                        }
+                    }
+                }
+            }}
+            preselectionRange={{ selected: true, startSectionIndex: 0, startPhotoIndex: 2, endSectionIndex: 0, endPhotoIndex: 5 }}
+        />
+    ))
+    .add('pre-deselection', context => (
+        <Library
+            {...createDefaultProps(context)}
+            topBarLeftItem={
+                <SelectionSummary
+                    selectedCount={3}
+                    onClearSelection={action('onClearSelection')}
+                />
+            }
+            activePhoto={{ sectionId: defaultSectionId, photoId: defaultSection.photoIds[2] }}
+            selection={{
+                totalSelectedCount: 1,
+                sectionSelectionById: {
+                    [defaultSectionId]: {
+                        sectionId: defaultSectionId,
+                        selectedCount: 1,
+                        selectedPhotosById: {
+                            [defaultSection.photoIds[4]]: true,
+                        }
+                    }
+                }
+            }}
+            preselectionRange={{ selected: false, startSectionIndex: 0, startPhotoIndex: 2, endSectionIndex: 0, endPhotoIndex: 5 }}
         />
     ))
     .add('info', context => {

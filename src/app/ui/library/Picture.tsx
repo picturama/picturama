@@ -141,18 +141,26 @@ export default class Picture extends React.Component<Props, State> {
     }
 
     private onMouseEnter() {
+        const { props } = this
         this.setState({ isHovered: true })
+        props.librarySelectionController.setHoverPhoto({ sectionId: props.sectionId, photoId: props.photo.id })
     }
 
     private onMouseLeave() {
+        const { props } = this
         this.setState({ isHovered: false })
+        props.librarySelectionController.setHoverPhoto(null)
     }
 
     private onToggleSelection(event: React.MouseEvent) {
         const { props } = this
         event.stopPropagation()
         event.preventDefault()
-        props.librarySelectionController.setPhotoSelected(props.sectionId, props.photo.id, !props.isSelected)
+        if (props.preselected !== undefined) {
+            props.librarySelectionController.applyPreselection()
+        } else {
+            props.librarySelectionController.setPhotoSelected(props.sectionId, props.photo.id, !props.isSelected)
+        }
     }
 
     private onSetPhotoActive(event: React.MouseEvent) {
@@ -270,7 +278,7 @@ export default class Picture extends React.Component<Props, State> {
                         <Icon iconSize={18} icon='star'/>
                     </div>
                 }
-                {state.isHovered &&
+                {state.isHovered && props.preselected === undefined &&
                     <Button className='Picture-overlay Picture-showDetails'
                         icon={<Icon iconSize={18} icon='zoom-in'/>}
                         minimal={true}

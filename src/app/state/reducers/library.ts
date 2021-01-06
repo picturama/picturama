@@ -6,7 +6,7 @@ import { defaultGridRowHeight } from 'app/UiConstants'
 import { Action } from 'app/state/ActionType'
 import {
     SET_GRID_ROW_HEIGHT, FETCH_SECTIONS_REQUEST, FETCH_SECTIONS_SUCCESS, FETCH_SECTIONS_FAILURE,
-    CHANGE_PHOTOS, SET_LIBRARY_ACTIVE_PHOTO, SET_LIBRARY_SELECTION, EMPTY_TRASH, SET_DETAIL_PHOTO
+    CHANGE_PHOTOS, SET_LIBRARY_ACTIVE_PHOTO, SET_LIBRARY_HOVER_PHOTO, SET_LIBRARY_SELECTION, EMPTY_TRASH, SET_DETAIL_PHOTO
 } from 'app/state/actionTypes'
 import { LibraryState, DisplayState, SelectionState, InfoState, PhotoLibraryPosition } from 'app/state/StateTypes'
 
@@ -62,6 +62,17 @@ const activePhoto = (state: PhotoLibraryPosition | null = null, action: Action):
     }
 }
 
+
+const hoverPhoto = (state: PhotoLibraryPosition | null = null, action: Action): PhotoLibraryPosition | null => {
+    switch (action.type) {
+        case SET_LIBRARY_HOVER_PHOTO:
+            return action.payload
+        default:
+            return state
+    }
+}
+
+
 const selection = (state: SelectionState | null = null, action: Action): SelectionState | null => {
     switch (action.type) {
         case FETCH_SECTIONS_SUCCESS:
@@ -88,5 +99,6 @@ export const library = combineReducers<LibraryState>({
     display,
     filter,
     activePhoto,
+    hoverPhoto,
     selection,
 })

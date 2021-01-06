@@ -17,8 +17,8 @@ import { PhotoActionController, defaultPhotoActionController } from 'app/control
 import { fetchTotalPhotoCount, fetchSections, getThumbnailSrc } from 'app/controller/PhotoController'
 import { fetchTags, setPhotoTags } from 'app/controller/PhotoTagController'
 import { setGridRowHeightAction, setShowInfoAction } from 'app/state/actions'
-import { getInfoPhoto, getTagTitles } from 'app/state/selectors'
-import { AppState, InfoPhotoData, PhotoLibraryPosition, SelectionState } from 'app/state/StateTypes'
+import { getInfoPhoto, getPreselectionRange, getTagTitles } from 'app/state/selectors'
+import { AppState, InfoPhotoData, PhotoLibraryPosition, PreselectionRange, SelectionState } from 'app/state/StateTypes'
 import PhotoInfo from 'app/ui/info/PhotoInfo'
 import LogoDecoration from 'app/ui/widget/LogoDecoration'
 import { keySymbols } from 'app/UiConstants'
@@ -54,6 +54,7 @@ interface StateProps {
     sectionById: PhotoSectionById
     activePhoto: PhotoLibraryPosition | null
     selection: SelectionState | null
+    preselectionRange: PreselectionRange | null
     showInfo: boolean
     infoPhoto?: Photo
     infoPhotoData?: InfoPhotoData
@@ -210,6 +211,7 @@ export class Library extends React.Component<Props> {
                             sectionById={props.sectionById}
                             activePhoto={props.activePhoto}
                             selection={props.selection}
+                            preselectionRange={props.preselectionRange}
                             gridRowHeight={props.gridRowHeight}
                             librarySelectionController={props.librarySelectionController}
                             getGridLayout={props.getGridLayout}
@@ -259,6 +261,7 @@ const Connected = connect<StateProps, DispatchProps, OwnProps, AppState>(
             sectionById: sections.byId,
             activePhoto: state.library.activePhoto,
             selection: state.library.selection,
+            preselectionRange: getPreselectionRange(state),
             showInfo: state.info.showInLibrary,
             infoPhoto: getInfoPhoto(state),
             infoPhotoData: state.info.photoData,

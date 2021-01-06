@@ -13,7 +13,7 @@ import { CommandGroupId, addCommandGroup, setCommandGroupEnabled, removeCommandG
 import { NailedGridPosition, GetGridLayoutFunction, PhotoGridPosition } from 'app/controller/LibraryController'
 import { LibrarySelectionController } from 'app/controller/LibrarySelectionController'
 import { isPhotoSelected } from 'app/state/selectors'
-import { PhotoLibraryPosition, SelectionState } from 'app/state/StateTypes'
+import { PhotoLibraryPosition, PreselectionRange, SectionPreselection, SelectionState } from 'app/state/StateTypes'
 import { gridScrollBarWidth, toolbarHeight } from 'app/style/variables'
 import { getScrollbarSize } from 'app/util/DomUtil'
 
@@ -34,6 +34,7 @@ interface Props {
     sectionById: PhotoSectionById
     activePhoto: PhotoLibraryPosition | null
     selection: SelectionState | null
+    preselectionRange: PreselectionRange | null
     gridRowHeight: number
     librarySelectionController: LibrarySelectionController
     getGridLayout: GetGridLayoutFunction
@@ -110,6 +111,7 @@ export default class Grid extends React.Component<Props, State> {
         return this.gridLayout !== prevGridLayout
             || nextProps.activePhoto !== prevProps.activePhoto
             || nextProps.selection !== prevProps.selection
+            || nextProps.preselectionRange !== prevProps.preselectionRange
             || nextState.scrollTop !== prevState.scrollTop
     }
 
@@ -225,6 +227,7 @@ export default class Grid extends React.Component<Props, State> {
                     layout={layout}
                     activePhotoId={(activePhoto?.sectionId === sectionId) ? activePhoto.photoId : null}
                     sectionSelection={props.selection?.sectionSelectionById[sectionId]}
+                    sectionPreselection={getSectionPreselection(sectionIndex, props.preselectionRange)}
                     librarySelectionController={props.librarySelectionController}
                     getThumbnailSrc={props.getThumbnailSrc}
                     createThumbnail={props.createThumbnail}
@@ -321,6 +324,26 @@ function getNailedGridPosition(scrollTop: number, viewportHeight: number, sectio
         return { positions }
     } else {
         return null
+    }
+}
+
+
+function getSectionPreselection(sectionIndex: number, preselectionRange: PreselectionRange | null): SectionPreselection | undefined {
+    if (!preselectionRange) {
+        return undefined
+    }
+
+    const { selected, startSectionIndex, endSectionIndex } = preselectionRange
+    if (sectionIndex < startSectionIndex || sectionIndex > endSectionIndex) {
+        return undefined
+    } else if (sectionIndex === startSectionIndex && sectionIndex === endSectionIndex) {
+        return preselectionRange
+    } else if (sectionIndex === startSectionIndex) {
+        return { selected, startPhotoIndex: preselectionRange.startPhotoIndex, endPhotoIndex: Number.POSITIVE_INFINITY }
+    } else if (sectionIndex === endSectionIndex) {
+        return { selected, startPhotoIndex: 0, endPhotoIndex: preselectionRange.endPhotoIndex }
+    } else {
+        return selected ? 'all' : 'none'
     }
 }
 

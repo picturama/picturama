@@ -9,6 +9,9 @@ import { IKeyCombo, getKeyCombo, getKeyComboString, comboMatches, parseKeyCombo 
 
 import { assertRendererProcess } from 'common/util/ElectronUtil'
 
+import { setShiftPressedAction } from 'app/state/actions'
+import store from 'app/state/store'
+
 
 assertRendererProcess()
 
@@ -41,6 +44,7 @@ let nextGroupId: CommandGroupId = 1
 let groups: { [K in CommandGroupId]: CommandGroup } = {}
 
 let isInitialized = false
+let prevIsShiftPressed: boolean | null = null
 
 
 export function addCommandGroup(commands: Command[] | { [K in any]: Command }): CommandGroupId {
@@ -54,6 +58,7 @@ export function addCommandGroup(commands: Command[] | { [K in any]: Command }):
     if (!isInitialized) {
         isInitialized = true
         window.addEventListener('keydown', onGlobalKeyDown)
+        window.addEventListener('keyup', onGlobalKeyUp)
     }
 
     return groupId
@@ -95,6 +100,8 @@ export function getCommandButtonProps(command: Command): { disabled: boolean, ti
 
 
 function onGlobalKeyDown(event: KeyboardEvent) {
+    updateShiftPressed(event)
+
     if (isTextInput(event)) {
         return
     }
@@ -120,6 +127,19 @@ function onGlobalKeyDown(event: KeyboardEvent) {
                 }
             }
         }
+    }
+}
+
+
+function onGlobalKeyUp(event: KeyboardEvent) {
+    updateShiftPressed(event)
+}
+
+
+function updateShiftPressed(event: KeyboardEvent) {
+    if (event.shiftKey !== prevIsShiftPressed) {
+        prevIsShiftPressed = event.shiftKey
+        store.dispatch(setShiftPressedAction(prevIsShiftPressed))
     }
 }
 
