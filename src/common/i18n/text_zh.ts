@@ -42,7 +42,7 @@ export default {
     ExportDialog_customSizeSide_width: '宽度',
     ExportDialog_customSizeSide_height: '高度',
     ExportDialog_customSizeSide_size: '尺寸',
-    ExportDialog_privacy: ``,  // TODO: 'Privacy'
+    ExportDialog_privacy: '隐私',
     ExportDialog_removeInfo: '删除额外信息',
     ExportDialog_removeInfo_desc: '这将从导出的照片中删除EXIF标签等额外信息,这是关于使用的相机，照片的位置或类似的信息',
     ExportDialog_removeInfo_jpgOnly: '额外信息目前只支持JPG格式,即只有当原始照片和导出的照片都是JPG时，才会导出额外的信息',
@@ -50,8 +50,8 @@ export default {
     ExportDialog_fileName_likeOriginal: '像原版一样',
     ExportDialog_fileName_sequence: '序列',
     ExportDialog_fileName_sequencePrefix: '前缀',
-    ExportDialog_fileName_sequencePrefixDefault: ``,  // TODO: 'Photo'
-    ExportDialog_fileName_sequenceExample: ``,  // TODO: 'Example: {0}'
+    ExportDialog_fileName_sequencePrefixDefault: '照片',
+    ExportDialog_fileName_sequenceExample: '示例：{0}',
     ExportDialog_export: '导出',
     ExportDialog_exportingTo: '导出到{0}',
     ExportDialog_done_one: '完成导出照片',
