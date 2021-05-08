@@ -10,6 +10,7 @@
         "outDir": "dist",
         "sourceMap": true,
         "jsx": "react",
+        "skipLibCheck": true,
         "esModuleInterop": true,
         "allowJs": true,
         "allowSyntheticDefaultImports": true,

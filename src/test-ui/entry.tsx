@@ -17,8 +17,8 @@ import 'test-ui/tests/CropOverlayTest'
 import 'test-ui/tests/MiniWorldMapTest'
 import 'test-ui/tests/IconTest'
 
-import 'app/entry.less'
-import 'test-ui/entry.less'
+import '../app/entry.less'
+import './entry.less'
 
 
 window['UiTester'] = {
