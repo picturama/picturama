@@ -6,7 +6,7 @@ export default {
     common_error_photoNotExisting: `Foto no encontrada`,
     common_error_photoNotExisting_desc: `Esta foto ya no se encuentra donde estaba ubicada en el último escaneo. Quizás fue movida, borrada o se encuentra en un disco que no está conectado`,
 
-    key_space: 'Barra Espaciadora',  // TODO: 'Space'- Translated
+    key_space: 'Barra Espaciadora',
 
     App_error_noWebGL_title: `WebGL deshabilitado`,
     App_error_noWebGL_desc: `Picturama necesita una tarjeta gráfica con aceleración 3D para poder funcionar. Por favor revisa en la configuración de tu sistema si es posible activar la aceleración 3D y reinicia Picturama.`,
@@ -102,9 +102,9 @@ export default {
     MainMenu_toggleUiTester: `Mostrar probador de UI`,
     MainMenu_reloadUi: `Recargar UI`,
 
-    Picture_showDetails: 'Ver foto',  // TODO: 'View photo' -Transalted
-    Picture_select: 'Seleccionar',  // TODO: 'Select' -Transalted
-    Picture_deselect: 'Deseleccionar',  // TODO: 'Deselect' -Transalted
+    Picture_showDetails: 'Ver foto',
+    Picture_select: 'Seleccionar',
+    Picture_deselect: 'Deseleccionar',
     Picture_error_createThumbnail: `Falló la creación de la miniatura`,
 
     PhotoActionButtons_movedToTrash_one: 'Mover foto a la papelera',
@@ -121,8 +121,8 @@ export default {
 
     PhotoDetailPane_prevPhoto: 'Anterior foto',
     PhotoDetailPane_nextPhoto: 'Siguiente foto',
-    PhotoDetailBody_selected: 'Seleccionado',  // TODO: 'Selected' - Translated
-    PhotoDetailBody_select: 'Escoger',  // TODO: 'Select' -Translated
+    PhotoDetailBody_selected: 'Seleccionado',
+    PhotoDetailBody_select: 'Escoger',
     PhotoDetailPane_edit: 'Editar',
 
     PhotoInfo_title: 'Info',
@@ -146,7 +146,7 @@ export default {
     RotateButtonGroup_rotateRight: 'Rotar a la derecha',
 
     SelectionSummary_selected: '{0} selectionados',
-    SelectionSummary_clearSelection: 'Quitar Selección',  // TODO: 'Clear selection'-Translated
+    SelectionSummary_clearSelection: 'Quitar Selección',
 
     Settings_title: 'Ajustes',
     Settings_selectPhotoDirs: 'Por favor, selecciona carpetas para escanear imágenes.',
