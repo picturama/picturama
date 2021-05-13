@@ -272,15 +272,22 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
                     />
                 }
                 {state.loadingState === 'loading' &&
-                    <Spinner className='PhotoDetailBody-spinner' size={Spinner.SIZE_LARGE} />
+                    <div className={props.bodyClassName}>
+                        <Spinner
+                            className='PhotoDetailBody-spinner'
+                            size={Spinner.SIZE_LARGE}
+                        />
+                    </div>
                 }
                 {state.loadingState === 'error' &&
-                    <NonIdealState
-                        className={classnames('PhotoDetailBody-error', Classes.DARK)}
-                        icon='delete'
-                        title={msg('common_error_photoNotExisting')}
-                        description={msg('common_error_photoNotExisting_desc')}
-                    />
+                    <div className={props.bodyClassName}>
+                        <NonIdealState
+                            className={classnames('PhotoDetailBody-error', Classes.DARK)}
+                            icon='delete'
+                            title={msg('common_error_photoNotExisting')}
+                            description={msg('common_error_photoNotExisting_desc')}
+                        />
+                    </div>
                 }
             </div>
         )
