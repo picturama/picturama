@@ -1,5 +1,5 @@
 {
-    "files.exclude": {
+    "search.exclude": {
         "submodules/**": true,
         "src/app/style/fonts/**": true
     },
