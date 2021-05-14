@@ -3,7 +3,7 @@ import classnames from 'classnames'
 import { ResizeSensor, IResizeEntry, Spinner, NonIdealState, Classes, Button } from '@blueprintjs/core'
 import { FaRegCircle } from 'react-icons/fa'
 
-import { ExifOrientation, PhotoWork, PhotoSectionId, Photo, PhotoId } from 'common/CommonTypes'
+import { PhotoWork, PhotoSectionId, Photo } from 'common/CommonTypes'
 import { msg } from 'common/i18n/i18n'
 import { CameraMetrics, CameraMetricsBuilder, RequestedPhotoPosition, PhotoPosition } from 'common/util/CameraMetrics'
 import { Size, zeroSize, Insets, zeroInsets, Rect } from 'common/util/GeometryTypes'
@@ -62,7 +62,6 @@ interface State {
     /** The size of the detail body (in px) */
     bodySize: Size
     textureSize: Size | null
-    textureOrientation: ExifOrientation
     boundsRect: Rect | null
     photoPosition: RequestedPhotoPosition
     /** The PhotoWork which is changed in crop mode but not yet saved */
@@ -85,7 +84,6 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
             loadingState: null,
             bodySize: zeroSize,
             textureSize: null,
-            textureOrientation: ExifOrientation.Up,
             boundsRect: null,
             photoPosition: 'contain',
             editedPhotoWork: null,
@@ -131,7 +129,6 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
         if (prevState.textureSize && nextProps.photoWork) {
             const cameraMetrics = cameraMetricsBuilder
                 .setTextureSize(prevState.textureSize)
-                .setTextureOrientation(prevState.textureOrientation)
                 .setDisplaySize(prevState.bodySize, 1 / nextProps.devicePixelRatio)
                 .setBoundsRect(nextBoundsRect)
                 .setPhotoWork(nextEditedPhotoWork || nextProps.photoWork)
@@ -160,10 +157,10 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
         }
     }
 
-    private onTextureChange(textureSize: Size | null, orientation: ExifOrientation) {
+    private onTextureChange(textureSize: Size | null) {
         const { state } = this
         if (!isShallowEqual(textureSize, state.textureSize)) {
-            this.setState({ textureSize, textureOrientation: orientation })
+            this.setState({ textureSize })
         }
     }
 

@@ -203,6 +203,10 @@ export interface IpcErrorInfo {
 export interface MetaData {
     imgWidth?:     number
     imgHeight?:    number
+    /** The assumed image width (in px). This width is not sure and should only be used if there is no other way for determining it */
+    imgWidthAssumed?:  number
+    /** The assumed image height (in px). This height is not sure and should only be used if there is no other way for determining it */
+    imgHeightAssumed?: number
     /** Example: 'SONY DSC-N2' */
     camera?:       string
     /** Example: 0.0166 */

@@ -6,6 +6,7 @@ import { imageSize as getImageSizeWithCallback } from 'image-size'
 import { Photo, ExifOrientation, ImportProgress, PhotoId } from 'common/CommonTypes'
 import { profileScanner } from 'common/LogConstants'
 import config from 'common/config'
+import { hasExifOrientationSwitchedSides } from 'common/util/DataUtil'
 import { bindMany } from 'common/util/LangUtil'
 import Profiler from 'common/util/Profiler'
 
@@ -369,7 +370,7 @@ export default class ImportScanner {
             ])
             if (profiler) profiler.addPoint('Fetched meta data and PhotoWork')
 
-            const switchMasterSides = (metaData.orientation == ExifOrientation.Left) || (metaData.orientation == ExifOrientation.Right)
+            const switchMasterSides = hasExifOrientationSwitchedSides(metaData.orientation)
             let master_width = switchMasterSides ? metaData.imgHeight : metaData.imgWidth
             let master_height = switchMasterSides ? metaData.imgWidth : metaData.imgHeight
 
@@ -400,7 +401,7 @@ export default class ImportScanner {
                 if (profiler) profiler.addPoint('Transcoded extracted image')
             }
 
-            // Get photo size (if not available from EXIF data)
+            // Get photo size (if not available from meta data)
 
             if (!master_width || !master_height) {
                 try {
@@ -410,16 +411,23 @@ export default class ImportScanner {
                         throw new Error('Received invalid photo size')
                     }
                     const orientation = imageInfo.orientation || ExifOrientation.Up
-                    const switchMasterSides = (orientation == ExifOrientation.Left) || (orientation == ExifOrientation.Right)
+                    const switchMasterSides = hasExifOrientationSwitchedSides(orientation)
                     master_width  = switchMasterSides ? imageInfo.height : imageInfo.width
                     master_height = switchMasterSides ? imageInfo.width : imageInfo.height
                 } catch (error) {
-                    console.error('Detecting photo size failed', masterFullPath, error)
-                    if (profiler) {
-                        profiler.addPoint('Detecting photo size failed')
-                        profiler.logResult()
+                    // Use assumed photo size if there is no other source
+                    if (metaData.imgWidthAssumed && metaData.imgHeightAssumed) {
+                        const switchMasterSides = hasExifOrientationSwitchedSides(metaData.orientation)
+                        master_width = switchMasterSides ? metaData.imgHeightAssumed : metaData.imgWidthAssumed
+                        master_height = switchMasterSides ? metaData.imgWidthAssumed : metaData.imgHeightAssumed
+                    } else {
+                        console.error('Detecting photo size failed', masterFullPath, error)
+                        if (profiler) {
+                            profiler.addPoint('Detecting photo size failed')
+                            profiler.logResult()
+                        }
+                        return false
                     }
-                    return false
                 }
             }
 

@@ -89,8 +89,8 @@ function extractMetaDataFromExif(exifTags: { [K: string]: any }): MetaData {
     }
 
     const metaData: MetaData = {
-        imgWidth:     exifTags.ImageWidth || exifTags.ExifImageWidth,
-        imgHeight:    exifTags.ImageHeight || exifTags.ExifImageHeight,
+        imgWidth:     exifTags.ImageWidth,
+        imgHeight:    exifTags.ImageHeight,
         camera:       camera || undefined,
         exposureTime: exifTags.ExposureTime,
         iso,
@@ -100,6 +100,17 @@ function extractMetaDataFromExif(exifTags: { [K: string]: any }): MetaData {
         orientation:  exifTags.Orientation || 1,
             // Details on orientation: https://www.impulseadventure.com/photo/exif-orientation.html
         tags:         []
+    }
+    if (exifTags.ExifImageWidth && exifTags.ExifImageHeight) {
+        // We don't trust the width and height writted to EXIF data, since some cameras switch width and height when
+        // they do "Auto image rotation".
+        // Example:
+        //    See `submodules/test-data/photos/jpg/NIKON D90_portrait.jpg`: A portrait photo with EXIF orientation 1 (up),
+        //    but switched `exifTags.ExifImageWidth` and `exifTags.ExifImageHeight`.
+        //    It appears as if this happens if "Auto image rotation" is switched "off" in the camera.
+        //    See: https://www.dpreview.com/forums/thread/3201488
+        metaData.imgWidthAssumed = exifTags.ExifImageWidth
+        metaData.imgHeightAssumed = exifTags.ExifImageHeight
     }
 
     return metaData

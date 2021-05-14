@@ -12,6 +12,7 @@ const writeFile = util.promisify(fs.writeFile)
 
 
 const testPhotosDir = 'submodules/test-data/photos'
+const testExifPhotosDir = 'submodules/test-data-exif-orientation'
 const testBaseDir = 'dist-test'
 
 
@@ -81,8 +82,14 @@ testImportScanner('import png',
 
 testImportScanner('import jpg',
     async testDir => {
-        await copyFile(`${testPhotosDir}/jpg/Apple_iPhone_XR_landscape.jpg`, `${testDir}/Apple_iPhone_XR_landscape.jpg`)
-        await copyFile(`${testPhotosDir}/jpg/Apple_iPhone_XR_portrait.jpg`,  `${testDir}/Apple_iPhone_XR_portrait.jpg`)
+        await Promise.all([
+            copyFile(`${testPhotosDir}/jpg/Apple_iPhone_XR_landscape.jpg`, `${testDir}/Apple_iPhone_XR_landscape.jpg`),
+            copyFile(`${testPhotosDir}/jpg/Apple_iPhone_XR_portrait.jpg`,  `${testDir}/Apple_iPhone_XR_portrait.jpg`),
+            copyFile(`${testPhotosDir}/jpg/NIKON_D90_landscape.jpg`,  `${testDir}/NIKON_D90_landscape.jpg`),
+            copyFile(`${testPhotosDir}/jpg/NIKON_D90_portrait.jpg`,  `${testDir}/NIKON_D90_portrait.jpg`),
+            copyFile(`${testPhotosDir}/jpg/Panasonic_DMC-G6_landscape.jpg`,  `${testDir}/Panasonic_DMC-G6_landscape.jpg`),
+            copyFile(`${testPhotosDir}/jpg/Panasonic_DMC-G6_portrait.jpg`,  `${testDir}/Panasonic_DMC-G6_portrait.jpg`),
+        ])
     },
     async ({ testDir, storedPhotos }) => {
         expectPhotos(storedPhotos, [
@@ -111,6 +118,58 @@ testImportScanner('import jpg',
                 created_at: 1564394038000,
                 flag: 0,
                 trashed: 0
+            },
+            {
+                master_dir: 'dist-test/import_jpg',
+                master_filename: 'NIKON_D90_landscape.jpg',
+                master_width: 4288,
+                master_height: 2848,
+                master_is_raw: 0,
+                edited_width: 4288,
+                edited_height: 2848,
+                date_section: '2014-06-08',
+                created_at: 1402226372000,
+                flag: 0,
+                trashed: 0
+            },
+            {
+                master_dir: 'dist-test/import_jpg',
+                master_filename: 'NIKON_D90_portrait.jpg',
+                master_width: 2848,
+                master_height: 4288,
+                master_is_raw: 0,
+                edited_width: 2848,
+                edited_height: 4288,
+                date_section: '2014-06-08',
+                created_at: 1402230977000,
+                flag: 0,
+                trashed: 0
+            },
+            {
+                master_dir: 'dist-test/import_jpg',
+                master_filename: 'Panasonic_DMC-G6_landscape.jpg',
+                master_width: 4608,
+                master_height: 3456,
+                master_is_raw: 0,
+                edited_width: 4608,
+                edited_height: 3456,
+                date_section: '2014-06-08',
+                created_at: 1402229206000,
+                flag: 0,
+                trashed: 0
+            },
+            {
+                master_dir: 'dist-test/import_jpg',
+                master_filename: 'Panasonic_DMC-G6_portrait.jpg',
+                master_width: 3456,
+                master_height: 4608,
+                master_is_raw: 0,
+                edited_width: 3456,
+                edited_height: 4608,
+                date_section: '2014-06-08',
+                created_at: 1402228725000,
+                flag: 0,
+                trashed: 0
             }
         ])
     })
@@ -137,6 +196,47 @@ testImportScanner('import heic',
             }
         ])
     })
+
+
+
+testImportScanner('import exif orientation',
+    async testDir => {
+        const copyPromises: Promise<any>[] = []
+        for (let exifOrientation = 8; exifOrientation <= 8; exifOrientation++) {
+            copyPromises.push(
+                copyFile(`${testExifPhotosDir}/Landscape_${exifOrientation}.jpg`, `${testDir}/Landscape_${exifOrientation}.jpg`),
+                copyFile(`${testExifPhotosDir}/Portrait_${exifOrientation}.jpg`, `${testDir}/Portrait_${exifOrientation}.jpg`),
+            )
+        }
+        await Promise.all(copyPromises)
+    },
+    async ({ testDir, storedPhotos }) => {
+        const expectedPhotos: ExpectedPhoto[] = []
+        for (let exifOrientation = 8; exifOrientation <= 8; exifOrientation++) {
+            const switchSides = exifOrientation >= 5
+            function createExpectedPhoto(master_filename: string, master_width: number, master_height: number): ExpectedPhoto {
+                return {
+                    master_dir: 'dist-test/import_exif_orientation',
+                    master_filename,
+                    master_width,
+                    master_height,
+                    master_is_raw: 0,
+                    edited_width: master_width,
+                    edited_height: master_height,
+                    flag: 0,
+                    trashed: 0
+                }
+            }
+
+            expectedPhotos.push(
+                createExpectedPhoto(`Landscape_${exifOrientation}.jpg`, 1800, 1200),
+                createExpectedPhoto(`Portrait_${exifOrientation}.jpg`, 1200, 1800)
+            )
+        }
+
+        expectPhotos(storedPhotos, expectedPhotos)
+    })
+
 
 
 testImportScanner('import Picasa crop and tilt',
@@ -310,7 +410,8 @@ function testImportScanner(testName: string, prepareTestDir: (testDir: string) =
 }
 
 
-function expectPhotos(actualPhotos: Photo[], expectedPhotos: (Partial<Photo> & { master_filename: string })[]) {
+type ExpectedPhoto = Partial<Photo> & { master_filename: string }
+function expectPhotos(actualPhotos: Photo[], expectedPhotos: ExpectedPhoto[]) {
     function comparePhotos(photo1: { master_filename: string }, photo2: { master_filename: string }) {
         return photo1.master_filename.localeCompare(photo2.master_filename)
     }

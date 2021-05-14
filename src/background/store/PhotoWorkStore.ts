@@ -355,9 +355,7 @@ function createPhotoWorkFromPicasaRules(picasaRules: PicasaRules, directoryPath:
             }
         }
 
-        const exifOrientation = ExifOrientation.Up
-            // masterWidth and masterHeight have already EXIF orientation applied, so we use "Up" here
-        const projectionMatrix = createProjectionMatrix({ width: masterWidth, height: masterHeight }, exifOrientation, photoWork)
+        const projectionMatrix = createProjectionMatrix({ width: masterWidth, height: masterHeight }, photoWork)
         const borderPolygon: Vec2Like[] = [
             vec2.transformMat4(vec2.create(), cornerPointOfRect(picasaCanvasRect, 'nw'), projectionMatrix),
             vec2.transformMat4(vec2.create(), cornerPointOfRect(picasaCanvasRect, 'ne'), projectionMatrix),

@@ -287,7 +287,7 @@ export default class CropModeLayer extends React.Component<Props, State> {
 
         // Adjust crop rect
         const texturePolygon = createTexturePolygon(cameraMetrics)
-        const nextProjectionMatrix = createProjectionMatrix(cameraMetrics.textureSize, cameraMetrics.textureOrientation, photoWork)
+        const nextProjectionMatrix = createProjectionMatrix(cameraMetrics.textureSize, photoWork)
         const nextCropRectCenter = vec2.transformMat4(vec2.create(), centerInTextureCoords, nextProjectionMatrix)
         photoWork.cropRect = scaleRectToFitBorders(nextCropRectCenter, maxCropRectSize, texturePolygon)
 

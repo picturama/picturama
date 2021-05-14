@@ -1,8 +1,7 @@
 import { mat4 } from 'gl-matrix'
 
-import { ExifOrientation, PhotoWork } from 'common/CommonTypes'
+import { PhotoWork } from 'common/CommonTypes'
 import { isShallowEqual } from 'common/util/LangUtil'
-import { getTotalRotationTurns } from 'common/util/DataUtil'
 import { Size, zeroSize, Rect, zeroRect, Insets, zeroInsets } from 'common/util/GeometryTypes'
 
 
@@ -11,7 +10,6 @@ export const maxZoom = 2
 
 export interface CameraMetrics {
     textureSize: Size
-    textureOrientation: ExifOrientation
     canvasSize: Size
     displaySize: Size
     /** The scaling from canvas coordinates to display coordinates */
@@ -54,7 +52,6 @@ export interface CameraMetrics {
 
 export const zeroCameraMetrics: CameraMetrics = {
     textureSize: zeroSize,
-    textureOrientation: ExifOrientation.Up,
     canvasSize: zeroSize,
     displaySize: zeroSize,
     displayScaling: 1,
@@ -88,7 +85,6 @@ export type RequestedPhotoPosition = 'contain' | PhotoPosition
 export class CameraMetricsBuilder {
 
     private textureSize: Size = zeroSize
-    private textureOrientation: ExifOrientation
     private canvasSize: Size | null = null
     private displayScaling = 1
     private insets: Insets = zeroInsets
@@ -108,14 +104,6 @@ export class CameraMetricsBuilder {
     setTextureSize(textureSize: Size): this {
         if (!isShallowEqual(this.textureSize, textureSize)) {
             this.textureSize = textureSize
-            this.isDirty = true
-        }
-        return this
-    }
-
-    setTextureOrientation(textureOrientation: ExifOrientation): this {
-        if (this.textureOrientation !== textureOrientation) {
-            this.textureOrientation = textureOrientation
             this.isDirty = true
         }
         return this
@@ -209,9 +197,9 @@ export class CameraMetricsBuilder {
             return this.cameraMetrics
         }
 
-        const { textureSize, textureOrientation, displayScaling, photoWork, insets, requestedPhotoPosition } = this
+        const { textureSize, displayScaling, photoWork, insets, requestedPhotoPosition } = this
 
-        const rotationTurns = getTotalRotationTurns(textureOrientation, photoWork)
+        const rotationTurns = photoWork.rotationTurns || 0
         const insetsWidth = insets.left + insets.right
         const insetsHeight = insets.top + insets.bottom
         const neutralCropRect = updateNeutralCropRect(rotationTurns, textureSize, this.cameraMetrics && this.cameraMetrics.neutralCropRect)
@@ -279,7 +267,6 @@ export class CameraMetricsBuilder {
 
         this.cameraMetrics = {
             textureSize,
-            textureOrientation,
             canvasSize,
             displaySize,
             displayScaling,
@@ -291,7 +278,7 @@ export class CameraMetricsBuilder {
             maxZoom,
             cropRect,
             neutralCropRect,
-            projectionMatrix: createProjectionMatrix(textureSize, textureOrientation, photoWork),
+            projectionMatrix: createProjectionMatrix(textureSize, photoWork),
             cameraMatrix,
             displayMatrix,
         }
@@ -324,8 +311,8 @@ function updateNeutralCropRect(rotationTurns: number, textureSize: Size, prevNeu
 }
 
 
-export function createProjectionMatrix(textureSize: Size, exifOrientation: ExifOrientation, photoWork: PhotoWork): mat4 {
-    const rotationTurns = getTotalRotationTurns(exifOrientation, photoWork)
+export function createProjectionMatrix(textureSize: Size, photoWork: PhotoWork): mat4 {
+    const rotationTurns = photoWork.rotationTurns || 0
 
     const projectionMatrix = mat4.create()
     // We have projected coordinates here

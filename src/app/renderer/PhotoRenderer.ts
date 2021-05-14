@@ -1,4 +1,4 @@
-import { Photo, PhotoWork, PhotoRenderOptions, PhotoRenderFormat, ExifOrientation, BinaryString } from 'common/CommonTypes'
+import { Photo, PhotoWork, PhotoRenderOptions, PhotoRenderFormat, BinaryString } from 'common/CommonTypes'
 import { CameraMetricsBuilder } from 'common/util/CameraMetrics'
 import { decodeImageDataUrlAsBinaryString, getMasterPath, getNonRawPath } from 'common/util/DataUtil'
 import { assertRendererProcess } from 'common/util/ElectronUtil'
@@ -92,7 +92,6 @@ async function renderNext(job: RenderJob): Promise<BinaryString> {
         .setCanvasSize(job.maxSize)
         .setAdjustCanvasSize(job.maxSize !== null)
         .setTextureSize({ width: texture.width, height: texture.height })
-        .setTextureOrientation(texture.orientation)
         .setPhotoWork(source.type === 'photo' ? source.photoWork : {})
         .getCameraMetrics()
 
@@ -100,9 +99,8 @@ async function renderNext(job: RenderJob): Promise<BinaryString> {
     if (source.type === 'photo') {
         const { photo } = source
         const { cropRect } = cameraMetrics
-        const switchMasterSides = (texture.orientation == ExifOrientation.Left) || (texture.orientation == ExifOrientation.Right)
-        const master_width = switchMasterSides ? texture.height : texture.width
-        const master_height = switchMasterSides ? texture.width : texture.height
+        const master_width = texture.width
+        const master_height = texture.height
         const masterSizeIsWrong = photo.master_width !== master_width || photo.master_height !== master_height
         const editedSizeIsWrong = photo.edited_width !== cropRect.width || photo.edited_height !== cropRect.height
         if (masterSizeIsWrong || photo.edited_width !== cropRect.width || photo.edited_height !== cropRect.height) {

@@ -5,7 +5,7 @@ import { PhotoWork } from 'common/CommonTypes'
 // The images in `submodules/test-data/photos/picasa-import/crop-and-tilt` have been cropped and tilted in Picasa
 // using different 90° rotations so the red rect covers the full canvas.
 // We expect these settings are imported from Picasa
-test('import Picasa crop and tilt', async () => {
+test('fetchPhotoWork with Picasa crop and tilt', async () => {
     const photoDir = 'submodules/test-data/photos/picasa-import/crop-and-tilt'
 
     expectCropAndTilt(await fetchPhotoWork(photoDir, 'crop_1.jpg', 1000, 800), {

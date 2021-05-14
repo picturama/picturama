@@ -4,3 +4,6 @@
 [submodule "submodules/test-data"]
 	path = submodules/test-data
 	url = https://github.com/picturama/test-data.git
+[submodule "submodules/test-data-exif-orientation"]
+	path = submodules/test-data-exif-orientation
+	url = https://github.com/recurser/exif-orientation-examples

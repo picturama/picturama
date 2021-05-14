@@ -5,7 +5,6 @@ import { findDOMNode } from 'react-dom'
 import { CameraMetrics } from 'common/util/CameraMetrics'
 import { Size } from 'common/util/GeometryTypes'
 import { bindMany } from 'common/util/LangUtil'
-import { ExifOrientation } from 'common/CommonTypes'
 import { profileDetailView } from 'common/LogConstants'
 
 import PhotoCanvas from 'app/renderer/PhotoCanvas'
@@ -31,7 +30,7 @@ export interface Props {
     imagePathNext: string | null
     cameraMetrics: CameraMetrics | null
     onLoadingStateChange(loadingState: PhotoLayerLoadingState): void
-    onTextureChange(textureSize: Size, orientation: ExifOrientation): void
+    onTextureChange(textureSize: Size): void
 }
 
 export default class PhotoLayer extends React.Component<Props> {
@@ -89,7 +88,7 @@ export default class PhotoLayer extends React.Component<Props> {
 
     private onTextureFetched(imagePath: string, texture: Texture | null) {
         if (imagePath === this.props.imagePath && texture) {
-            this.props.onTextureChange({ width: texture.width, height: texture.height }, texture.orientation)
+            this.props.onTextureChange({ width: texture.width, height: texture.height })
         }
         this.updateCanvas(this.props)
     }
@@ -115,7 +114,7 @@ export default class PhotoLayer extends React.Component<Props> {
             canvas.setBaseTexture(texture, false)
             this.canvasImagePath = texture ? props.imagePath : null
             if (texture) {
-                this.props.onTextureChange({ width: texture.width, height: texture.height }, texture.orientation)
+                this.props.onTextureChange({ width: texture.width, height: texture.height })
             }
             canvasChanged = true
         }

@@ -39,14 +39,12 @@ function shortId(id: number): string {
 }
 
 
-export function getTotalRotationTurns(exifOrientation: ExifOrientation, photoWork: PhotoWork) {
-    let exifRotationTurns = 0
-    switch (exifOrientation) {
-        case ExifOrientation.Right:  exifRotationTurns = 1; break
-        case ExifOrientation.Bottom: exifRotationTurns = 2; break
-        case ExifOrientation.Left:   exifRotationTurns = 3; break
-    }
-    return (exifRotationTurns + (photoWork.rotationTurns || 0)) % 4
+/**
+ * Returns whether an EXIF orientation has width and height switched between its encoded view and its screen view.
+ * (Is `true` for images rotated left or right, is `false` for images not rotated or rotated 180°.)
+ */
+export function hasExifOrientationSwitchedSides(exifOrientation: ExifOrientation): boolean {
+    return exifOrientation >= 5
 }
 
 

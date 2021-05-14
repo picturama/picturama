@@ -1,9 +1,7 @@
 import { mat4 } from 'gl-matrix'
 import heic2any from 'heic2any'
-import exifr from 'exifr'
 
 import Profiler from 'common/util/Profiler'
-import { ExifOrientation } from 'common/CommonTypes'
 import config from 'common/config'
 import { fileUrlFromPath } from 'common/util/TextUtil'
 
@@ -112,7 +110,6 @@ export default class WebGLCanvas {
         let textureFormat: number
         let width: number
         let height: number
-        let orientation: ExifOrientation
         if (heicExtensionRE.test(filePath)) {
             if (await loadHeifFileSupported()) {
                 const imageData = await BackgroundClient.loadHeifFile(filePath)
@@ -121,7 +118,6 @@ export default class WebGLCanvas {
                 textureFormat = gl.RGB
                 width = imageData.width
                 height = imageData.height
-                orientation = ExifOrientation.Up
                 if (profiler) profiler.addPoint('Prepared image data')
             } else {
                 const encodedHeicBuffer = await (await fetch(fileUrlFromPath(filePath))).arrayBuffer()
@@ -133,7 +129,6 @@ export default class WebGLCanvas {
                 textureFormat = gl.RGBA
                 width = imageData[0].width
                 height = imageData[0].height
-                orientation = ExifOrientation.Up
             }
         } else {
             const image = new Image()
@@ -148,16 +143,10 @@ export default class WebGLCanvas {
             textureFormat = -1  // Not needed for images
             if (profiler) profiler.addPoint('Loaded image')
 
-            let exifData: any = null
-            try {
-                exifData = await exifr.parse(image, exifrOrientationOptions)
-            } catch (error) {
-                console.warn(`Getting EXIF data failed - continuing without: ${filePath}: ${error.message}`)
-            }
-            orientation = exifData && exifData.Orientation || ExifOrientation.Up
-            const switchSides = (orientation == ExifOrientation.Left) || (orientation == ExifOrientation.Right)
-            width = switchSides ? image.height : image.width
-            height = switchSides ? image.width : image.height
+            // `image.width` and `image.height` already has EXIF orientation applied
+            width = image.width
+            height = image.height
+
             if (profiler) profiler.addPoint('Loaded Exif orientation')
         }
 
@@ -182,7 +171,7 @@ export default class WebGLCanvas {
         gl.bindTexture(gl.TEXTURE_2D, null);
         if (profiler) profiler.addPoint('Created texture')
 
-        return new Texture(gl, textureId, width, height, orientation)
+        return new Texture(gl, textureId, width, height)
     }
 
 }
@@ -260,7 +249,7 @@ export class GraphicBuffer {
 export class Texture {
 
     constructor(private gl: WebGLRenderingContext, public textureId: WebGLTexture,
-        readonly width: number, readonly height: number, readonly orientation: ExifOrientation = ExifOrientation.Up)
+        readonly width: number, readonly height: number)
     {
     }
 
