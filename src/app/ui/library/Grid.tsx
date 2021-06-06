@@ -222,7 +222,7 @@ export default class Grid extends React.Component<Props, State> {
                 <GridSection
                     key={sectionId}
                     className="Grid-section"
-                    style={{ top: layout.sectionTop, width: state.viewportWidth, height: sectionHeadHeight + layout.containerHeight }}
+                    style={{ left: layout.left, top: layout.top, width: layout.width, height: layout.height }}
                     inSelectionMode={!!props.selection}
                     section={props.sectionById[sectionId]}
                     layout={layout}
@@ -246,7 +246,7 @@ export default class Grid extends React.Component<Props, State> {
             return 0
         } else {
             const lastLayout = gridLayout.sectionLayouts[sectionCount - 1]
-            return lastLayout.sectionTop + sectionHeadHeight + lastLayout.containerHeight + gridBottomPadding
+            return lastLayout.top + lastLayout.height + gridBottomPadding
         }
     }
 
@@ -299,8 +299,8 @@ function getNailedGridPosition(scrollTop: number, viewportHeight: number, sectio
     for (let sectionIndex = 0, sectionCount = sectionLayouts.length; sectionIndex < sectionCount; sectionIndex++) {
         const sectionLayout = sectionLayouts[sectionIndex]
         const section = sectionById[sectionIds[sectionIndex]]
-        const sectionBodyTop = sectionLayout.sectionTop + sectionHeadHeight
-        const sectionBottom = sectionLayout.sectionTop + sectionLayout.containerHeight
+        const sectionBodyTop = sectionLayout.top + sectionHeadHeight
+        const sectionBottom = sectionLayout.top + sectionLayout.height
         if (sectionBottom >= scrollTop && sectionLayout.boxes && isLoadedPhotoSection(section)) {
             for (let photoIndex = 0, photoCount = sectionLayout.boxes.length; photoIndex < photoCount; photoIndex++) {
                 const box = sectionLayout.boxes[photoIndex]
@@ -418,5 +418,5 @@ function getYForPhotoGridPosition(position: PhotoGridPosition, sectionLayouts: G
     }
 
     const box = sectionLayout.boxes[photoIndex]
-    return sectionLayout.sectionTop + sectionHeadHeight + box.top + box.height * position.relativeY + position.offsetY
+    return sectionLayout.top + sectionHeadHeight + box.top + box.height * position.relativeY + position.offsetY
 }

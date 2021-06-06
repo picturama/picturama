@@ -118,29 +118,32 @@ export function getGridLayout(sectionIds: PhotoSectionId[], sectionById: PhotoSe
             }
         }
 
-        if (layout) {
-            if (layout.sectionTop !== sectionTop) {
-                layout.sectionTop = sectionTop
-                sectionsChanged = true
-            }
-        } else {
+        if (!layout) {
             sectionsChanged = true
             // We have to update the layout
             if (usePlaceholder) {
                 if (prevLayout && !prevLayoutIsDirty) {
                     // Section data was dropped -> Drop layout boxes as well
-                    layout = { sectionTop, containerHeight: prevLayout.containerHeight }
+                    layout = {
+                        left: prevLayout.left,
+                        top: sectionTop,
+                        width: prevLayout.width,
+                        height: prevLayout.height
+                    }
                 } else {
-                    layout = { sectionTop, containerHeight: estimateContainerHeight(viewportWidth, gridRowHeight, section.count) }
+                    layout = estimateSectionLayout(section.count, sectionTop, viewportWidth, gridRowHeight)
                 }
             } else {
                 // Calculate boxes
                 layout = createLayoutForLoadedSection(section as LoadedPhotoSection, sectionTop, viewportWidth, gridRowHeight)
             }
         }
+        if (layout.top !== sectionTop) {
+            layout.top = sectionTop
+            sectionsChanged = true
+        }
 
-        const sectionHeight = sectionHeadHeight + layout.containerHeight
-        const sectionBottom = sectionTop + sectionHeight
+        const sectionBottom = sectionTop + layout.height
         if (inDomMinY === null || inDomMaxY === null) {
             // We have a NailedGridPosition
             // -> Just keep the previous `fromBoxIndex` and `toBoxIndex`
@@ -160,7 +163,8 @@ export function getGridLayout(sectionIds: PhotoSectionId[], sectionById: PhotoSe
 
                 if (!layout.boxes) {
                     // Section is not loaded yet, but will be shown in DOM -> Create dummy boxes
-                    layout.boxes = createDummyLayoutBoxes(viewportWidth, gridRowHeight, layout.containerHeight, section.count)
+                    const sectionBodyHeight = layout.height - sectionHeadHeight
+                    layout.boxes = createDummyLayoutBoxes(viewportWidth, gridRowHeight, sectionBodyHeight, section.count)
                 }
 
                 const prevFromBoxIndex = layout.fromBoxIndex
@@ -252,7 +256,7 @@ export function getGridLayout(sectionIds: PhotoSectionId[], sectionById: PhotoSe
 }
 
 
-export function createLayoutForLoadedSection(section: LoadedPhotoSection, sectionTop: number, containerWidth: number, targetRowHeight: number): GridSectionLayout {
+export function createLayoutForLoadedSection(section: LoadedPhotoSection, sectionTop: number, viewportWidth: number, targetRowHeight: number): GridSectionLayout {
     const { photoData } = section
 
     const aspects = section.photoIds.map(photoId => {
@@ -265,21 +269,36 @@ export function createLayoutForLoadedSection(section: LoadedPhotoSection, sectio
         //   - `getLayoutForSections` will detect that the section changed and so it will get a ney layout using the correct edited size
         return (edited_width && edited_height) ? (edited_width / edited_height) : averageAspect
     })
-    const layout = createLayout(aspects, { containerPadding, boxSpacing, containerWidth, targetRowHeight })
-    layout.sectionTop = sectionTop
-    layout.containerHeight = Math.round(layout.containerHeight)
-    return layout
+    const layoutResult = createLayout(aspects, { containerPadding, boxSpacing, containerWidth: viewportWidth, targetRowHeight })
+
+    const bodyHeight = Math.round(layoutResult.containerHeight)
+
+    return {
+        left: 0,
+        top: sectionTop,
+        width: viewportWidth,
+        height: sectionHeadHeight + bodyHeight,
+        boxes: layoutResult.boxes
+    }
 }
 
 
-export function estimateContainerHeight(viewportWidth: number, gridRowHeight: number, photoCount: number): number {
+export function estimateSectionLayout(photoCount: number, sectionTop: number, viewportWidth: number, gridRowHeight: number, ): GridSectionLayout {
+    let bodyHeight: number
     if (viewportWidth === 0) {
-        return 2 * containerPadding + photoCount * gridRowHeight + (photoCount - 1) * boxSpacing
+        bodyHeight = 2 * containerPadding + photoCount * gridRowHeight + (photoCount - 1) * boxSpacing
     } else {
         // Estimate section height (assuming a normal landscape aspect ratio of 3:2)
         const unwrappedWidth = averageAspect * photoCount * gridRowHeight
         const rows = Math.ceil(unwrappedWidth / viewportWidth)
-        return 2 * containerPadding + rows * gridRowHeight + (rows - 1) * boxSpacing
+        bodyHeight = 2 * containerPadding + rows * gridRowHeight + (rows - 1) * boxSpacing
+    }
+
+    return {
+        left: 0,
+        top: sectionTop,
+        width: viewportWidth,
+        height: sectionHeadHeight + bodyHeight
     }
 }
 
@@ -330,8 +349,8 @@ function forgetAndFetchSections(sectionIds: PhotoSectionId[], sectionById: Photo
         const section = sectionById[sectionId]
         const layout = sectionLayouts[sectionIndex]
 
-        const sectionTop = layout.sectionTop
-        const sectionBottom = sectionTop + sectionHeadHeight + layout.containerHeight
+        const sectionTop = layout.top
+        const sectionBottom = sectionTop + layout.height
         if (isLoadedPhotoSection(section)) {
             const keepSection = sectionBottom > keepMinY && sectionTop < keepMaxY
             if (!keepSection && !isProtectedSection(sectionId)) {
@@ -443,7 +462,7 @@ function getThumbnailPriority(job: CreateThumbnailJob): number {
         return Number.MIN_VALUE
     }
 
-    const boxTop = layout.sectionTop + sectionHeadHeight + box.top
+    const boxTop = layout.top + sectionHeadHeight + box.top
     if (boxTop < prevScrollTop) {
         // Box is above viewport (or only partly visible) -> Use a negative prio reflecting the distance
         return boxTop - prevScrollTop

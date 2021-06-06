@@ -6,9 +6,9 @@ import { getNonRawPath } from 'common/util/DataUtil'
 import { fileUrlFromPath } from 'common/util/TextUtil'
 
 import { defaultGridRowHeight } from 'app/UiConstants'
-import { estimateContainerHeight, createDummyLayoutBoxes } from 'app/controller/LibraryController'
+import { estimateSectionLayout, createDummyLayoutBoxes } from 'app/controller/LibraryController'
 import { gridBg } from 'app/style/variables'
-import GridSection, { Props } from 'app/ui/library/GridSection'
+import GridSection, { Props, sectionHeadHeight } from 'app/ui/library/GridSection'
 
 import { addSection, action } from 'test-ui/core/UiTester'
 import { createTestPhotoId, mockLibrarySelectionController, testBigPhoto, testPanoramaPhoto, testPortraitPhoto } from 'test-ui/util/MockData'
@@ -92,7 +92,8 @@ addSection('GridSection')
     })
     .add('loading section data', context => {
         const photoCount = 14
-        const containerHeight = estimateContainerHeight(viewportWidth, defaultGridRowHeight, photoCount)
+        const layout = estimateSectionLayout(photoCount, 0, viewportWidth, defaultGridRowHeight)
+        const sectionBodyHeight = layout.height - sectionHeadHeight
         return (
             <GridSection
                 {...defaultProps}
@@ -102,11 +103,10 @@ addSection('GridSection')
                     count: 14
                 }}
                 layout={{
-                    sectionTop: 0,
-                    containerHeight,
+                    ...layout,
                     fromBoxIndex: 0,
                     toBoxIndex: photoCount,
-                    boxes: createDummyLayoutBoxes(viewportWidth, defaultGridRowHeight, containerHeight, photoCount)
+                    boxes: createDummyLayoutBoxes(viewportWidth, defaultGridRowHeight, sectionBodyHeight, photoCount)
                 }}
             />
         )

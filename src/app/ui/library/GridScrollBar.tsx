@@ -8,8 +8,6 @@ import { bindMany } from 'common/util/LangUtil'
 
 import { GridLayout, GridSectionLayout } from 'app/UITypes'
 
-import { sectionHeadHeight } from './GridSection'
-
 import './GridScrollBar.less'
 
 
@@ -205,7 +203,7 @@ function generateScaleItems(sectionLayouts: GridSectionLayout[], sectionIds: Pho
     let prevMonth: string | null = null
     for (let sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++) {
         const sectionLayout = sectionLayouts[sectionIndex]
-        const y = Math.max(1, Math.round(viewportHeight * sectionLayout.sectionTop / contentHeight))
+        const y = Math.max(1, Math.round(viewportHeight * sectionLayout.top / contentHeight))
             // Use a min y of 1px, so the very first scale item has a little gap to the top of the scrollbar
 
         const section = sectionById[sectionIds[sectionIndex]]
@@ -264,9 +262,9 @@ function getSectionIndexAtY(y: number, sectionLayouts: GridSectionLayout[]): num
     while (left <= right) {
         let center = Math.floor(left + (right - left) / 2)
         const sectionLayout = sectionLayouts[center]
-        if (y < sectionLayout.sectionTop) {
+        if (y < sectionLayout.top) {
             right = center - 1
-        } else if (y > sectionLayout.sectionTop + sectionHeadHeight + sectionLayout.containerHeight) {
+        } else if (y > sectionLayout.top + sectionLayout.height) {
             left = center + 1
         } else {
             return center

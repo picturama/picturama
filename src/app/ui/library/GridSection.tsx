@@ -102,6 +102,7 @@ export default class GridSection extends React.Component<Props> {
     render() {
         const { props } = this
 
+        const bodyHeight = props.layout.height - sectionHeadHeight
         return (
             <div className={classNames(props.className, 'GridSection')} style={props.style}>
                 <div className='GridSection-head'>
@@ -117,7 +118,7 @@ export default class GridSection extends React.Component<Props> {
                         />
                     }
                 </div>
-                <div className='GridSection-body' style={{ height: props.layout.containerHeight }}>
+                <div className='GridSection-body' style={{ height: bodyHeight }}>
                     {this.renderPictures()}
                 </div>
             </div>

@@ -9,7 +9,6 @@ import { fileUrlFromPath } from 'common/util/TextUtil'
 
 import { defaultGridRowHeight } from 'app/UiConstants'
 import { FetchState, GridLayout } from 'app/UITypes'
-import { sectionHeadHeight } from 'app/ui/library/GridSection'
 import { Library, Props } from 'app/ui/library/Library'
 import { LibraryFilterButton } from 'app/ui/library/LibraryFilterButton'
 import SelectionSummary from 'app/ui/library/SelectionSummary'
@@ -122,7 +121,7 @@ function getGridLayout(sectionIds: PhotoSectionId[], sectionById: PhotoSectionBy
     const sectionLayouts = sectionIds.map(sectionId => {
         const section = sectionById[sectionId]
         const layout = createLayoutForSection(section as LoadedPhotoSection, sectionTop, viewportWidth, gridRowHeight)
-        sectionTop += sectionHeadHeight + layout.containerHeight
+        sectionTop += layout.height
         return layout
     })
 
