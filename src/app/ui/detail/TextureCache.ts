@@ -1,8 +1,12 @@
 import { isShallowEqual } from 'common/util/LangUtil'
 
+import BackgroundClient from 'app/BackgroundClient'
 import PhotoCanvas from 'app/renderer/PhotoCanvas'
 import { Texture } from 'app/renderer/WebGLCanvas'
 import Profiler from 'common/util/Profiler'
+
+
+export type TextureError = 'error-notExisting' | 'error-loading'
 
 
 interface TextureInfo {
@@ -28,7 +32,7 @@ export default class TextureCache {
 
     private imagePathsToFetch: (string | null)[]
     private isLoadingTexture = false
-    private texturesWithError: { [key: string]: true } = {}
+    private textureErrors: { [key: string]: TextureError } = {}
     private textureCache: { [key: string]: TextureInfo } = {}
 
 
@@ -45,13 +49,13 @@ export default class TextureCache {
             return
         }
 
-        this.texturesWithError = {}
+        this.textureErrors = {}
         this.imagePathsToFetch = imagePathsToFetch
         this.tryToFetchTextures()
     }
 
-    hasTextureError(imagePath: string): boolean {
-        return this.texturesWithError[imagePath] || false
+    getTextureError(imagePath: string): TextureError | null {
+        return this.textureErrors[imagePath] || null
     }
 
     getTexture(imagePath: string): Texture | null {
@@ -71,51 +75,60 @@ export default class TextureCache {
     }
 
     private tryToFetchTexture(imagePath?: string | null) {
-        const { textureCache } = this
-        const { canvas } = this.options
-
-        if (!imagePath || this.isLoadingTexture || textureCache[imagePath] || this.texturesWithError[imagePath]) {
+        if (!imagePath || this.isLoadingTexture || this.textureCache[imagePath] || this.textureErrors[imagePath]) {
             return
         }
 
-        const profiler = this.options.profile ? new Profiler(`Fetching texture for ${imagePath}`) : null
         this.isLoadingTexture = true
-        canvas.createTextureFromFile(imagePath, profiler)
-            .then(texture => {
-                if (profiler) profiler.addPoint('Loaded texture')
-                textureCache[imagePath] = { imagePath, texture, lastUse: Date.now() }
-
-                const cachedImagePaths = Object.keys(textureCache)
-                if (cachedImagePaths.length > this.options.maxCacheSize) {
-                    let oldestTextureInfo: TextureInfo | null = null
-                    for (const imagePath of cachedImagePaths) {
-                        const textureInfo = textureCache[imagePath]
-                        if (!oldestTextureInfo || textureInfo.lastUse < oldestTextureInfo.lastUse) {
-                            oldestTextureInfo = textureInfo
-                        }
-                    }
-                    if (oldestTextureInfo) {
-                        oldestTextureInfo.texture.destroy()
-                        delete textureCache[oldestTextureInfo.imagePath]
-                    }
-                    if (profiler) profiler.addPoint('Removed obsolete textures from cache')
-                }
-
-                this.isLoadingTexture = false
-                this.options.onTextureFetched(imagePath, texture)
-                if (profiler) profiler.addPoint('Called onTextureProcessed')
-
-                if (profiler) profiler.logResult()
-            })
+        this.fetchTexture(imagePath)
             .catch(error => {
                 console.error(`Loading ${imagePath} failed`, error)
-                this.isLoadingTexture = false
-                this.texturesWithError[imagePath] = true
-                this.options.onTextureFetched(imagePath, null)
             })
             .then(() => {
+                this.isLoadingTexture = false
                 this.tryToFetchTextures()
             })
+    }
+
+    private async fetchTexture(imagePath: string): Promise<Texture> {
+        try {
+            const { textureCache } = this
+
+            const profiler = this.options.profile ? new Profiler(`Fetching texture for ${imagePath}`) : null
+
+            const texture = await this.options.canvas.createTextureFromFile(imagePath, profiler)
+            if (profiler) profiler.addPoint('Loaded texture')
+            textureCache[imagePath] = { imagePath, texture, lastUse: Date.now() }
+
+            const cachedImagePaths = Object.keys(textureCache)
+            if (cachedImagePaths.length > this.options.maxCacheSize) {
+                let oldestTextureInfo: TextureInfo | null = null
+                for (const imagePath of cachedImagePaths) {
+                    const textureInfo = textureCache[imagePath]
+                    if (!oldestTextureInfo || textureInfo.lastUse < oldestTextureInfo.lastUse) {
+                        oldestTextureInfo = textureInfo
+                    }
+                }
+                if (oldestTextureInfo) {
+                    oldestTextureInfo.texture.destroy()
+                    delete textureCache[oldestTextureInfo.imagePath]
+                }
+                if (profiler) profiler.addPoint('Removed obsolete textures from cache')
+            }
+
+            this.options.onTextureFetched(imagePath, texture)
+            if (profiler) profiler.addPoint('Called onTextureProcessed')
+
+            if (profiler) profiler.logResult()
+            return texture
+        } catch (error) {
+            const imageFileExists = await BackgroundClient.fileExists(imagePath)
+
+            this.textureErrors[imagePath] = imageFileExists ? 'error-loading' : 'error-notExisting'
+            this.options.onTextureFetched(imagePath, null)
+
+            throw error
+        }
     }
 
 }

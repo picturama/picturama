@@ -11,12 +11,12 @@ import PhotoCanvas from 'app/renderer/PhotoCanvas'
 import { Texture } from 'app/renderer/WebGLCanvas'
 
 import { DetailMode } from './DetailTypes'
-import TextureCache from './TextureCache'
+import TextureCache, { TextureError } from './TextureCache'
 
 import './PhotoLayer.less'
 
 
-export type PhotoLayerLoadingState = 'loading' | 'error' | 'done'
+export type PhotoLayerLoadingState = 'loading' | 'done' | TextureError
 
 
 export interface Props {
@@ -101,9 +101,10 @@ export default class PhotoLayer extends React.Component<Props> {
 
         textureCache.setImagesToFetch([ props.imagePath, props.imagePathNext, props.imagePathPrev ])
 
-        if (textureCache.hasTextureError(props.imagePath)) {
+        const textureError = textureCache.getTextureError(props.imagePath)
+        if (textureError) {
             canvas.getElement().style.display = 'none'
-            this.setLoadingState('error')
+            this.setLoadingState(textureError)
             return
         }
 

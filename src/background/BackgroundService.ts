@@ -16,7 +16,7 @@ import { fetchTotalPhotoCount, fetchSections, updatePhotos, fetchPhotoDetail, fe
 import { fetchSettings, storeSettings } from 'background/store/SettingsStore'
 import { fetchTags, storePhotoTags } from 'background/store/TagStore'
 import { createThumbnail, deleteThumbnail } from 'background/store/ThumbnailStore'
-import { fsStat } from 'background/util/FileUtil'
+import { fsExists, fsStat } from 'background/util/FileUtil'
 
 let decodeHeifBuffer: ((buffer: Buffer) => Promise<DecodedHeifImage>) | null = null
 try {
@@ -77,6 +77,8 @@ async function executeBackgroundAction(action: string, params: any): Promise<any
         return fetchSettings()
     } else if (action === 'storeSettings') {
         await storeSettings(params.settings)
+    } else if (action === 'fileExists') {
+        return fsExists(params.path)
     } else if (action === 'getFileSize') {
         const stat = await fsStat(params.path)
         return stat.size

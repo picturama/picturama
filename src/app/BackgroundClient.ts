@@ -72,6 +72,10 @@ export default {
         return callOnBackground('storeSettings', { settings })
     },
 
+    fileExists(path: string): Promise<boolean> {
+        return callOnBackground('fileExists', { path })
+    },
+
     getFileSize(path: string): Promise<number> {
         return callOnBackground('getFileSize', { path })
     },

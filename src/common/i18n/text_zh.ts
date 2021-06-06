@@ -119,10 +119,13 @@ export default {
     PhotoActionButtons_photoInfo: '显示所选照片的信息',
     PhotoActionButtons_export: '导出',
 
-    PhotoDetailPane_prevPhoto: '上一张照片',
-    PhotoDetailPane_nextPhoto: '下一张照片',
     PhotoDetailBody_selected: ``,  // TODO: 'Selected'
     PhotoDetailBody_select: ``,  // TODO: 'Select'
+    PhotoDetailBody_error_loadingFailed: ``,  // TODO: 'Loading photo failed'
+    PhotoDetailBody_error_loadingFailed_desc: ``,  // TODO: `Picturama can't load this photo`
+
+    PhotoDetailPane_prevPhoto: '上一张照片',
+    PhotoDetailPane_nextPhoto: '下一张照片',
     PhotoDetailPane_edit: '编辑',
 
     PhotoInfo_title: '信息',

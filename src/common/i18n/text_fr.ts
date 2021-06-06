@@ -119,10 +119,13 @@ export default {
     PhotoActionButtons_photoInfo: 'Afficher les informations sur la photo sélectionnée',
     PhotoActionButtons_export: 'Exportez',
 
-    PhotoDetailPane_prevPhoto: 'Photo précédente',
-    PhotoDetailPane_nextPhoto: 'Photo suivante',
     PhotoDetailBody_selected: ``,  // TODO: 'Selected'
     PhotoDetailBody_select: ``,  // TODO: 'Select'
+    PhotoDetailBody_error_loadingFailed: ``,  // TODO: 'Loading photo failed'
+    PhotoDetailBody_error_loadingFailed_desc: ``,  // TODO: `Picturama can't load this photo`
+
+    PhotoDetailPane_prevPhoto: 'Photo précédente',
+    PhotoDetailPane_nextPhoto: 'Photo suivante',
     PhotoDetailPane_edit: 'Éditer',
 
     PhotoInfo_title: 'Info',

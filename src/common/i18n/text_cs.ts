@@ -119,10 +119,13 @@ export default {
     PhotoActionButtons_photoInfo: 'Zobrazit informace o vybrané fotografii',
     PhotoActionButtons_export: 'Exportovat',
 
-    PhotoDetailPane_prevPhoto: 'Předchozí fotografie',
-    PhotoDetailPane_nextPhoto: 'Následující fotografie',
     PhotoDetailBody_selected: ``,  // TODO: 'Selected'
     PhotoDetailBody_select: ``,  // TODO: 'Select'
+    PhotoDetailBody_error_loadingFailed: ``,  // TODO: 'Loading photo failed'
+    PhotoDetailBody_error_loadingFailed_desc: ``,  // TODO: `Picturama can't load this photo`
+
+    PhotoDetailPane_prevPhoto: 'Předchozí fotografie',
+    PhotoDetailPane_nextPhoto: 'Následující fotografie',
     PhotoDetailPane_edit: 'Editovat',
 
     PhotoInfo_title: 'Informace',

@@ -276,18 +276,26 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
                         />
                     </div>
                 }
-                {state.loadingState === 'error' &&
-                    <div className={props.bodyClassName}>
-                        <NonIdealState
-                            className={classnames('PhotoDetailBody-error', Classes.DARK)}
-                            icon='delete'
-                            title={msg('common_error_photoNotExisting')}
-                            description={msg('common_error_photoNotExisting_desc')}
-                        />
-                    </div>
-                }
+                {this.renderError()}
             </div>
         )
+    }
+
+    private renderError() {
+        const { props, state } = this
+        if (state.loadingState === 'error-notExisting' || state.loadingState === 'error-loading') {
+            const isPhotoMissing = state.loadingState === 'error-notExisting'
+            return (
+                <div className={props.bodyClassName}>
+                    <NonIdealState
+                        className={classnames('PhotoDetailBody-error', Classes.DARK)}
+                        icon={isPhotoMissing ? 'delete' : 'disable'}
+                        title={msg(isPhotoMissing ? 'common_error_photoNotExisting' : 'PhotoDetailBody_error_loadingFailed')}
+                        description={msg(isPhotoMissing ? 'common_error_photoNotExisting_desc' : 'PhotoDetailBody_error_loadingFailed_desc')}
+                    />
+                </div>
+            )
+        }
     }
 
 }
