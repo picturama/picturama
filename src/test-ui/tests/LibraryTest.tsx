@@ -1,14 +1,15 @@
 import React from 'react'
 import { Button } from '@blueprintjs/core'
 
-import { Photo, PhotoSectionById, PhotoSectionId, LoadedPhotoSection, PhotoFilter, MetaData, ExifData } from 'common/CommonTypes'
+import { Photo, PhotoSectionById, PhotoSectionId, PhotoFilter } from 'common/CommonTypes'
 import CancelablePromise from 'common/util/CancelablePromise'
 import { getNonRawPath } from 'common/util/DataUtil'
 import { addErrorCode } from 'common/util/LangUtil'
 import { fileUrlFromPath } from 'common/util/TextUtil'
 
 import { defaultGridRowHeight } from 'app/UiConstants'
-import { FetchState, GridLayout } from 'app/UITypes'
+import { FetchState } from 'app/UITypes'
+import { getGridLayoutWithoutStoreUpdate } from 'app/controller/LibraryController'
 import { Library, Props } from 'app/ui/library/Library'
 import { LibraryFilterButton } from 'app/ui/library/LibraryFilterButton'
 import SelectionSummary from 'app/ui/library/SelectionSummary'
@@ -16,7 +17,7 @@ import ImportProgressButton from 'app/ui/ImportProgressButton'
 
 import { addSection, action, TestContext } from 'test-ui/core/UiTester'
 import { mockLibrarySelectionController, mockPhotoActionController, testBigPhotoMetData, testLandscapePhoto, testPanoramaPhoto, testPhotos } from 'test-ui/util/MockData'
-import { createRandomDummyPhoto, createSection, createLayoutForSection } from 'test-ui/util/TestUtil'
+import { createRandomDummyPhoto, createSection } from 'test-ui/util/TestUtil'
 
 
 const defaultSectionId: PhotoSectionId = '2018-08-15'
@@ -56,7 +57,7 @@ function createDefaultProps(context: TestContext): Props {
         fetchTotalPhotoCount: action('fetchTotalPhotoCount'),
         fetchSections: action('fetchSections'),
         fetchTags: action('fetchTags'),
-        getGridLayout,
+        getGridLayout: getGridLayoutWithoutStoreUpdate,
         getThumbnailSrc: (photo: Photo) => fileUrlFromPath(getNonRawPath(photo)),
         createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => {
             if (photo.master_filename === 'dummy') {
@@ -110,26 +111,6 @@ function renderTopBarLeftItem(libraryFilter: PhotoFilter): JSX.Element {
             />
         </>
     )
-}
-
-
-function getGridLayout(sectionIds: PhotoSectionId[], sectionById: PhotoSectionById,
-    scrollTop: number, viewportWidth: number, viewportHeight: number, gridRowHeight: number):
-    GridLayout
-{
-    let sectionTop = 0
-    const sectionLayouts = sectionIds.map(sectionId => {
-        const section = sectionById[sectionId]
-        const layout = createLayoutForSection(section as LoadedPhotoSection, sectionTop, viewportWidth, gridRowHeight)
-        sectionTop += layout.height
-        return layout
-    })
-
-    return {
-        fromSectionIndex: 0,
-        toSectionIndex: sectionIds.length,
-        sectionLayouts
-    }
 }
 
 
@@ -260,19 +241,33 @@ addSection('Library')
         )
     })
     .add('scrolling', context => {
+        const minPhotoCount = 2
         const sectionIds: PhotoSectionId[] = []
-        for (let i = 50; i > 0; i--) {
+        const sectionById: PhotoSectionById = {}
+        const sectionCount = 100
+        let smallSectionBulk = 0
+        for (let i = sectionCount; i > 0; i--) {
             const month = (i % 12) + 1
             const year = 2000 + Math.floor(i / 12)
-            sectionIds.push(`${year}-${month < 10 ? '0' : ''}${month}-01`)
-        }
 
-        const sectionById: PhotoSectionById = {}
-        const minPhotoCount = 2
-        for (const sectionId of sectionIds) {
-            const photos = randomizedArray(testPhotos)
-            photos.splice(minPhotoCount, Math.floor(Math.random() * (photos.length - minPhotoCount)))
+            const sectionId: PhotoSectionId = `${year}-${month < 10 ? '0' : ''}${month}-01`
+            sectionIds.push(sectionId)
+
+            const isSmallSection = (smallSectionBulk > 0)
+                // Put the small sections after the very first section
+            const photoCount = isSmallSection ?
+                (Math.random() < 0.75 ? 1 : 2) :
+                (minPhotoCount + Math.floor(Math.random() * (testPhotos.length - minPhotoCount)))
+            const photos = randomizedArray(testPhotos, photoCount)
+
             sectionById[sectionId] = createSection(sectionId, photos)
+
+            if (smallSectionBulk > 0) {
+                smallSectionBulk--
+            } else if (i === sectionCount || Math.random() > 0.75) {
+                // Start a new bulk of small sections (After the first section, always generate a small section bulk)
+                smallSectionBulk = 3 + Math.ceil(Math.random() * 10)
+            }
         }
 
         return (
@@ -423,12 +418,16 @@ addSection('Library')
     ))
 
 
-function randomizedArray<T>(array: T[]): T[] {
+function randomizedArray<T>(array: T[], maxLength?: number): T[] {
     const remaining = [ ...array ]
     const result: T[] = []
     while (remaining.length > 0) {
         const randomIndex = Math.floor(Math.random() * remaining.length)
         result.push(remaining.splice(randomIndex, 1)[0])
+
+        if (result.length === maxLength) {
+            break
+        }
     }
     return result
 }

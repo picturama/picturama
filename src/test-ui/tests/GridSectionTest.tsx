@@ -1,18 +1,19 @@
 import React from 'react'
 
 import CancelablePromise from 'common/util/CancelablePromise'
-import { Photo, PhotoSectionId } from 'common/CommonTypes'
+import { LoadedPhotoSection, Photo, PhotoSectionId } from 'common/CommonTypes'
 import { getNonRawPath } from 'common/util/DataUtil'
 import { fileUrlFromPath } from 'common/util/TextUtil'
 
 import { defaultGridRowHeight } from 'app/UiConstants'
-import { estimateSectionLayout, createDummyLayoutBoxes } from 'app/controller/LibraryController'
+import { GridSectionLayout } from 'app/UITypes'
+import { estimateSectionLayout, createDummyLayoutBoxes, createLayoutForLoadedSection } from 'app/controller/LibraryController'
 import { gridBg } from 'app/style/variables'
 import GridSection, { Props, sectionHeadHeight } from 'app/ui/library/GridSection'
 
 import { addSection, action } from 'test-ui/core/UiTester'
 import { createTestPhotoId, mockLibrarySelectionController, testBigPhoto, testPanoramaPhoto, testPortraitPhoto } from 'test-ui/util/MockData'
-import { createSection, createRandomDummyPhoto, createLayoutForSection } from 'test-ui/util/TestUtil'
+import { createSection, createRandomDummyPhoto } from 'test-ui/util/TestUtil'
 
 
 const containerWidth = 800
@@ -22,7 +23,7 @@ const viewportWidth = containerWidth - scrollBarWidth
 const defaultSectionId: PhotoSectionId = '2018-08-15'
 const defaultPhotos = [ testBigPhoto, testPortraitPhoto, testPanoramaPhoto ]
 const defaultSection = createSection(defaultSectionId, defaultPhotos)
-const defaultLayout = createLayoutForSection(defaultSection, 0, viewportWidth, defaultGridRowHeight)
+const defaultLayout = createLayoutForSection(defaultSection, viewportWidth, defaultGridRowHeight)
 
 
 const defaultProps: Props = {
@@ -80,7 +81,7 @@ addSection('GridSection')
         }
         photos[0] = { ...photos[0], id: createTestPhotoId(), master_filename: 'dummy' }
         const section = createSection(defaultSectionId, photos)
-        const layout = createLayoutForSection(section, 0, viewportWidth, defaultGridRowHeight)
+        const layout = createLayoutForSection(section, viewportWidth, defaultGridRowHeight)
 
         return (
             <GridSection
@@ -92,7 +93,7 @@ addSection('GridSection')
     })
     .add('loading section data', context => {
         const photoCount = 14
-        const layout = estimateSectionLayout(photoCount, 0, viewportWidth, defaultGridRowHeight)
+        const layout = estimateSectionLayout(photoCount, viewportWidth, defaultGridRowHeight)
         const sectionBodyHeight = layout.height - sectionHeadHeight
         return (
             <GridSection
@@ -106,8 +107,20 @@ addSection('GridSection')
                     ...layout,
                     fromBoxIndex: 0,
                     toBoxIndex: photoCount,
-                    boxes: createDummyLayoutBoxes(viewportWidth, defaultGridRowHeight, sectionBodyHeight, photoCount)
+                    boxes: createDummyLayoutBoxes(layout.width, sectionBodyHeight, defaultGridRowHeight, photoCount)
                 }}
             />
         )
     })
+
+
+
+function createLayoutForSection(section: LoadedPhotoSection, viewportWidth: number, gridRowHeight: number):
+    GridSectionLayout
+{
+    const layout = createLayoutForLoadedSection(section, viewportWidth, gridRowHeight)
+    layout.fromBoxIndex = 0
+    layout.toBoxIndex = section.count
+    return layout
+}
+    

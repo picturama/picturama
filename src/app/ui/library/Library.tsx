@@ -12,7 +12,7 @@ import { bindMany } from 'common/util/LangUtil'
 
 import { setDetailPhotoById } from 'app/controller/DetailController'
 import { defaultLibrarySelectionController, LibrarySelectionController } from 'app/controller/LibrarySelectionController'
-import { GetGridLayoutFunction, getGridLayout, createThumbnail } from 'app/controller/LibraryController'
+import { GetGridLayoutFunction, getGridLayoutAndUpdateStore, createThumbnail } from 'app/controller/LibraryController'
 import { PhotoActionController, defaultPhotoActionController } from 'app/controller/PhotoActionController'
 import { fetchTotalPhotoCount, fetchSections, getThumbnailSrc } from 'app/controller/PhotoController'
 import { fetchTags, setPhotoTags } from 'app/controller/PhotoTagController'
@@ -275,7 +275,7 @@ const Connected = connect<StateProps, DispatchProps, OwnProps, AppState>(
         fetchTotalPhotoCount,
         fetchSections,
         fetchTags,
-        getGridLayout,
+        getGridLayout: getGridLayoutAndUpdateStore,
         getThumbnailSrc,
         createThumbnail,
         setDetailPhotoById,

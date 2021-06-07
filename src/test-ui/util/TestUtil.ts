@@ -1,8 +1,5 @@
 import { Photo, PhotoId, PhotoById, PhotoSectionId, LoadedPhotoSection } from 'common/CommonTypes'
 
-import { GridSectionLayout } from 'app/UITypes'
-import { createLayoutForLoadedSection } from 'app/controller/LibraryController'
-
 import { createTestPhotoId, testBigPhoto } from './MockData'
 
 
@@ -43,15 +40,3 @@ export function createSection(sectionId: PhotoSectionId, photos: Photo[]): Loade
         photoData
     }
 }
-
-
-export function createLayoutForSection(section: LoadedPhotoSection,
-    sectionTop: number, viewportWidth: number, gridRowHeight: number):
-    GridSectionLayout
-{
-    const layout = createLayoutForLoadedSection(section, sectionTop, viewportWidth, gridRowHeight)
-    layout.fromBoxIndex = 0
-    layout.toBoxIndex = section.count
-    return layout
-}
-

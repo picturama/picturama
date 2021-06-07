@@ -46,7 +46,7 @@ export interface PhotoGridPosition {
     relativeY: number
     /**
      * The offset to apply (in pixels).
-     * 
+     *
      * This is normally `0`. Will be set to another value if the position is outside the photo
      * - so `relativeY` is either `0` or `1`.
      */
@@ -59,6 +59,8 @@ const pagesToPreload = 3
 const averageAspect = 3 / 2
 const containerPadding = 10
 export const boxSpacing = 4
+const sectionSpacingX = 30
+const targetRowHeightTolerance = 0.25
 
 let prevSectionIds: PhotoSectionId[] = []
 let prevSectionById: PhotoSectionById = {}
@@ -75,9 +77,9 @@ export function getPrevGridLayout(): GridLayout {
     return prevGridLayout
 }
 
-export type GetGridLayoutFunction = typeof getGridLayout
+export type GetGridLayoutFunction = typeof getGridLayoutWithoutStoreUpdate
 
-export function getGridLayout(sectionIds: PhotoSectionId[], sectionById: PhotoSectionById,
+export function getGridLayoutWithoutStoreUpdate(sectionIds: PhotoSectionId[], sectionById: PhotoSectionById,
     scrollTop: number, viewportWidth: number, viewportHeight: number, gridRowHeight: number,
     nailedGridPosition: NailedGridPosition | null):
     GridLayout
@@ -87,18 +89,16 @@ export function getGridLayout(sectionIds: PhotoSectionId[], sectionById: PhotoSe
     let sectionsChanged = false
     let fromSectionIndex: number | null = null
     let toSectionIndex: number | null = null
-    let sectionLayouts: GridSectionLayout[] = []
     const prevGridLayoutIsDirty = (viewportWidth !== prevViewportWidth) || (gridRowHeight !== prevGridRowHeight)
 
-    let inDomMinY: number | null = null
-    let inDomMaxY: number | null = null
-    if (nailedGridPosition === null) {
-        inDomMinY = scrollTop - pagesToPreload * viewportHeight
-        inDomMaxY = scrollTop + (pagesToPreload + 1) * viewportHeight
-    }
+    // Step 1: Section-internal layout (layout photos inside each section):
+    //
+    //   - Create a layout for each section
+    //   - Define `width` and `height`
+    //   - Define `boxes` for loaded sections
 
-    let sectionTop = 0
     const sectionCount = sectionIds.length
+    const sectionLayouts: GridSectionLayout[] = []
     for (let sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++) {
         const sectionId = sectionIds[sectionIndex]
         const section = sectionById[sectionId]
@@ -125,28 +125,90 @@ export function getGridLayout(sectionIds: PhotoSectionId[], sectionById: PhotoSe
                 if (prevLayout && !prevLayoutIsDirty) {
                     // Section data was dropped -> Drop layout boxes as well
                     layout = {
-                        left: prevLayout.left,
-                        top: sectionTop,
+                        left: 0,
+                        top: 0,
                         width: prevLayout.width,
                         height: prevLayout.height
                     }
                 } else {
-                    layout = estimateSectionLayout(section.count, sectionTop, viewportWidth, gridRowHeight)
+                    layout = estimateSectionLayout(section.count, viewportWidth, gridRowHeight)
                 }
             } else {
                 // Calculate boxes
-                layout = createLayoutForLoadedSection(section as LoadedPhotoSection, sectionTop, viewportWidth, gridRowHeight)
+                layout = createLayoutForLoadedSection(section as LoadedPhotoSection, viewportWidth, gridRowHeight)
             }
         }
-        if (layout.top !== sectionTop) {
-            layout.top = sectionTop
-            sectionsChanged = true
+
+        sectionLayouts.push(layout)
+    }
+
+    if (profiler) {
+        profiler.addPoint('Section-internal layout')
+    }
+
+    // Step 2: Inter-section layout:
+    //
+    //   - Define `left` and `top`
+    //   - Do block-align for small sections shown in one row. This may scale those sections, so their
+    //     `width` and `height` change
+
+    let x = 0
+    let y = 0
+    let rowStartSectionIndex = 0
+    for (let sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++) {
+        const layout = sectionLayouts[sectionIndex]
+        const originalLayout = layout.originalLayout || layout
+
+        if (x != 0 && viewportWidth > 0 && x + originalLayout.width > viewportWidth) {
+            // This section goes into a new row
+
+            // Layout the row before
+            const hasChange = layoutSectionRow(y, rowStartSectionIndex, sectionIndex - 1, sectionLayouts, viewportWidth)
+            if (hasChange) {
+                sectionsChanged = true
+            }
+
+            // Start a new row
+            const prevLayout = sectionLayouts[sectionIndex - 1]
+            x = 0
+            y += prevLayout.height
+            rowStartSectionIndex = sectionIndex
         }
 
-        const sectionBottom = sectionTop + layout.height
+        // Prepare next iteration
+        x += originalLayout.width + sectionSpacingX
+    }
+
+    // Layout the last row
+    const hasChange = layoutSectionRow(y, rowStartSectionIndex, sectionCount - 1, sectionLayouts, viewportWidth)
+    if (hasChange) {
+        sectionsChanged = true
+    }
+
+    if (profiler) {
+        profiler.addPoint('Inter-section layout')
+    }
+
+    // Step 3: Mark visible parts of sections:
+    //
+    //   - Define `fromBoxIndex` and `toBoxIndex`
+
+    let inDomMinY: number | null = null
+    let inDomMaxY: number | null = null
+    if (nailedGridPosition === null) {
+        inDomMinY = scrollTop - pagesToPreload * viewportHeight
+        inDomMaxY = scrollTop + (pagesToPreload + 1) * viewportHeight
+    }
+
+    for (let sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++) {
+        const sectionId = sectionIds[sectionIndex]
+        const layout = sectionLayouts[sectionIndex]
+
+        const sectionBottom = layout.top + layout.height
         if (inDomMinY === null || inDomMaxY === null) {
             // We have a NailedGridPosition
             // -> Just keep the previous `fromBoxIndex` and `toBoxIndex`
+            const prevLayout = (sectionId === prevSectionIds[sectionIndex]) ? prevGridLayout.sectionLayouts[sectionIndex] : null
             if (layout.boxes && prevLayout && prevLayout.boxes && layout.boxes.length === prevLayout.boxes.length) {
                 layout.fromBoxIndex = prevLayout.fromBoxIndex
                 layout.toBoxIndex = prevLayout.toBoxIndex
@@ -154,8 +216,9 @@ export function getGridLayout(sectionIds: PhotoSectionId[], sectionById: PhotoSe
         } else {
             // We have no NailedGridPosition
             // -> Set `fromBoxIndex` and `toBoxIndex` in order to control which photos are added to the DOM
-            if (sectionBottom >= inDomMinY && sectionTop <= inDomMaxY) {
+            if (sectionBottom >= inDomMinY && layout.top <= inDomMaxY) {
                 // Show section in DOM
+                const section = sectionById[sectionId]
 
                 if (fromSectionIndex === null) {
                     fromSectionIndex = sectionIndex
@@ -164,22 +227,22 @@ export function getGridLayout(sectionIds: PhotoSectionId[], sectionById: PhotoSe
                 if (!layout.boxes) {
                     // Section is not loaded yet, but will be shown in DOM -> Create dummy boxes
                     const sectionBodyHeight = layout.height - sectionHeadHeight
-                    layout.boxes = createDummyLayoutBoxes(viewportWidth, gridRowHeight, sectionBodyHeight, section.count)
+                    layout.boxes = createDummyLayoutBoxes(layout.width, sectionBodyHeight, gridRowHeight, section.count)
                 }
 
                 const prevFromBoxIndex = layout.fromBoxIndex
                 const prevToBoxIndex = layout.toBoxIndex
                 layout.fromBoxIndex = 0
                 layout.toBoxIndex = section.count
-                if (sectionTop < inDomMinY || sectionBottom > inDomMaxY) {
-                    // This section is party visible -> Go throw the boxes and find the correct boundaries
+                if (layout.top < inDomMinY || sectionBottom > inDomMaxY) {
+                    // This section is partly visible -> Go throw the boxes and find the correct boundaries
                     const boxes = layout.boxes
                     const boxCount = boxes.length
-    
+
                     let searchingStart = true
                     for (let boxIndex = 0; boxIndex < boxCount; boxIndex++) {
                         const box = boxes[boxIndex]
-                        const boxTop = sectionTop + sectionHeadHeight + box.top
+                        const boxTop = layout.top + sectionHeadHeight + box.top
                         const boxBottom = boxTop + box.height
                         if (searchingStart) {
                             if (boxBottom >= inDomMinY) {
@@ -208,24 +271,14 @@ export function getGridLayout(sectionIds: PhotoSectionId[], sectionById: PhotoSe
                 }
             }
         }
-
-        sectionLayouts.push(layout)
-
-        // Prepare next iteration
-        sectionTop = sectionBottom
     }
 
     if (toSectionIndex === null) {
         toSectionIndex = sectionCount
     }
 
-    if (nailedGridPosition === null) {
-        forgetAndFetchSections(sectionIds, sectionById, scrollTop, viewportHeight, sectionLayouts)
-    }
-
     if (profiler) {
-        profiler.addPoint('Calculated layout')
-        profiler.logResult()
+        profiler.addPoint('Mark visible parts of sections')
     }
 
     let nextGridLayout: GridLayout
@@ -252,11 +305,32 @@ export function getGridLayout(sectionIds: PhotoSectionId[], sectionById: PhotoSe
     prevViewportHeight = viewportHeight
     prevGridRowHeight = gridRowHeight
 
+    if (profiler) {
+        profiler.addPoint('Finish layout')
+        profiler.logResult()
+    }
+
     return nextGridLayout
 }
 
 
-export function createLayoutForLoadedSection(section: LoadedPhotoSection, sectionTop: number, viewportWidth: number, targetRowHeight: number): GridSectionLayout {
+export function getGridLayoutAndUpdateStore(sectionIds: PhotoSectionId[], sectionById: PhotoSectionById,
+    scrollTop: number, viewportWidth: number, viewportHeight: number, gridRowHeight: number,
+    nailedGridPosition: NailedGridPosition | null):
+    GridLayout
+{
+    const gridLayout = getGridLayoutWithoutStoreUpdate(sectionIds, sectionById, scrollTop, viewportWidth, viewportHeight, gridRowHeight,
+        nailedGridPosition)
+
+    if (nailedGridPosition === null) {
+        forgetAndFetchSections(sectionIds, sectionById, scrollTop, viewportHeight, gridLayout.sectionLayouts)
+    }
+
+    return gridLayout
+}
+
+
+export function createLayoutForLoadedSection(section: LoadedPhotoSection, viewportWidth: number, targetRowHeight: number): GridSectionLayout {
     const { photoData } = section
 
     const aspects = section.photoIds.map(photoId => {
@@ -269,46 +343,151 @@ export function createLayoutForLoadedSection(section: LoadedPhotoSection, sectio
         //   - `getLayoutForSections` will detect that the section changed and so it will get a ney layout using the correct edited size
         return (edited_width && edited_height) ? (edited_width / edited_height) : averageAspect
     })
-    const layoutResult = createLayout(aspects, { containerPadding, boxSpacing, containerWidth: viewportWidth, targetRowHeight })
+    const layoutResult = createLayout(aspects, { containerPadding, boxSpacing, containerWidth: viewportWidth, targetRowHeight, targetRowHeightTolerance })
+
+    const { boxes } = layoutResult
+
+    const firstBox = boxes[0]
+    const lastBox = boxes[boxes.length - 1]
+    const isSingleRow = (lastBox.top === firstBox.top)
 
     const bodyHeight = Math.round(layoutResult.containerHeight)
 
     return {
         left: 0,
-        top: sectionTop,
-        width: viewportWidth,
+        top: 0,
+        width: isSingleRow ? Math.ceil(lastBox.left + lastBox.width + containerPadding) : viewportWidth,
         height: sectionHeadHeight + bodyHeight,
-        boxes: layoutResult.boxes
+        boxes
     }
 }
 
 
-export function estimateSectionLayout(photoCount: number, sectionTop: number, viewportWidth: number, gridRowHeight: number, ): GridSectionLayout {
+export function estimateSectionLayout(photoCount: number, viewportWidth: number, gridRowHeight: number, ): GridSectionLayout {
+    let bodyWidth: number
     let bodyHeight: number
     if (viewportWidth === 0) {
+        bodyWidth = 0
         bodyHeight = 2 * containerPadding + photoCount * gridRowHeight + (photoCount - 1) * boxSpacing
     } else {
         // Estimate section height (assuming a normal landscape aspect ratio of 3:2)
-        const unwrappedWidth = averageAspect * photoCount * gridRowHeight
+        const photoWidth = averageAspect * gridRowHeight
+        const unwrappedWidth = photoCount * photoWidth
         const rows = Math.ceil(unwrappedWidth / viewportWidth)
+        bodyWidth = Math.min(unwrappedWidth, viewportWidth)
         bodyHeight = 2 * containerPadding + rows * gridRowHeight + (rows - 1) * boxSpacing
     }
 
     return {
         left: 0,
-        top: sectionTop,
-        width: viewportWidth,
+        top: 0,
+        width: bodyWidth,
         height: sectionHeadHeight + bodyHeight
     }
 }
 
-export function createDummyLayoutBoxes(viewportWidth: number, gridRowHeight: number, containerHeight: number, photoCount: number): JustifiedLayoutBox[] {
-    const rowCount = Math.round((containerHeight - 2 * containerPadding + boxSpacing) / (gridRowHeight + boxSpacing))   // Reverse `estimateContainerHeight`
+
+function layoutSectionRow(rowTop: number, rowStartSectionIndex: number, rowEndSectionIndex: number, sectionLayouts: GridSectionLayout[],
+    viewportWidth: number): boolean
+{
+    let sectionsChanged = false
+    let scaleFactor = 1
+    if (rowStartSectionIndex !== rowEndSectionIndex) {
+        // This row has multiple sections -> Determine the scale factor in order to block-align them
+
+        let allLayoutsHaveBoxes = true
+        let totalBoxWidth = 0
+        let totalSpacingWidth = -sectionSpacingX
+        for (let sectionIndex = rowStartSectionIndex; sectionIndex <= rowEndSectionIndex; sectionIndex++) {
+            const layout = sectionLayouts[sectionIndex]
+            const originalLayout = layout.originalLayout || layout
+
+            if (originalLayout.boxes) {
+                totalSpacingWidth += sectionSpacingX + 2 * containerPadding + (originalLayout.boxes.length - 1) * boxSpacing
+                for (const box of originalLayout.boxes) {
+                    totalBoxWidth += box.width
+                }
+            } else {
+                allLayoutsHaveBoxes = false
+                break
+            }
+        }
+
+        if (allLayoutsHaveBoxes) {
+            const wantedTotalBoxWidth = viewportWidth - totalSpacingWidth
+            scaleFactor = wantedTotalBoxWidth / totalBoxWidth
+            if (scaleFactor > 1 + targetRowHeightTolerance) {
+                scaleFactor = 1
+            }
+        }
+    }
+
+    let x = 0
+    for (let sectionIndex = rowStartSectionIndex; sectionIndex <= rowEndSectionIndex; sectionIndex++) {
+        let layout = sectionLayouts[sectionIndex]
+
+        if (scaleFactor === 1) {
+            if (layout.originalLayout) {
+                // Use the original (unscaled) layout
+                layout = layout.originalLayout
+                sectionLayouts[rowStartSectionIndex] = layout
+                sectionsChanged = true
+            }
+        } else if (layout.scaleFactor !== scaleFactor) {
+            const originalLayout = layout.originalLayout || layout
+            const originalBoxes = originalLayout.boxes!
+            const boxHeight = originalBoxes[0].height * scaleFactor
+            const boxes: JustifiedLayoutBox[] = []
+            let boxLeft = containerPadding
+            for (const originalBox of originalBoxes) {
+                const boxWidth = boxHeight * originalBox.aspectRatio
+                boxes.push({
+                    aspectRatio: originalBox.aspectRatio,
+                    left: boxLeft,
+                    top: containerPadding,
+                    width: boxWidth,
+                    height: boxHeight
+                })
+                boxLeft += boxWidth + boxSpacing
+            }
+
+            layout = {
+                left: x,
+                top: rowTop,
+                width: Math.ceil(boxLeft - boxSpacing + containerPadding),
+                height: Math.round(sectionHeadHeight + boxHeight + 2 * containerPadding),
+                boxes,
+                scaleFactor,
+                originalLayout
+            }
+            sectionLayouts[sectionIndex] = layout
+            sectionsChanged = true
+        }
+
+        if (layout.left !== x) {
+            layout.left = x
+            sectionsChanged = true
+        }
+
+        if (layout.top !== rowTop) {
+            layout.top = rowTop
+            sectionsChanged = true
+        }
+
+        x += layout.width + sectionSpacingX
+    }
+
+    return sectionsChanged
+}
+
+
+export function createDummyLayoutBoxes(sectionBodyWidth: number, sectionBodyHeight: number, gridRowHeight: number, photoCount: number): JustifiedLayoutBox[] {
+    const rowCount = Math.round((sectionBodyHeight - 2 * containerPadding + boxSpacing) / (gridRowHeight + boxSpacing))   // Reverse `estimateContainerHeight`
     let boxes: JustifiedLayoutBox[] = []
     for (let row = 0; row < rowCount; row++) {
         const lastBoxIndex = Math.ceil(photoCount * (row + 1) / rowCount)  // index is excluding
         const colCount = lastBoxIndex - boxes.length
-        let boxWidth = (viewportWidth - 2 * containerPadding - (colCount - 1) * boxSpacing) / colCount
+        let boxWidth = (sectionBodyWidth - 2 * containerPadding - (colCount - 1) * boxSpacing) / colCount
         if (row === rowCount - 1) {
             boxWidth = Math.min(boxWidth, averageAspect * gridRowHeight)
         }
