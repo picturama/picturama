@@ -6,7 +6,7 @@ export default {
     common_error_photoNotExisting: 'Fotografie už neexistuje',
     common_error_photoNotExisting_desc: 'Tato fotografie již není tam, kde byla při posledním vyhledání. Možná byla přesunuta, odstraněna nebo se nachází na disku, který již není připojen.',
 
-    key_space: ``,  // TODO: 'Space'
+    key_space: 'Mezera',
 
     App_error_noWebGL_title: 'Žádné WebGL',
     App_error_noWebGL_desc: 'Picturama vyžaduje grafickou kartu s 3D akcelerací. Podívejte se prosím do systémových nastavení, zda je možné aktivovat 3D akceleraci a restartujte Picturama.',
@@ -102,9 +102,9 @@ export default {
     MainMenu_toggleUiTester: 'Zapnout UI testera',
     MainMenu_reloadUi: 'Znovu nahrát UI',
 
-    Picture_showDetails: ``,  // TODO: 'View photo'
-    Picture_select: ``,  // TODO: 'Select'
-    Picture_deselect: ``,  // TODO: 'Deselect'
+    Picture_showDetails: 'Zobrazit fotku',
+    Picture_select: 'Vybrat',
+    Picture_deselect: 'Zrušit výběr',
     Picture_error_createThumbnail: 'Vytváření náhledu selhalo',
 
     PhotoActionButtons_movedToTrash_one: 'Fotografie přesunuta do koše',
@@ -119,10 +119,10 @@ export default {
     PhotoActionButtons_photoInfo: 'Zobrazit informace o vybrané fotografii',
     PhotoActionButtons_export: 'Exportovat',
 
-    PhotoDetailBody_selected: ``,  // TODO: 'Selected'
-    PhotoDetailBody_select: ``,  // TODO: 'Select'
-    PhotoDetailBody_error_loadingFailed: ``,  // TODO: 'Loading photo failed'
-    PhotoDetailBody_error_loadingFailed_desc: ``,  // TODO: `Picturama can't load this photo`
+    PhotoDetailBody_selected: 'Vybráno',
+    PhotoDetailBody_select: 'Vybrat',
+    PhotoDetailBody_error_loadingFailed: 'Načtení fotografie selhalo',
+    PhotoDetailBody_error_loadingFailed_desc: 'Picturama nemůže načíst tuto fotografii',
 
     PhotoDetailPane_prevPhoto: 'Předchozí fotografie',
     PhotoDetailPane_nextPhoto: 'Následující fotografie',
@@ -149,7 +149,7 @@ export default {
     RotateButtonGroup_rotateRight: 'Otočit doprava',
 
     SelectionSummary_selected: '{0} vybráno',
-    SelectionSummary_clearSelection: ``,  // TODO: 'Clear selection'
+    SelectionSummary_clearSelection: 'Zrušit výběr',
 
     Settings_title: 'Nastavení',
     Settings_selectPhotoDirs: 'Vyberte prosím složky, ve kterých budou vyhledány fotografie.',
