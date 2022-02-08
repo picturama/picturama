@@ -21,7 +21,7 @@ export default {
 
     ErrorController_copied: 'Informe copiado al portapapeles.',
 
-    ErrorToast_title: 'Oh no! Algo ha ido mal.',
+    ErrorToast_title: '¡Oh no! Algo ha ido mal.',
     ErrorToast_hideReport: 'Ocultar informe',
     ErrorToast_showReport: 'Mostrar informe',
     ErrorToast_copy: 'Copiar',
@@ -46,7 +46,7 @@ export default {
     ExportDialog_customSizeSide_size: `tamaño`,
     ExportDialog_privacy: `Privacidad`,
     ExportDialog_removeInfo: `Quitar información extra`,
-    ExportDialog_removeInfo_desc: `Remover información extra, como por ejemplo los tags EXIF, detalles sobre la cámara utilizada, la geolocalización, etc.`,
+    ExportDialog_removeInfo_desc: `Borrar información extra, como por ejemplo los tags EXIF, detalles sobre la cámara utilizada, la geolocalización, etc.`,
     ExportDialog_removeInfo_jpgOnly: `La información extra es soportada solamente para archivos JPG, por lo tanto será exportada sólo si ambos archivos (fuente y exportado) son JPG`,
     ExportDialog_fileName: `Nombre del archivo`,
     ExportDialog_fileName_likeOriginal: `Como el original`,
@@ -78,14 +78,14 @@ export default {
     Library_selectOtherView: 'Por favor, selecciona otra vista en la parte superior a la izquierda.',
 
     LibraryFilterButton_shown: 'Mostrado: {0}',
-    LibraryFilterButton_filter_all: 'Todoas las fotos',
+    LibraryFilterButton_filter_all: 'Todas las fotos',
     LibraryFilterButton_filter_favorites: 'Favoritos',
     LibraryFilterButton_filter_processed: 'Editado',
     LibraryFilterButton_filter_trash: 'Papelera',
     LibraryFilterButton_filter_tag: 'Con etiqueta "{0}"',
     LibraryFilterButton_tag_title: 'Con etiqueta:',
 
-    LibraryTopBar_emptyTrashQuestion: 'Estás seguro de que quieres vaciar la papelera?',
+    LibraryTopBar_emptyTrashQuestion: '¿Estás seguro de que quieres vaciar la papelera?',
     LibraryTopBar_moveToTrash: 'Mover a la papelera del sistema operativo',
     LibraryTopBar_emptyTrash: 'Vaciar papelera',
 
@@ -108,9 +108,9 @@ export default {
     Picture_error_createThumbnail: `Falló la creación de la miniatura`,
 
     PhotoActionButtons_movedToTrash_one: 'Mover foto a la papelera',
-    PhotoActionButtons_movedToTrash_more: 'Movidas {0} fotos a la papelera',
+    PhotoActionButtons_movedToTrash_more: 'Se han movido {0} fotos a la papelera',
     PhotoActionButtons_restoredFromTrash_one: 'Foto restaurada de la papelera',
-    PhotoActionButtons_restoredFromTrash_more: 'Restauradas {0} fotos de la papelera',
+    PhotoActionButtons_restoredFromTrash_more: 'Se han restaurado {0} fotos de la papelera',
     PhotoActionButtons_removeFavorite: 'Elminar de favoritos',
     PhotoActionButtons_addFavorite: 'Añadir a favoritos',
     PhotoActionButtons_trash: 'Mover a la papelera',
@@ -121,8 +121,8 @@ export default {
 
     PhotoDetailBody_selected: 'Seleccionado',
     PhotoDetailBody_select: 'Escoger',
-    PhotoDetailBody_error_loadingFailed: ``,  // TODO: 'Loading photo failed'
-    PhotoDetailBody_error_loadingFailed_desc: ``,  // TODO: `Picturama can't load this photo`
+    PhotoDetailBody_error_loadingFailed: 'Error al cargar la foto',  
+    PhotoDetailBody_error_loadingFailed_desc: 'Picturama no puede visualizar esta foto',
 
     PhotoDetailPane_prevPhoto: 'Anterior foto',
     PhotoDetailPane_nextPhoto: 'Siguiente foto',
