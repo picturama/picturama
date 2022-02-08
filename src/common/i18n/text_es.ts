@@ -121,8 +121,8 @@ export default {
 
     PhotoDetailBody_selected: 'Seleccionado',
     PhotoDetailBody_select: 'Escoger',
-    PhotoDetailBody_error_loadingFailed: ``,  // TODO: 'Loading photo failed'
-    PhotoDetailBody_error_loadingFailed_desc: ``,  // TODO: `Picturama can't load this photo`
+    PhotoDetailBody_error_loadingFailed: 'Error al cargar la foto',  // TODO: 'Loading photo failed'
+    PhotoDetailBody_error_loadingFailed_desc: 'Picturama no puede visualizar esta foto',
 
     PhotoDetailPane_prevPhoto: 'Anterior foto',
     PhotoDetailPane_nextPhoto: 'Siguiente foto',
