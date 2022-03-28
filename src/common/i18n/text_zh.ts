@@ -6,7 +6,7 @@ export default {
     common_error_photoNotExisting: '照片不存在',
     common_error_photoNotExisting_desc: '这张照片已经不在上次扫描时的位置了,也许它已经被移动、删除或它在一个不再连接的磁盘上',
 
-    key_space: ``,  // TODO: 'Space'
+    key_space: `空格`,  // TODO: 'Space'
 
     App_error_noWebGL_title: '没有WebGL',
     App_error_noWebGL_desc: 'Picturama需要有3D加速的图形卡才能运作,请查看系统设置中是否可以激活3D加速并重新启动Picturama',
@@ -79,7 +79,7 @@ export default {
 
     LibraryFilterButton_shown: '显示,{0}',
     LibraryFilterButton_filter_all: '所有照片',
-    LibraryFilterButton_filter_favorites: ``,  // TODO: 'Favorites'
+    LibraryFilterButton_filter_favorites: `收藏`,
     LibraryFilterButton_filter_processed: '已编辑',
     LibraryFilterButton_filter_trash: '垃圾桶',
     LibraryFilterButton_filter_tag: '带标签"{0}" ',
@@ -102,9 +102,9 @@ export default {
     MainMenu_toggleUiTester: '切换UI界面',
     MainMenu_reloadUi: '加载UI',
 
-    Picture_showDetails: ``,  // TODO: 'View photo'
-    Picture_select: ``,  // TODO: 'Select'
-    Picture_deselect: ``,  // TODO: 'Deselect'
+    Picture_showDetails: `浏览图片`,
+    Picture_select: `选中`,
+    Picture_deselect: `取消选中`,
     Picture_error_createThumbnail: '创建缩略图失败',
 
     PhotoActionButtons_movedToTrash_one: '已将照片移动到垃圾桶',
@@ -119,10 +119,10 @@ export default {
     PhotoActionButtons_photoInfo: '显示所选照片的信息',
     PhotoActionButtons_export: '导出',
 
-    PhotoDetailBody_selected: ``,  // TODO: 'Selected'
-    PhotoDetailBody_select: ``,  // TODO: 'Select'
-    PhotoDetailBody_error_loadingFailed: ``,  // TODO: 'Loading photo failed'
-    PhotoDetailBody_error_loadingFailed_desc: ``,  // TODO: `Picturama can't load this photo`
+    PhotoDetailBody_selected: `已选中`,
+    PhotoDetailBody_select: `选中`,
+    PhotoDetailBody_error_loadingFailed: `加载图片失败`,
+    PhotoDetailBody_error_loadingFailed_desc: `Picturama 无法加载这张图片`,
 
     PhotoDetailPane_prevPhoto: '上一张照片',
     PhotoDetailPane_nextPhoto: '下一张照片',
@@ -148,8 +148,8 @@ export default {
     RotateButtonGroup_rotateLeft: '向左旋转',
     RotateButtonGroup_rotateRight: '向右旋转',
 
-    SelectionSummary_selected: ``,  // TODO: '{0} selected'
-    SelectionSummary_clearSelection: ``,  // TODO: 'Clear selection'
+    SelectionSummary_selected: `已选中{0}`,
+    SelectionSummary_clearSelection: `清除选中`,
 
     Settings_title: '设置',
     Settings_selectPhotoDirs: '请选择要扫描图像的文件夹',
