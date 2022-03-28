@@ -6,7 +6,7 @@ export default {
     common_error_photoNotExisting: `Cette photo n'existe pas.`,
     common_error_photoNotExisting_desc: `Cette photo n'est plus à l'endroit où elle se trouvait lors du dernier scan. Elle a peut-être été déplacée, supprimée ou se trouve sur un disque qui n'est plus connecté`,
 
-    key_space: `Espace`,  // TODO: 'Space'
+    key_space: `Espace`,
 
     App_error_noWebGL_title: 'WebGL non supporté.',
     App_error_noWebGL_desc: `Pour fonctionner, Picturama a besoin d'une carte graphique avec accélération 3D. Veuillez vérifier dans les paramètres du système si vous pouvez activer l'accélération 3D et redémarrer Picturama.`,
@@ -46,8 +46,8 @@ export default {
     ExportDialog_customSizeSide_size: 'taille',
     ExportDialog_privacy: 'Vie privée',
     ExportDialog_removeInfo: 'Supprimer les métadonnées',
-    ExportDialog_removeInfo_desc: `Ceci supprime des informations supplémentaires comme l'EXIF-Tags de la photo importée qui comprend des informations sur l'appareil photo utilisé, la géolocalisation de la photo ou d'autres informations similaires.`,  // TODO: `This removes extra information like EXIF-Tags from the exported photo. This is information about the camera used, the photo's location or similar.`
-    ExportDialog_removeInfo_jpgOnly: `Les informations supplémentaires sont uniquement disponibles avec le format JPG. Ex: Les informations supplémentaires sont uniquement exportées si l'original et la photo exportés sont au format JPG.`,  // TODO: 'Extra information is currently only supported for JPG. I.e. extra information is only exported if both the original photo and the exported photo are JPG.'
+    ExportDialog_removeInfo_desc: `Ceci supprime des informations supplémentaires comme l'EXIF-Tags de la photo importée qui comprend des informations sur l'appareil photo utilisé, la géolocalisation de la photo ou d'autres informations similaires.`,
+    ExportDialog_removeInfo_jpgOnly: `Les informations supplémentaires sont uniquement disponibles avec le format JPG. Ex: Les informations supplémentaires sont uniquement exportées si l'original et la photo exportés sont au format JPG.`,
     ExportDialog_fileName: 'Nom du fichier',
     ExportDialog_fileName_likeOriginal: `Comme l'original`,
     ExportDialog_fileName_sequence: 'séquence',
@@ -102,9 +102,9 @@ export default {
     MainMenu_toggleUiTester: `Activer l'interface de test`,
     MainMenu_reloadUi: `Recharger l'interface`,
 
-    Picture_showDetails: `Voir la photo`,  // TODO: 'View photo'
-    Picture_select: `Sélectionner`,  // TODO: 'Select'
-    Picture_deselect: `Désélectionner`,  // TODO: 'Deselect'
+    Picture_showDetails: `Voir la photo`,
+    Picture_select: `Sélectionner`,
+    Picture_deselect: `Désélectionner`,
     Picture_error_createThumbnail: 'La création de la miniature a échoué',
 
     PhotoActionButtons_movedToTrash_one: 'Déplacement de la photo à la corbeille',
@@ -119,10 +119,10 @@ export default {
     PhotoActionButtons_photoInfo: 'Afficher les informations sur la photo sélectionnée',
     PhotoActionButtons_export: 'Exportez',
 
-    PhotoDetailBody_selected: `Sélectionné`,  // TODO: 'Selected'
-    PhotoDetailBody_select: `Sélectionner`,  // TODO: 'Select'
-    PhotoDetailBody_error_loadingFailed: `Le chargement de la photo a echoué`,  // TODO: 'Loading photo failed'
-    PhotoDetailBody_error_loadingFailed_desc: `Picturama ne peut pas charger cette photo`,  // TODO: `Picturama can't load this photo`
+    PhotoDetailBody_selected: `Sélectionné`,
+    PhotoDetailBody_select: `Sélectionner`,
+    PhotoDetailBody_error_loadingFailed: `Le chargement de la photo a echoué`,
+    PhotoDetailBody_error_loadingFailed_desc: `Picturama ne peut pas charger cette photo`,
 
     PhotoDetailPane_prevPhoto: 'Photo précédente',
     PhotoDetailPane_nextPhoto: 'Photo suivante',
@@ -149,7 +149,7 @@ export default {
     RotateButtonGroup_rotateRight: 'Rotation à droite',
 
     SelectionSummary_selected: '{0} sélectionné',
-    SelectionSummary_clearSelection: `Vider la sélection`,  // TODO: 'Clear selection'
+    SelectionSummary_clearSelection: `Vider la sélection`,
 
     Settings_title: 'Paramètres',
     Settings_selectPhotoDirs: 'Veuillez sélectionner les dossiers à scanner pour les images.',
