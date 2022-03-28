@@ -6,7 +6,7 @@ export default {
     common_error_photoNotExisting: '照片不存在',
     common_error_photoNotExisting_desc: '这张照片已经不在上次扫描时的位置了,也许它已经被移动、删除或它在一个不再连接的磁盘上',
 
-    key_space: `空格`,  // TODO: 'Space'
+    key_space: `空格`,
 
     App_error_noWebGL_title: '没有WebGL',
     App_error_noWebGL_desc: 'Picturama需要有3D加速的图形卡才能运作,请查看系统设置中是否可以激活3D加速并重新启动Picturama',
