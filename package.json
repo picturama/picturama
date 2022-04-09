@@ -94,7 +94,7 @@
     "image-size": "^0.9.3",
     "js-yaml": "^3.14.0",
     "justified-layout": "^4.0.0",
-    "moment": "^2.26.0",
+    "moment": "^2.29.2",
     "node-notifier": "9.0.0",
     "node-pre-gyp": "^0.17.0",
     "normalize.css": "^8.0.1",
