@@ -19,6 +19,8 @@ export default {
     CropModeToolbar_reset: '重置',
     CropModeToolbar_done: '开始',
 
+    DetailController_SectionUpdated: ``,  // TODO: 'Showing photos from section {0}'
+
     ErrorController_copied: '将报告复制到剪贴板',
 
     ErrorToast_title: '哦，不！出了点问题',

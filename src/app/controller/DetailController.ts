@@ -2,11 +2,13 @@ import { PhotoId, PhotoSectionId } from 'common/CommonTypes'
 import CancelablePromise, { isCancelError } from 'common/util/CancelablePromise'
 import { getMasterPath } from 'common/util/DataUtil'
 import { assertRendererProcess } from 'common/util/ElectronUtil'
+import { msg } from 'common/i18n/i18n'
 
 import BackgroundClient from 'app/BackgroundClient'
 import { showError } from 'app/ErrorPresenter'
+import toaster from 'app/Toaster'
 import { setDetailPhotoAction, fetchDetailPhotoDataAction, closeDetailAction } from 'app/state/actions'
-import { getPhotoByIndex, getLoadedSectionById, getPhotoById } from 'app/state/selectors'
+import { getPhotoByIndex, getLoadedSectionById, getPhotoById, getNextLoadedSectionByIdFromDataState, getPrevLoadedSectionByIdFromDataState } from 'app/state/selectors'
 import store from 'app/state/store'
 import { AppState } from 'app/state/StateTypes'
 import SerialUpdater from 'app/util/SerialUpdater'
@@ -74,6 +76,12 @@ export function setPreviousDetailPhoto() {
         const currentIndex = currentPhoto.photoIndex
         if (currentIndex > 0) {
             setDetailPhotoByIndex(currentPhoto.sectionId, currentIndex - 1)
+        } else {
+            const prevSection = getNextLoadedSectionByIdFromDataState(state.data, currentPhoto.sectionId)
+            setDetailPhotoByIndex(prevSection ? prevSection.id : null, prevSection ? prevSection.count - 1 : null)
+            toaster.show({
+                message: msg('DetailController_SectionUpdated', [prevSection?.id])
+            })
         }
     }
 }
@@ -86,6 +94,12 @@ export function setNextDetailPhoto() {
         const section = getLoadedSectionById(state, currentPhoto.sectionId)
         if (section && currentIndex < section.photoIds.length - 1) {
             setDetailPhotoByIndex(currentPhoto.sectionId, currentIndex + 1)
+        } else if (section && currentIndex == section.photoIds.length - 1){
+            const nextSection = getNextLoadedSectionByIdFromDataState(state.data, currentPhoto.sectionId)
+            setDetailPhotoByIndex(nextSection ? nextSection.id : null, 0)
+            toaster.show({
+                message: msg('DetailController_SectionUpdated', [nextSection?.id])
+            })
         }
     }
 }

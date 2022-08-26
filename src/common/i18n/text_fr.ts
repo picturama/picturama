@@ -19,6 +19,8 @@ export default {
     CropModeToolbar_reset: 'Réinitialiser',
     CropModeToolbar_done: 'Terminer',
 
+    DetailController_SectionUpdated: ``,  // TODO: 'Showing photos from section {0}'
+
     ErrorController_copied: 'Copie du rapport dans le presse-papiers.',
 
     ErrorToast_title: 'Oh non ! Quelque chose a mal tourné.',

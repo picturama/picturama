@@ -19,6 +19,8 @@ export default {
     CropModeToolbar_reset: 'Reset',
     CropModeToolbar_done: 'Done',
 
+    DetailController_SectionUpdated: 'Showing photos from section {0}',
+
     ErrorController_copied: 'Copied report to clipboard.',
 
     ErrorToast_title: 'Oh no! Something went wrong.',

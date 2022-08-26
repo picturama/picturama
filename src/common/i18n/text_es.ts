@@ -19,6 +19,8 @@ export default {
     CropModeToolbar_reset: 'Reiniciar',
     CropModeToolbar_done: 'Hecho',
 
+    DetailController_SectionUpdated: ``,  // TODO: 'Showing photos from section {0}'
+
     ErrorController_copied: 'Informe copiado al portapapeles.',
 
     ErrorToast_title: '¡Oh no! Algo ha ido mal.',
@@ -121,7 +123,7 @@ export default {
 
     PhotoDetailBody_selected: 'Seleccionado',
     PhotoDetailBody_select: 'Escoger',
-    PhotoDetailBody_error_loadingFailed: 'Error al cargar la foto',  
+    PhotoDetailBody_error_loadingFailed: 'Error al cargar la foto',
     PhotoDetailBody_error_loadingFailed_desc: 'Picturama no puede visualizar esta foto',
 
     PhotoDetailPane_prevPhoto: 'Anterior foto',
