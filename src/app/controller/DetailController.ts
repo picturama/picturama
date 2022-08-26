@@ -77,8 +77,9 @@ export function setPreviousDetailPhoto() {
         if (currentIndex > 0) {
             setDetailPhotoByIndex(currentPhoto.sectionId, currentIndex - 1)
         } else {
-            const prevSection = getNextLoadedSectionByIdFromDataState(state.data, currentPhoto.sectionId)
+            const prevSection = getPrevLoadedSectionByIdFromDataState(state.data, currentPhoto.sectionId)
             setDetailPhotoByIndex(prevSection ? prevSection.id : null, prevSection ? prevSection.count - 1 : null)
+            toaster.clear()
             toaster.show({
                 message: msg('DetailController_SectionUpdated', [prevSection?.id])
             })
@@ -97,6 +98,7 @@ export function setNextDetailPhoto() {
         } else if (section && currentIndex == section.photoIds.length - 1){
             const nextSection = getNextLoadedSectionByIdFromDataState(state.data, currentPhoto.sectionId)
             setDetailPhotoByIndex(nextSection ? nextSection.id : null, 0)
+            toaster.clear()
             toaster.show({
                 message: msg('DetailController_SectionUpdated', [nextSection?.id])
             })
