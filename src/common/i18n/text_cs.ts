@@ -19,6 +19,8 @@ export default {
     CropModeToolbar_reset: 'Resetovat',
     CropModeToolbar_done: 'Hotovo',
 
+    DetailController_SectionUpdated: ``,  // TODO: 'Showing photos from section {0}'
+
     ErrorController_copied: 'Report byl zkopírován do schránky.',
 
     ErrorToast_title: 'Ale ne! Něco se pokazilo.',

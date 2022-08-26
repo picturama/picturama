@@ -19,6 +19,8 @@ export default {
     CropModeToolbar_reset: 'Zurücksetzen',
     CropModeToolbar_done: 'Fertig',
 
+    DetailController_SectionUpdated: ``,  // TODO: 'Showing photos from section {0}'
+
     ErrorController_copied: 'Report wurde in die Zwischenablage kopiert.',
 
     ErrorToast_title: 'Oh nein! Da ging was schief.',

@@ -23,6 +23,22 @@ export function getLoadedSectionByIdFromDataState(dataState: DataState, sectionI
     return isLoadedPhotoSection(section) ? section : null
 }
 
+export function getNextLoadedSectionByIdFromDataState(dataState: DataState, sectionId: PhotoSectionId): LoadedPhotoSection | null {
+    const sectionIndex = dataState.sections.ids.indexOf(sectionId)
+    let nextIndex = sectionIndex === (dataState.sections.ids.length - 1) ? 0 : sectionIndex + 1
+    const nextIndexKey = dataState.sections.ids[nextIndex]
+    const section = dataState.sections.byId[nextIndexKey]
+    return isLoadedPhotoSection(section) ? section : null
+}
+
+export function getPrevLoadedSectionByIdFromDataState(dataState: DataState, sectionId: PhotoSectionId): LoadedPhotoSection | null {
+    const sectionIndex = dataState.sections.ids.indexOf(sectionId)
+    let prevIndex = sectionIndex === 0 ? (dataState.sections.ids.length - 1) : sectionIndex - 1
+    const prevIndexKey = dataState.sections.ids[prevIndex]
+    const section = dataState.sections.byId[prevIndexKey]
+    return isLoadedPhotoSection(section) ? section : null
+}
+
 let prevTagIds: TagId[] = []
 let cachedTagTitles: string[] = []
 export function getTagTitles(state: AppState): string[] {
