@@ -22,7 +22,7 @@ interface State {
 
 export default class LogoDecoration extends React.Component<Props, State> {
 
-    private resizeObserver: ResizeObserver | null
+    private resizeObserver: ResizeObserver | null
 
     constructor(props: Props) {
         super(props)

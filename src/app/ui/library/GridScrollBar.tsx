@@ -89,13 +89,13 @@ export default class GridScrollBar extends React.Component<Props, State> {
         this.setState(nextState as any)
     }
 
-    private onWindowMouseMove(event: MouseEvent) {
+    private onWindowMouseMove(event: MouseEvent) {
         const nextState: Partial<State> = {}
         this.moveHint(event.clientY, nextState, true)
         this.setState(nextState as any)
     }
 
-    private onWindowMouseUp() {
+    private onWindowMouseUp() {
         window.removeEventListener('mousemove', this.onWindowMouseMove)
         window.removeEventListener('mouseup', this.onWindowMouseUp)
         this.setState({ isDragging: false })
@@ -256,7 +256,7 @@ function generateScaleItems(sectionLayouts: GridSectionLayout[], sectionIds: Pho
 }
 
 
-function getSectionIndexAtY(y: number, sectionLayouts: GridSectionLayout[]): number | null {
+function getSectionIndexAtY(y: number, sectionLayouts: GridSectionLayout[]): number | null {
     let left = 0
     let right = sectionLayouts.length - 1
     while (left <= right) {

@@ -36,10 +36,10 @@ interface StateProps {
     hasWebGLSupport: boolean
     hasNativeTrafficLightButtons: boolean
     showWindowsButtons: boolean
-    globalCommands: Command[] | null
+    globalCommands: Command[] | null
     selectedCount: number
     mainView: MainViewState
-    importProgress: ImportProgress | null
+    importProgress: ImportProgress | null
     showExport: boolean
 }
 
@@ -56,7 +56,7 @@ interface Props extends OwnProps, StateProps, DispatchProps {
 
 class App extends React.Component<Props> {
 
-    private commandGroupId: CommandGroupId | null = null
+    private commandGroupId: CommandGroupId | null = null
 
     componentDidMount() {
         if (this.props.globalCommands) {
@@ -64,7 +64,7 @@ class App extends React.Component<Props> {
         }
     }
 
-    componentWillUnmount() {
+    componentWillUnmount() {
         if (this.commandGroupId) {
             removeCommandGroup(this.commandGroupId)
         }
@@ -73,12 +73,12 @@ class App extends React.Component<Props> {
     render() {
         const { props } = this
 
-        let modalView: ReactNode | null = null
+        let modalView: ReactNode | null = null
         if (props.showExport) {
             modalView = <ExportDialog />
         }
 
-        let mainView: ReactNode | null = null
+        let mainView: ReactNode | null = null
         if (!props.hasWebGLSupport) {
             mainView = (
                 <div className='App-mainView App-globalError'>

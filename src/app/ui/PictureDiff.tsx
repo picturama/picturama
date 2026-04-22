@@ -90,7 +90,7 @@ export class PictureDiff extends React.Component<Props, State> {
         ].join(' ')
 
         const photoDetail = props.photoDetail
-        let last: Version | undefined = undefined
+        let last: Version | undefined = undefined
         if (photoDetail) {
             last = photoDetail.versions[photoDetail.versions.length - 1]
         }

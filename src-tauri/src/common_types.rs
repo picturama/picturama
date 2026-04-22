@@ -192,7 +192,7 @@ pub enum PhotoRenderFormat {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PhotoExportOptions {
-    /// 'S' | 'M' | 'L' | 'original' | 'custom'
+    /// 'S' | 'M' | 'L' | 'original' | 'custom'
     pub size: String,
     /// 'width' | 'height' | 'size'
     pub custom_size_side: String,

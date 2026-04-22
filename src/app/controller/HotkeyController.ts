@@ -19,7 +19,7 @@ export interface Command {
     /** The parsed hotkey combination (will be set by HotkeyController) */
     parsedCombo?: IKeyCombo
     /** Whether the hotkey can be triggered. (default: `true`) */
-    enabled?: boolean | (() => boolean)
+    enabled?: boolean | (() => boolean)
     /** Human-friendly label for the hotkey. */
     label?: string
     /** event handler. */
@@ -44,7 +44,7 @@ let isInitialized = false
 let prevIsShiftPressed: boolean | null = null
 
 
-export function addCommandGroup(commands: Command[] | { [K in any]: Command }): CommandGroupId {
+export function addCommandGroup(commands: Command[] | { [K in any]: Command }): CommandGroupId {
     if (!Array.isArray(commands)) {
         commands = Object.values(commands)
     }

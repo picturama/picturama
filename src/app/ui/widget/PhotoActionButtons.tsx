@@ -15,7 +15,7 @@ import RotateButtonGroup from './RotateButtonGroup'
 
 
 interface Props {
-    selectedPhotos: PhotoCollection | null
+    selectedPhotos: PhotoCollection | null
     isShowingTrash: boolean
     isShowingInfo: boolean
     photoActionController: PhotoActionController

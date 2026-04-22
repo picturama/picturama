@@ -156,8 +156,8 @@ export default class CropOverlay extends React.Component<Props, State> {
     private renderSide(side: Side) {
         const { rect } = this.props
 
-        const width = (side === 'n' || side === 's') ? rect.width - 2 * halfHandleSize : 2 * halfHandleSize
-        const height = (side === 'w' || side === 'e') ? rect.height - 2 * halfHandleSize : 2 * halfHandleSize
+        const width = (side === 'n' || side === 's') ? rect.width - 2 * halfHandleSize : 2 * halfHandleSize
+        const height = (side === 'w' || side === 'e') ? rect.height - 2 * halfHandleSize : 2 * halfHandleSize
 
         if (width <= 0 || height <= 0) {
             return null
@@ -168,7 +168,7 @@ export default class CropOverlay extends React.Component<Props, State> {
                 key={side}
                 data-side={side}
                 className='CropOverlay-sideHandle'
-                style={{ cursor: (side === 'n' || side === 's') ? 'ns-resize' : 'ew-resize' }}
+                style={{ cursor: (side === 'n' || side === 's') ? 'ns-resize' : 'ew-resize' }}
                 x={rect.x + (side === 'w' ? -halfHandleSize : side === 'e' ? rect.width - halfHandleSize : halfHandleSize)}
                 y={rect.y + (side === 'n' ? -halfHandleSize : side === 's' ? rect.height - halfHandleSize : halfHandleSize)}
                 width={width}

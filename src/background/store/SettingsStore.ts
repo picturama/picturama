@@ -12,7 +12,7 @@ let fetchSettingsPromise: Promise<Settings> | null = null
 export function fetchSettings(): Promise<Settings> {
     if (!fetchSettingsPromise) {
         fetchSettingsPromise = (async () => {
-            let settings: Settings | null = null
+            let settings: Settings | null = null
             try {
                 const settingsExist = await fsExists(config.settings)
                 if (settingsExist) {

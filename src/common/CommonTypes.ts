@@ -153,10 +153,10 @@ export interface PhotoSet {
 }
 export interface LoadedPhotoSection extends PhotoSection, PhotoSet {
 }
-export function isLoadedPhotoSection(section: PhotoSection | null | undefined | false): section is LoadedPhotoSection {
+export function isLoadedPhotoSection(section: PhotoSection | null | undefined | false): section is LoadedPhotoSection {
     return !!(section && (section as any).photoIds)
 }
-export type PhotoSectionById = { [K in PhotoSectionId]: PhotoSection | LoadedPhotoSection }
+export type PhotoSectionById = { [K in PhotoSectionId]: PhotoSection | LoadedPhotoSection }
 
 
 export type PhotoFilterType = 'all' | 'favorites' | 'trash' | 'tag'  //  | 'processed'
@@ -174,8 +174,8 @@ export interface PhotoRenderOptions {
     /** Quality between `0` and `1`. Will be ignored if `format` is `png` */
     quality: number
 }
-export type PhotoRenderFormat = 'jpg' | 'webp' | 'png'
-export const photoRenderFormats: PhotoRenderFormat[] = [ 'jpg', 'webp', 'png' ]
+export type PhotoRenderFormat = 'jpg' | 'webp' | 'png'
+export const photoRenderFormats: PhotoRenderFormat[] = [ 'jpg', 'webp', 'png' ]
 
 
 export interface PhotoExportOptions extends PhotoRenderOptions {
@@ -187,7 +187,7 @@ export interface PhotoExportOptions extends PhotoRenderOptions {
     fileNamePrefix: string
     folderPath: string
 }
-export type PhotoExportSizeType = 'S' | 'M' | 'L' | 'original' | 'custom'
+export type PhotoExportSizeType = 'S' | 'M' | 'L' | 'original' | 'custom'
 export type PhotoExportCustomSizeSide = 'width' | 'height' | 'size'
 export type PhotoExportFileNameStyle = 'like-original' | 'sequence'
 

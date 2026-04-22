@@ -73,7 +73,7 @@ const hoverPhoto = (state: PhotoLibraryPosition | null = null, action: Action): 
 }
 
 
-const selection = (state: SelectionState | null = null, action: Action): SelectionState | null => {
+const selection = (state: SelectionState | null = null, action: Action): SelectionState | null => {
     switch (action.type) {
         case FETCH_SECTIONS_SUCCESS:
             if (!state) {

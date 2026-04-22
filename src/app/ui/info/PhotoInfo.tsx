@@ -314,7 +314,7 @@ function formatImageMegaPixel(width, height): string {
     return `${formatNumber(sizeMp, 1)} MP`
 }
 
-function renderPhotoSize(photoData: InfoPhotoData): string | JSX.Element {
+function renderPhotoSize(photoData: InfoPhotoData): string | JSX.Element {
     const bytes = photoData.masterFileSize
     if (photoData.fetchState === FetchState.FETCHING) {
         return '...'

@@ -44,7 +44,7 @@ app.on('ready', () => {
     const windowStyle: WindowStyle = platform === 'darwin' ? 'nativeTrafficLight' : 'windowsButtons'  // TODO
     const hasNativeMenu = platform === 'darwin'
 
-    let icon: string | undefined = undefined
+    let icon: string | undefined = undefined
     if (platform === 'linux') {
         // Workaround for Linux: Setting the icon is buggy in electron-builder
         // See: https://github.com/electron-userland/electron-builder/issues/2577

@@ -96,7 +96,7 @@ export const detail = (state: DetailState = null, dataState: DataState, action: 
                     if (photoIndex >= photoCount) {
                         photoIndex = photoCount - 1
                     }
-                    photoId = section.photoIds[photoIndex] || null
+                    photoId = section.photoIds[photoIndex] || null
                 }
 
                 if (!photoId) {

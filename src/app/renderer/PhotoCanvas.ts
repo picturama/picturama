@@ -17,7 +17,7 @@ export default class PhotoCanvas {
     private webGlCanvas: WebGLCanvas
 
     private size: Size = { width: 0, height: 0 }
-    private clipRect: Rect | null = null
+    private clipRect: Rect | null = null
 
     private projectionMatrix: mat4
     private cameraMatrix: mat4
@@ -62,7 +62,7 @@ export default class PhotoCanvas {
     /**
      * Sets the rect where to clip the photo. In projected coordinates.
      */
-    setClipRect(clipRect: Rect | null): this {
+    setClipRect(clipRect: Rect | null): this {
         this.clipRect = clipRect
         return this
     }
@@ -85,7 +85,7 @@ export default class PhotoCanvas {
         return this
     }
 
-    loadFromFile(filePath: string, profiler: Profiler | null = null): CancelablePromise<void> {
+    loadFromFile(filePath: string, profiler: Profiler | null = null): CancelablePromise<void> {
         if (this.baseTexturePromise !== null) {
             this.baseTexturePromise.cancel()
         }

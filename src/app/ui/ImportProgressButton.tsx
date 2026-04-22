@@ -30,7 +30,7 @@ export default class ImportProgressButton extends React.Component<Props, State> 
         bindMany(this, 'onOpening', 'onClosed', 'onCancelImport')
     }
 
-    private onOpening() {
+    private onOpening() {
         this.setState({ isShowingPopover: true })
     }
 

@@ -42,9 +42,9 @@ export interface Props {
     isFirst: boolean
     isLast: boolean
     imagePath: string
-    imagePathPrev: string | null
-    imagePathNext: string | null
-    photoWork: PhotoWork | null
+    imagePathPrev: string | null
+    imagePathNext: string | null
+    photoWork: PhotoWork | null
     photoActionController: PhotoActionController
     librarySelectionController: LibrarySelectionController
     setMode(mode: DetailMode): void
@@ -55,9 +55,9 @@ export interface Props {
 }
 
 interface State {
-    prevMode: DetailMode | null
+    prevMode: DetailMode | null
     prevImagePath: string | null
-    prevPhotoWork: PhotoWork | null
+    prevPhotoWork: PhotoWork | null
     loadingState: PhotoLayerLoadingState | null
     /** The size of the detail body (in px) */
     bodySize: Size
@@ -65,7 +65,7 @@ interface State {
     boundsRect: Rect | null
     photoPosition: RequestedPhotoPosition
     /** The PhotoWork which is changed in crop mode but not yet saved */
-    editedPhotoWork: PhotoWork | null
+    editedPhotoWork: PhotoWork | null
     cameraMetricsBuilder: CameraMetricsBuilder
     cameraMetrics: CameraMetrics | null
 }
@@ -179,7 +179,7 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
     }
 
     private onPhotoWorkEdited(photoWork: PhotoWork, boundsRect?: Rect | null) {
-        this.setState({ editedPhotoWork: photoWork, boundsRect: boundsRect || null })
+        this.setState({ editedPhotoWork: photoWork, boundsRect: boundsRect || null })
     }
 
     private onCropDone() {

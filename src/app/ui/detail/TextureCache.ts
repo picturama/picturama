@@ -6,7 +6,7 @@ import { Texture } from 'app/renderer/WebGLCanvas'
 import Profiler from 'common/util/Profiler'
 
 
-export type TextureError = 'error-notExisting' | 'error-loading'
+export type TextureError = 'error-notExisting' | 'error-loading'
 
 
 interface TextureInfo {
@@ -74,8 +74,8 @@ export default class TextureCache {
         }
     }
 
-    private tryToFetchTexture(imagePath?: string | null) {
-        if (!imagePath || this.isLoadingTexture || this.textureCache[imagePath] || this.textureErrors[imagePath]) {
+    private tryToFetchTexture(imagePath?: string | null) {
+        if (!imagePath || this.isLoadingTexture || this.textureCache[imagePath] || this.textureErrors[imagePath]) {
             return
         }
 
@@ -102,7 +102,7 @@ export default class TextureCache {
 
             const cachedImagePaths = Object.keys(textureCache)
             if (cachedImagePaths.length > this.options.maxCacheSize) {
-                let oldestTextureInfo: TextureInfo | null = null
+                let oldestTextureInfo: TextureInfo | null = null
                 for (const imagePath of cachedImagePaths) {
                     const textureInfo = textureCache[imagePath]
                     if (!oldestTextureInfo || textureInfo.lastUse < oldestTextureInfo.lastUse) {

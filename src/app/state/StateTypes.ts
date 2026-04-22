@@ -43,10 +43,10 @@ export interface LibraryState {
      *   - acts as anchor for shift-(de)selection
      *   - has the keyboard focus
      */
-    readonly activePhoto: PhotoLibraryPosition | null
+    readonly activePhoto: PhotoLibraryPosition | null
     /** The photo over which the mouse is currently hovering */
-    readonly hoverPhoto: PhotoLibraryPosition | null
-    readonly selection: SelectionState | null
+    readonly hoverPhoto: PhotoLibraryPosition | null
+    readonly selection: SelectionState | null
 }
 
 export interface DisplayState {
@@ -94,7 +94,7 @@ export type TagsState = {
 export type SectionsState = {
     readonly fetchState: FetchState
     /** The total number of photos (when no filter is applied). Is null before fetched for the first time. */
-    readonly totalPhotoCount: number | null
+    readonly totalPhotoCount: number | null
     /** The number of photos with the current filter applied */
     readonly photoCount: number
     readonly ids: PhotoSectionId[]
@@ -111,7 +111,7 @@ export type DetailState = {
         /** Is `null` while loading */
         readonly photoWork: PhotoWork | null
     }
-} | null
+} | null
 
 
 export interface InfoState {
@@ -141,5 +141,5 @@ export type ExportState = {
     readonly photos: PhotoCollection
     readonly exportOptions: PhotoExportOptions
     readonly showRemoveInfoDesc: boolean
-    readonly progress: PhotoExportProgress | null
+    readonly progress: PhotoExportProgress | null
 } | null

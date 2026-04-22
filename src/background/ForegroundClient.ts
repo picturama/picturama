@@ -32,7 +32,7 @@ export default {
 
         mainWindow = mainWin
 
-        ipcMain.on('onForegroundActionDone', (event, callId: number, error: IpcErrorInfo | null, result: any | null) => {
+        ipcMain.on('onForegroundActionDone', (event, callId: number, error: IpcErrorInfo | null, result: any | null) => {
             const callInfo = pendingCalls[callId]
             delete pendingCalls[callId]
             if (callInfo) {
@@ -62,11 +62,11 @@ export default {
         return callOnForeground('showSettings')
     },
 
-    async setImportProgress(progress: ImportProgress | null, updatedTags: Tag[] | null): Promise<void> {
+    async setImportProgress(progress: ImportProgress | null, updatedTags: Tag[] | null): Promise<void> {
         return callOnForeground('setImportProgress', { progress, updatedTags })
     },
 
-    async onPhotoTrashed(photoIds: PhotoId[], updatedTags: Tag[] | null): Promise<void> {
+    async onPhotoTrashed(photoIds: PhotoId[], updatedTags: Tag[] | null): Promise<void> {
         return callOnForeground('onPhotoTrashed', { photoIds, updatedTags })
     },
 

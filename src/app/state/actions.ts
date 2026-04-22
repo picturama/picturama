@@ -33,8 +33,8 @@ export const setDetailPhotoAction = (sectionId: PhotoSectionId, photoIndex: numb
 export const fetchDetailPhotoDataAction = createAsyncAction(FETCH_DETAIL_PHOTO_DATA_REQUEST, FETCH_DETAIL_PHOTO_DATA_SUCCESS, FETCH_DETAIL_PHOTO_DATA_FAILURE)<{ photoId: PhotoId }, { photoId: PhotoId, photoWork: PhotoWork }, { photoId: PhotoId, error: Error }>()
 export const closeDetailAction = () => action(CLOSE_DETAIL)
 
-export const setLibraryActivePhotoAction = (activePhoto: PhotoLibraryPosition | null) => action(SET_LIBRARY_ACTIVE_PHOTO, activePhoto)
-export const setLibraryHoverPhotoAction = (hoverPhoto: PhotoLibraryPosition | null) => action(SET_LIBRARY_HOVER_PHOTO, hoverPhoto)
+export const setLibraryActivePhotoAction = (activePhoto: PhotoLibraryPosition | null) => action(SET_LIBRARY_ACTIVE_PHOTO, activePhoto)
+export const setLibraryHoverPhotoAction = (hoverPhoto: PhotoLibraryPosition | null) => action(SET_LIBRARY_HOVER_PHOTO, hoverPhoto)
 export const setLibrarySelectionAction = (selection: SelectionState | null, activePhoto?: PhotoLibraryPosition) => action(SET_LIBRARY_SELECTION, { selection, activePhoto })
 
 export const fetchTotalPhotoCountAction = (totalPhotoCount: number) => action(FETCH_TOTAL_PHOTO_COUNT, { totalPhotoCount })
@@ -49,7 +49,7 @@ export const setShowInfoAction = (view: 'library' | 'detail', showInfo: boolean)
 export const setInfoPhotoDataAction = (payload: { photoId: PhotoId, photoDetail: PhotoDetail, masterFileSize: number, metaData: MetaData, exifData: ExifData | null }) => action(SET_INFO_PHOTO_DATA, payload)
 export const setInfoPhotoDataFailureAction = (photoId: PhotoId) => action(SET_INFO_PHOTO_DATA_FAILURE, { photoId })
 
-export const setImportProgressAction = (progress: ImportProgress | null) => action(SET_IMPORT_PROGRESS, progress)
+export const setImportProgressAction = (progress: ImportProgress | null) => action(SET_IMPORT_PROGRESS, progress)
 
 export const fetchTagsAction = (tags: Tag[]) => action(FETCH_TAGS, tags)
 export const setPhotoTagsAction = (photoId: PhotoId, tags: string[]) => action(SET_PHOTO_TAGS, { photoId, tags })

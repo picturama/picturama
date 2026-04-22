@@ -12,14 +12,14 @@ import SerialUpdater from 'app/util/SerialUpdater'
 import { FetchState } from 'app/UITypes'
 
 
-export function setDetailPhotoById(sectionId: PhotoSectionId, photoId: PhotoId | null) {
+export function setDetailPhotoById(sectionId: PhotoSectionId, photoId: PhotoId | null) {
     const state = store.getState()
     const section = getLoadedSectionById(state, sectionId)
     const photoIndex = (section && photoId != null) ? section.photoIds.indexOf(photoId) : -1
     setDetailPhotoByIndex(sectionId, (photoIndex === -1) ? null : photoIndex)
 }
 
-export function setDetailPhotoByIndex(sectionId: PhotoSectionId | null, photoIndex: number | null) {
+export function setDetailPhotoByIndex(sectionId: PhotoSectionId | null, photoIndex: number | null) {
     if (sectionId == null || photoIndex == null) {
         store.dispatch(closeDetailAction())
         return

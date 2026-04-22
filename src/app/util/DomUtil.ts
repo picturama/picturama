@@ -1,7 +1,7 @@
 import { Size } from 'common/util/GeometryTypes'
 
 
-let scrollbarSize: Size | null = null
+let scrollbarSize: Size | null = null
 
 export function getScrollbarSize(): Size {
     if (!scrollbarSize) {

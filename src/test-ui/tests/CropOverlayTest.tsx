@@ -27,7 +27,7 @@ function createDefaultProps(context: TestContext, width: number, height: number)
     const minRectSize = 45
 
     let rect: Rect
-    if (!state.rect || width !== state.prevWidth || height !== state.prevHeight) {
+    if (!state.rect || width !== state.prevWidth || height !== state.prevHeight) {
         rect = {
             x: cropModeInsets.left,
             y: cropModeInsets.top,
@@ -45,7 +45,7 @@ function createDefaultProps(context: TestContext, width: number, height: number)
         width,
         height,
         rect,
-        tilt: state.tilt || 0,
+        tilt: state.tilt || 0,
         onRectDrag(deltaX: number, deltaY: number, isFinished: boolean) {
             let dragStartRect: Rect = state.dragStartRect
             if (!dragStartRect) {
@@ -80,7 +80,7 @@ function createDefaultProps(context: TestContext, width: number, height: number)
         },
         onCornerDrag(corner: Corner, point: Point, isFinished: boolean) {
             const prevRect: Rect = state.rect
-            const nextRect: Rect = { ...prevRect }
+            const nextRect: Rect = { ...prevRect }
 
             if (corner === 'nw' || corner === 'sw') {
                 const prevRight = prevRect.x + prevRect.width

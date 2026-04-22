@@ -86,7 +86,7 @@ function isSelectionState(photos: PhotoCollection): photos is SelectionState {
  * Returns the photos of a selection in the same order as they are shown in the library.
  */
 const getPhotosOfSelection = (() => {
-    let prevSelection: SelectionState | null = null
+    let prevSelection: SelectionState | null = null
     let prevResult: Promise<Photo[]>
 
     return async function getPhotosOfSelection(selection: SelectionState): Promise<Photo[]> {

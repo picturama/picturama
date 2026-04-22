@@ -28,7 +28,7 @@ export interface Props {
     inSelectionMode: boolean
     section: PhotoSection
     layout: GridSectionLayout
-    activePhotoId: PhotoId | null
+    activePhotoId: PhotoId | null
     sectionSelection?: SectionSelectionState
     sectionPreselection?: SectionPreselection
     librarySelectionController: LibrarySelectionController
@@ -128,7 +128,7 @@ export default class GridSection extends React.Component<Props> {
 }
 
 
-function getPhotoPreselection(photoIndex: number, sectionPreselection?: SectionPreselection): boolean | undefined {
+function getPhotoPreselection(photoIndex: number, sectionPreselection?: SectionPreselection): boolean | undefined {
     if (!sectionPreselection) {
         return undefined
     } else if (sectionPreselection === 'all') {

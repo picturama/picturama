@@ -65,7 +65,7 @@ async function runExport(exportInfo: ExportInfo): Promise<void> {
 
     // Select target folder
 
-    const filePath: string | undefined = await BackgroundClient.selectExportDirectory()
+    const filePath: string | undefined = await BackgroundClient.selectExportDirectory()
     if (exportInfo.isCancelled) {
         return
     }

@@ -101,7 +101,7 @@ export default class WebGLCanvas {
         return new GraphicBuffer(gl, bufferId, gl.FLOAT, componentSize, data.length / componentSize)
     }
 
-    async createTextureFromFile(filePath: string, srcFormat: number = WebGLRenderingContext.RGB, srcType: number = WebGLRenderingContext.UNSIGNED_BYTE, profiler: Profiler | null = null): Promise<Texture> {
+    async createTextureFromFile(filePath: string, srcFormat: number = WebGLRenderingContext.RGB, srcType: number = WebGLRenderingContext.UNSIGNED_BYTE, profiler: Profiler | null = null): Promise<Texture> {
         // For details see: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Using_textures_in_WebGL
 
         const gl = this.gl

@@ -29,7 +29,7 @@ interface StateProps {
 }
 
 interface DispatchProps {
-    selectDirectories(): Promise<string[] | undefined>
+    selectDirectories(): Promise<string[] | undefined>
     onSettingsChange(settings: Settings): void
     onClose(settings: Settings, startImport: boolean): void
 }

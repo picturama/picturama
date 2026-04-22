@@ -291,7 +291,7 @@ export default class Picture extends React.Component<Props, State> {
                         onClick={this.onShowDetails}
                     />
                 }
-                {(props.inSelectionMode || state.isHovered || props.preselected !== undefined) &&
+                {(props.inSelectionMode || state.isHovered || props.preselected !== undefined) &&
                     <Button className={classNames('Picture-overlay Picture-toggleSelection')}
                         minimal={true}
                         icon={renderToggleSelectionIcon(props.isSelected, props.inSelectionMode, props.preselected)}
@@ -299,7 +299,7 @@ export default class Picture extends React.Component<Props, State> {
                         onClick={this.onToggleSelection}
                     />
                 }
-                {(props.isActive || props.preselected !== undefined) &&
+                {(props.isActive || props.preselected !== undefined) &&
                     <div className={props.isActive ? 'Picture-activeBorder' : 'Picture-preselectedBorder'}/>
                 }
             </div>

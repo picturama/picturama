@@ -623,7 +623,7 @@ async function createNextThumbnail(job: CreateThumbnailJob): Promise<void> {
 }
 
 function getThumbnailPriority(job: CreateThumbnailJob): number {
-    const { sectionId, photo } = job
+    const { sectionId, photo } = job
     const sectionIndex = prevSectionIds.indexOf(sectionId)
     const section = prevSectionById[sectionId]
     const layout = prevGridLayout.sectionLayouts[sectionIndex]

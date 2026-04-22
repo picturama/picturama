@@ -57,7 +57,7 @@ class DirectoryWork {
 
     private data: DirectoryData | null = null
     private lastFetchTime: number = 0
-    private runningFetch: Promise<DirectoryData> | null = null
+    private runningFetch: Promise<DirectoryData> | null = null
     private isStoreRunning: boolean = false
     private needsStoreFollowup: boolean = false
 
@@ -84,7 +84,7 @@ class DirectoryWork {
                 ])
                 .then((results: [ DirectoryWorkData, PicasaData | null ]) => {
                     const [ picturamaData, picasaData ] = results
-                    return { picturamaData, picasaData: picasaData || undefined }
+                    return { picturamaData, picasaData: picasaData || undefined }
                 })
 
             this.runningFetch.then(
@@ -283,7 +283,7 @@ function createPhotoWorkFromPicasaRules(picasaRules: PicasaRules, directoryPath:
 
     let importProblems: string[] = []
 
-    let match: RegExpMatchArray | null = null
+    let match: RegExpMatchArray | null = null
     let picasaCropRect: string | null = null
     for (const rule of picasaRules) {
         if (match = rotateRuleRegExp.exec(rule)) {
@@ -319,7 +319,7 @@ function createPhotoWorkFromPicasaRules(picasaRules: PicasaRules, directoryPath:
         }
     }
 
-    if (picasaCropRect || photoWork.tilt) {
+    if (picasaCropRect || photoWork.tilt) {
         // Picasa works in the opposite order like we do: Picasa first crops the original image, then in tilts it and
         // shrinks it to fit into the borders of the cropped image while keeping the aspect ratio.
         // For details see: doc/picasa-ini-format.md

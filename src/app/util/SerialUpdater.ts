@@ -46,7 +46,7 @@ export default class SerialUpdater<UpdateParameters> {
             return
         } else {
             const options = this.options
-            const updateDelay = options.updateDelay || 0
+            const updateDelay = options.updateDelay || 0
             if (updateDelay) {
                 if (this.updateDelayTimeoutId) {
                     clearTimeout(this.updateDelayTimeoutId)
@@ -82,7 +82,7 @@ export default class SerialUpdater<UpdateParameters> {
             if (pendingUpdateParameters) {
                 if (isShallowEqual(params, pendingUpdateParameters)) {
                     this.pendingUpdateParameters = null
-                } else {
+                } else {
                     this.update()
                 }
             }

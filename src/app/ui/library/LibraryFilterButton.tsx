@@ -12,12 +12,12 @@ import { AppState } from 'app/state/StateTypes'
 import './LibraryFilterButton.less'
 
 
-type SimpleFilterType = 'all' | 'favorites' | 'trash'
-const simpleFilterTypes: SimpleFilterType[] = [ 'all', 'favorites', 'trash' ]
+type SimpleFilterType = 'all' | 'favorites' | 'trash'
+const simpleFilterTypes: SimpleFilterType[] = [ 'all', 'favorites', 'trash' ]
     // TODO: Revive Legacy code of 'version' feature
     // -> Add 'processed'
 
-type FilterType = SimpleFilterType | 'tag'
+type FilterType = SimpleFilterType | 'tag'
 
 const iconByFilterType: { [K in FilterType]: IconName | JSX.Element } = {
     all: 'book',

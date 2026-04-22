@@ -34,7 +34,7 @@ interface StateProps {
     photos: PhotoCollection
     exportOptions: PhotoExportOptions
     showRemoveInfoDesc: boolean
-    progress: PhotoExportProgress | null
+    progress: PhotoExportProgress | null
 }
 
 interface DispatchProps {
@@ -297,7 +297,7 @@ export class ExportDialog extends React.Component<Props, State> {
                     <div className='ExportDialog-progressFolder'>
                         {msg('ExportDialog_exportingTo', props.exportOptions.folderPath)}
                     </div>
-                    <Spinner size={120} value={spinnerProgress} />
+                    <Spinner size={120} value={spinnerProgress} />
                     <div className='ExportDialog-progressPercent'>
                         {`${Math.round(spinnerProgress * 100)}%`}
                     </div>

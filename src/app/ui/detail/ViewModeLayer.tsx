@@ -23,7 +23,7 @@ export interface Props {
     isActive: boolean
     isFirst: boolean
     isLast: boolean
-    cameraMetrics: CameraMetrics | null
+    cameraMetrics: CameraMetrics | null
     setPreviousDetailPhoto: () => void
     setNextDetailPhoto: () => void
     setPhotoPosition(photoPosition: RequestedPhotoPosition): void
@@ -32,7 +32,7 @@ export interface Props {
     closeDetail(): void
 }
 
-type CommandKeys = 'close' | 'prevPhoto' | 'nextPhoto' | 'toggleSelected' | 'edit'
+type CommandKeys = 'close' | 'prevPhoto' | 'nextPhoto' | 'toggleSelected' | 'edit'
 
 export default class ViewModeLayer extends React.Component<Props> {
 
@@ -67,7 +67,7 @@ export default class ViewModeLayer extends React.Component<Props> {
         removeCommandGroup(this.commandGroupId)
     }
 
-    private onZoomSliderChange(sliderScale: number) {
+    private onZoomSliderChange(sliderScale: number) {
         const { cameraMetrics } = this.props
         if (!cameraMetrics) {
             return

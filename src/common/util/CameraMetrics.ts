@@ -80,15 +80,15 @@ export interface PhotoPosition {
 /**
  * - `contain`: Show the whole photo, centered in the canvas
  */
-export type RequestedPhotoPosition = 'contain' | PhotoPosition
+export type RequestedPhotoPosition = 'contain' | PhotoPosition
 
 export class CameraMetricsBuilder {
 
     private textureSize: Size = zeroSize
-    private canvasSize: Size | null = null
+    private canvasSize: Size | null = null
     private displayScaling = 1
     private insets: Insets = zeroInsets
-    private boundsRect: Rect | null = null
+    private boundsRect: Rect | null = null
     private adjustCanvasSize = false
     private requestedPhotoPosition: RequestedPhotoPosition = 'contain'
     private photoWork: PhotoWork
@@ -113,7 +113,7 @@ export class CameraMetricsBuilder {
      * Sets the canvas size.
      * If set to `null` the canvas size will be set to the size of the bounds rect (which falls back to the crop rect).
      */
-    setCanvasSize(canvasSize: Size | null): this {
+    setCanvasSize(canvasSize: Size | null): this {
         const displayScaling = 1
         if (!isShallowEqual(this.canvasSize, canvasSize) || this.displayScaling !== displayScaling) {
             this.canvasSize = canvasSize
@@ -149,7 +149,7 @@ export class CameraMetricsBuilder {
      * In projected coordinates.
      * If set to `null` the `clipRect` will be used.
      */
-    setBoundsRect(boundsRect: Rect | null): this {
+    setBoundsRect(boundsRect: Rect | null): this {
         if (!isShallowEqual(this.boundsRect, boundsRect)) {
             this.boundsRect = boundsRect
             this.isDirty = true
@@ -208,10 +208,10 @@ export class CameraMetricsBuilder {
         let canvasSize: Size = this.canvasSize || { width: boundsRect.width, height: boundsRect.height }
 
         let photoPosition: PhotoPosition
-        const minZoom = (boundsRect.width === 0 || boundsRect.height === 0 || insetsWidth >= canvasSize.width || insetsHeight >= canvasSize.height) ?
+        const minZoom = (boundsRect.width === 0 || boundsRect.height === 0 || insetsWidth >= canvasSize.width || insetsHeight >= canvasSize.height) ?
             globalMinZoom :
             Math.min(maxZoom,
-                (canvasSize.width - insetsWidth / displayScaling) / boundsRect.width,
+                (canvasSize.width - insetsWidth / displayScaling) / boundsRect.width,
                 (canvasSize.height - insetsHeight / displayScaling) / boundsRect.height)
         if (requestedPhotoPosition === 'contain') {
             const zoom = minZoom
@@ -289,7 +289,7 @@ export class CameraMetricsBuilder {
 }
 
 
-function updateNeutralCropRect(rotationTurns: number, textureSize: Size, prevNeutralCropRect: Rect | null): Rect {
+function updateNeutralCropRect(rotationTurns: number, textureSize: Size, prevNeutralCropRect: Rect | null): Rect {
     const switchSides = rotationTurns % 2 === 1
     const neutralWidth  = switchSides ? textureSize.height : textureSize.width
     const neutralHeight = switchSides ? textureSize.width : textureSize.height
@@ -362,7 +362,7 @@ export function limitPhotoPosition(cameraMetrics: CameraMetrics, photoPosition: 
     const centerX = Math.max(minCenterX, Math.min(maxCenterX, photoPosition.centerX))
     const centerY = Math.max(minCenterY, Math.min(maxCenterY, photoPosition.centerY))
 
-    if (centerX === photoPosition.centerX && centerY === photoPosition.centerY) {
+    if (centerX === photoPosition.centerX && centerY === photoPosition.centerY) {
         return photoPosition
     } else {
         return { centerX, centerY, zoom }

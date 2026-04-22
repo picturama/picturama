@@ -20,8 +20,8 @@ export interface Props {
     className?: any
     aspectRatioType: AspectRatioType
     isAspectRatioLandscape: boolean
-    photoWork: PhotoWork | null
-    setAspectRatio(aspectRatioType: AspectRatioType, isLandscape: boolean | null): void
+    photoWork: PhotoWork | null
+    setAspectRatio(aspectRatioType: AspectRatioType, isLandscape: boolean | null): void
     onPhotoWorkEdited(photoWork: PhotoWork): void
     onDone(): void
 }
@@ -41,7 +41,7 @@ export default class CropModeToolbar extends React.Component<Props> {
     private onRotate(turns: number) {
         const prevPhotoWork = this.props.photoWork
         if (prevPhotoWork) {
-            const photoWork = { ...prevPhotoWork }
+            const photoWork = { ...prevPhotoWork }
             rotate(photoWork, turns, true)
             this.props.onPhotoWorkEdited(photoWork)
         }
@@ -50,7 +50,7 @@ export default class CropModeToolbar extends React.Component<Props> {
     private onReset() {
         const prevPhotoWork = this.props.photoWork
         if (prevPhotoWork) {
-            const photoWork = { ...prevPhotoWork }
+            const photoWork = { ...prevPhotoWork }
             delete photoWork.rotationTurns
             delete photoWork.tilt
             delete photoWork.cropRect

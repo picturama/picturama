@@ -19,7 +19,7 @@ const testWrapperPadding = 40
 
 type BaseTestProps = Omit<Props, 'librarySelectionController'>
 
-const defaultPropsCommon: Omit<Props, 'photo' | 'layoutBox' | 'librarySelectionController'> = {
+const defaultPropsCommon: Omit<Props, 'photo' | 'layoutBox' | 'librarySelectionController'> = {
     inSelectionMode: false,
     sectionId: 'test-section',
     isActive: false,

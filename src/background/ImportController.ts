@@ -18,7 +18,7 @@ import { toSqlStringCsv } from 'background/util/DbUtil'
 import { fetchSettings } from './store/SettingsStore';
 
 
-let importScanner: ImportScanner | null = null
+let importScanner: ImportScanner | null = null
 
 
 export function startImport(): void {

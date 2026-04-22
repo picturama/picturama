@@ -65,7 +65,7 @@ export function onBackgroundReady() {
 async function executeBackgroundAction(action: string, params: any): Promise<any> {
     if (action === 'waitForBackgroundReady') {
         return waitForBackgroundReadyPromise
-    } else if (action === 'toggleFullScreen') {
+    } else if (action === 'toggleFullScreen') {
         AppWindowController.toggleFullScreen()
     } else if (action === 'toggleUiTester') {
         AppWindowController.toggleUiTester()
@@ -103,10 +103,10 @@ async function executeBackgroundAction(action: string, params: any): Promise<any
         }
         const buffer = await fs.readFile(params.path)
         return decodeHeifBuffer(buffer)
-    } else if (action === 'selectScanDirectories') {
+    } else if (action === 'selectScanDirectories') {
         const result = await dialog.showOpenDialog(AppWindowController.getAppWindow(), { properties: [ 'openDirectory', 'multiSelections' ] })
         return result.canceled ? undefined : result.filePaths
-    } else if (action === 'selectExportDirectory') {
+    } else if (action === 'selectExportDirectory') {
         const result = await dialog.showOpenDialog(AppWindowController.getAppWindow(), { properties: [ 'openDirectory', 'createDirectory' ] })
         return result.canceled ? undefined : result.filePaths[0]
     } else if (action === 'startImport') {

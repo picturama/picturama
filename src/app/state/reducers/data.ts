@@ -154,11 +154,11 @@ const sections = (state: SectionsState = initialSectionsState, action: Action): 
             let newSectionById: PhotoSectionById = {}
             for (const sectionId of state.ids) {
                 const section = state.byId[sectionId]
-                let newSection: LoadedPhotoSection | null = null
+                let newSection: LoadedPhotoSection | null = null
 
                 if (isLoadedPhotoSection(section)) {
                     const photoData = section.photoData
-                    let newPhotoData: PhotoById | null = null
+                    let newPhotoData: PhotoById | null = null
                     for (const updatedPhoto of updatedPhotos) {
                         const prevPhoto = photoData[updatedPhoto.id]
                         if (prevPhoto) {

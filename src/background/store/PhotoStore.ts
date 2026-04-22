@@ -134,7 +134,7 @@ export async function emptyTrash(): Promise<void> {
 
     await Promise.all(photosToDelete.map(photo => removePhotoWork(photo.master_dir, photo.master_filename)))
 
-    let updatedTags: Tag[] | null = null
+    let updatedTags: Tag[] | null = null
     if (shouldFetchTags) {
         updatedTags = await fetchTags()
     }

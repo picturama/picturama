@@ -13,12 +13,12 @@ import './ViewModeOverlay.less'
 
 export interface Props {
     className?: any
-    cameraMetrics: CameraMetrics | null
+    cameraMetrics: CameraMetrics | null
     setPhotoPosition(photoPosition: RequestedPhotoPosition): void
 }
 
 interface State {
-    dragStart: { x: number, y: number, photoPosition: PhotoPosition } | null
+    dragStart: { x: number, y: number, photoPosition: PhotoPosition } | null
 }
 
 export default class ViewModeOverlay extends React.Component<Props, State> {

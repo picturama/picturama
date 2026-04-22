@@ -26,9 +26,9 @@ export interface Props {
     /** The size of the detail body (in px) */
     bodySize: Size
     imagePath: string
-    imagePathPrev: string | null
-    imagePathNext: string | null
-    cameraMetrics: CameraMetrics | null
+    imagePathPrev: string | null
+    imagePathNext: string | null
+    cameraMetrics: CameraMetrics | null
     onLoadingStateChange(loadingState: PhotoLayerLoadingState): void
     onTextureChange(textureSize: Size): void
 }
