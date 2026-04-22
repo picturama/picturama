@@ -17,6 +17,7 @@ Directory structure
         +-- package/          Resources needed for creating distributable packages (used by `electron-builder`)
         +-- static/           Static files to be copied directly to `dist`
         +-- test-jest/        Unit tests
+        +-- test-jest-background/ Unit tests of the obsolete code which was running in main electron process (TODO: Port to Rust)
         +-- test-ui/          Code running in renderer electron process of UI Tester
         +-- typings/          TypeScript type definitions
     +-- src-tauri/            Code running on native side (Rust / Tauri)
