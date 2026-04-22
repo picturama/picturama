@@ -33,7 +33,7 @@ function createDefaultProps(context: TestContext): Props {
         style: { width: '300px', height: '100%' },
 
         isActive: true,
-        photo: { ...testBigPhoto, master_dir: `${baseUrl}/${testBigPhoto.master_dir}` } as Photo,
+        photo: { ...testBigPhoto, masterDir: `${baseUrl}/${testBigPhoto.masterDir}` } as Photo,
         photoData: {
             ...defaultPhotoData,
             photoDetail: sharedPhotoDetail,
@@ -60,13 +60,13 @@ addSection('PhotoInfo')
     .add('with edited size', context => (
         <PhotoInfo
             {...createDefaultProps(context)}
-            photo={{ ...testBigPhoto, edited_width: 800, edited_height: 600 }}
+            photo={{ ...testBigPhoto, editedWidth: 800, editedHeight: 600 }}
         />
     ))
     .add('filename overflow', context => (
         <PhotoInfo
             {...createDefaultProps(context)}
-            photo={{ ...testBigPhoto, master_filename: 'RAW_FUJI_FINEPIX_X100.RAF' }}
+            photo={{ ...testBigPhoto, masterFilename: 'RAW_FUJI_FINEPIX_X100.RAF' }}
         />
     ))
     .add('no tags', context => (

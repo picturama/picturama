@@ -11,14 +11,15 @@ Directory structure
     +-- doc/                  Resources used by documentation
     +-- migrations/           DB migration scripts
     +-- src/
-        +-- app/              Code running in renderer electron process of main UI
-        +-- background/       Code running in main electron process
-        +-- common/           Shared code
+        +-- app/              Code running in web view of main UI (TypeScript / React)
+        +-- background/       The obsolete code which was running in main electron process (TODO: Remove after rust migration is finished)
+        +-- common/           Shared code (TODO: Move to src/app)
         +-- package/          Resources needed for creating distributable packages (used by `electron-builder`)
         +-- static/           Static files to be copied directly to `dist`
         +-- test-jest/        Unit tests
         +-- test-ui/          Code running in renderer electron process of UI Tester
         +-- typings/          TypeScript type definitions
+    +-- src-tauri/            Code running on native side (Rust / Tauri)
     +-- submodules/           Third-party projects fetched as git submodules
         +-- node-libraw/      Own fork of node-libraw
         +-- test-data/        Data used for testing
@@ -30,10 +31,16 @@ Build from sources
 
 Prerequirements:
 
-  - Install yarn (Mac OS: `brew install yarn` or just `npm install -g yarn`)
-    - **Note:** It's important to use yarn instead of npm for
-      [getting smaller distributable packages](https://github.com/electron-userland/electron-builder/issues/1147#issuecomment-276284477)
-  - Mac OS: Install Xcode and start it once. You can close Xcode after the "required components" have been installed.
+  - Install node
+  - Install Rust: https://rustup.rs
+  - Install Tauri system dependencies (platform-specific):
+    - See: https://tauri.app/start/prerequisites/
+    - Mac OS:
+      - Install Xcode and start it once. You can close Xcode after the "required components" have been installed.
+      - `xcode-select --install`
+    - Windows: Visual Studio Build Tools
+    - Linux: `libwebkit2gtk-4.1-dev libssl-dev libgtk-3-dev`
+  - Install Tauri CLI: `cargo install tauri-cli --version "^2"`
 
 Fetch git submodules:
 
@@ -41,13 +48,8 @@ Fetch git submodules:
 
 Fetch dependencies and build and start Picturama:
 
-    yarn
-    yarn start
-
-If you get an error with `node-gyp rebuild` then delete `~/.node-gyp` and try again:
-
-    rm -rf ~/.node-gyp
-    yarn
+    npm i
+    npm start
 
 Development hotkeys:
 
@@ -65,13 +67,13 @@ Here's how you can use a watch build in order to reduce turnaround time:
 
 1. Run watch build (in extra console):
 
-        yarn run watch
+        npm run watch
 
 2. Change your code.
 
 3. Restart Picturama without building (since building is done by the watch):
 
-        yarn run start-no-build
+        npm run start-no-build
 
 
 
@@ -93,7 +95,7 @@ Unit tests
 
 Run unit tests:
 
-    yarn run test
+    npm run test
 
 Run unit tests in watch mode:
 
@@ -105,7 +107,7 @@ Run a single test in watch mode (example runs test `simple import`):
 
 Clean test cache:
 
-    yarn run test:clean
+    npm run test:clean
 
 
 
@@ -114,11 +116,11 @@ UI Tester
 
 1. Run watch build:
 
-        yarn run watch
+        npm run watch
 
 2. Run Picturama (in extra console):
 
-        yarn run start-no-build
+        npm run start-no-build
 
 3. Open the UI Tester: `Shift`+`Ctrl`+`T` (On Mac: `Alt`+`Cmd`+`T`)
 
@@ -135,7 +137,7 @@ Add missing attributes to localization files
 
 Add missing attributes to `src/common/i18n/text_*.ts`:
 
-    yarn run i18n
+    npm run i18n
 
 
 
@@ -144,18 +146,18 @@ Build distributable package
 
 Build whole project from scratch:
 
-    yarn run release
+    npm run release
 
 Build distributable package only (use existing `dist` folder):
 
-    yarn run package
+    npm run package
 
 Only generate the package directory without really packaging it (This is useful for testing purposes):
 
-    yarn run package-dir
+    npm run package-dir
 
 **Hint:** In order check what is packed, add a `"asar": false` to the `build`-Object of `package.json`, then run
-`yarn run package-dir` and check the folder `dist-package/mac/Picturama.app/Contents/Resources/app`
+`npm run package-dir` and check the folder `dist-package/mac/Picturama.app/Contents/Resources/app`
 
 Cross-build linux package on macOS or Windows:
 
@@ -173,7 +175,7 @@ Cross-build linux package on macOS or Windows:
 
   2.  Build `dist-package/Picturama-xyz.AppImage` for Linux (in docker container):
 
-          yarn && yarn run package
+          npm i && npm run package
 
 Cross-build windows package on macOS or Linux:
 

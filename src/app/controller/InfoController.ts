@@ -1,5 +1,4 @@
 import { getMasterPath } from 'common/util/DataUtil'
-import { assertRendererProcess } from 'common/util/ElectronUtil'
 
 import BackgroundClient from 'app/BackgroundClient'
 import { showError } from 'app/ErrorPresenter'
@@ -9,9 +8,6 @@ import { AppState } from 'app/state/StateTypes'
 import store from 'app/state/store'
 import { FetchState } from 'app/UITypes'
 import { observeStore } from 'app/util/ReduxUtil'
-
-
-assertRendererProcess()
 
 
 let isFetching = false

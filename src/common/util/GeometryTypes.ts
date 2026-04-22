@@ -1,3 +1,4 @@
+// Mirrors src-tauri/src/geometry_types.rs
 
 export interface Point {
     x: number

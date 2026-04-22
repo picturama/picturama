@@ -1,40 +1,38 @@
-import { ipcRenderer } from 'electron'
+import { listen } from '@tauri-apps/api/event'
+import { invoke } from '@tauri-apps/api/core'
 
-import { Device } from 'common/CommonTypes'
-import { assertRendererProcess } from 'common/util/ElectronUtil'
 import { encodeIpcError } from 'common/util/IpcUtil'
 
 import { showExternalError } from 'app/ErrorPresenter'
 import ImportProgressController from 'app/controller/ImportProgressController'
-import { setTags } from 'app/controller/PhotoTagController'
 import { renderPhoto, renderImage } from 'app/renderer/PhotoRenderer'
-import { setFullScreenAction, initDevicesAction, addDeviceAction, removeDeviceAction, emptyTrashAction, openSettingsAction } from 'app/state/actions'
+import { setFullScreenAction, openSettingsAction } from 'app/state/actions'
 import store from 'app/state/store'
 
-
-assertRendererProcess()
-
-
-export function init() {
-    ipcRenderer.on('executeForegroundAction', (event, callId: number, action: string, params: any) => {
-        executeForegroundAction(action, params)
-            .then(result => {
-                ipcRenderer.send('onForegroundActionDone', callId, null, result)
-            },
-            error => {
-                ipcRenderer.send('onForegroundActionDone', callId, encodeIpcError(error), null)
-            })
-    })
-
-    // TODO: Revive Legacy code of 'version' feature
-    //ipcRenderer.on('new-version', (event, version: any /* Type should be `Version`, but it doesn't work */) => updatePhotoVersion(version))
-
-    ipcRenderer.on('scanned-devices', (event, devices: Device[]) => store.dispatch(initDevicesAction(devices)))
-    ipcRenderer.on('add-device', (event, device: Device) => store.dispatch(addDeviceAction(device)))
-    ipcRenderer.on('remove-device', (event, device: Device) => store.dispatch(removeDeviceAction(device)))
+/** RPC request payload emitted by Rust (see src-tauri/src/foreground_client.rs) */
+interface ForegroundRpcRequest {
+    /** Unique ID used to route the reply back to the waiting Rust future */
+    callId: number
+    action: string
+    params: any
 }
 
+/** init – called once from entry.tsx after the backend is ready */
+export async function init(): Promise<void> {
+    // -- RPC server (Rust calls renderer, awaits result) ----------------------
+    await listen<ForegroundRpcRequest>('execute-foreground-action', async (event) => {
+        const { callId, action, params } = event.payload
+        try {
+            const result = await executeForegroundAction(action, params)
+            await invoke('foreground_action_done', { callId, result: result ?? null, error: null })
+        } catch (err: any) {
+            const error = encodeIpcError(err)
+            await invoke('foreground_action_done', { callId, result: null, error })
+        }
+    })
+}
 
+/** Action dispatcher */
 async function executeForegroundAction(action: string, params: any): Promise<any> {
     if (action === 'showError') {
         showExternalError(params.processName, params.msg, params.errorStack)
@@ -44,12 +42,6 @@ async function executeForegroundAction(action: string, params: any): Promise<any
         store.dispatch(openSettingsAction())
     } else if (action === 'setImportProgress') {
         ImportProgressController.setImportProgress(params.progress, params.updatedTags)
-    } else if (action === 'onPhotoTrashed') {
-        store.dispatch(emptyTrashAction(params.photoIds))
-
-        if (params.updatedTags) {
-            setTags(params.updatedTags)
-        }
     } else if (action === 'renderPhoto') {
         // We send the image as binary string (not as node Buffer), because all data is converted to JSON which doesn't support Buffers
         return renderPhoto(params.photo, params.photoWork, params.maxSize, params.options)

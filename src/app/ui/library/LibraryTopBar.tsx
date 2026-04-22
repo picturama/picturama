@@ -1,12 +1,14 @@
-import { ipcRenderer } from 'electron'
 import classNames from 'classnames'
 import React from 'react'
 import { Button, MaybeElement, Alert } from '@blueprintjs/core'
 
+import { EmptyTrashResult } from 'common/CommonTypes'
 import { msg } from 'common/i18n/i18n'
 import { bindMany } from 'common/util/LangUtil'
 
+import BackgroundClient from 'app/BackgroundClient'
 import { PhotoActionController } from 'app/controller/PhotoActionController'
+import { showError } from 'app/ErrorPresenter'
 import { PhotoCollection } from 'app/state/StateTypes'
 import PhotoActionButtons from 'app/ui/widget/PhotoActionButtons'
 import Toolbar from 'app/ui/widget/Toolbar'
@@ -22,7 +24,8 @@ interface Props {
     isShowingInfo: boolean
     photosCount: number
     photoActionController: PhotoActionController
-    toggleShowInfo: () => void
+    toggleShowInfo(): void
+    onPhotosTrashed(result: EmptyTrashResult): void
 }
 
 interface State {
@@ -47,7 +50,9 @@ export default class LibraryTopBar extends React.Component<Props, State> {
 
     private onEmptyTrashConfirmed() {
         this.setState({ showEmptyTrashAlert: false })
-        ipcRenderer.send('empty-trash', true)
+        BackgroundClient.emptyTrash()
+            .then(this.props.onPhotosTrashed)
+            .catch(error => showError('Trashing photos failed', error))
     }
 
     render() {
@@ -61,7 +66,7 @@ export default class LibraryTopBar extends React.Component<Props, State> {
             >
                 {props.leftItem}
 
-                <Toolbar.Spacer/>
+                <Toolbar.Spacer isTopBar/>
 
                 {props.isShowingTrash &&
                     <Button

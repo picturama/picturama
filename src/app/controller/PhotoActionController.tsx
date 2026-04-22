@@ -1,14 +1,10 @@
 import { Photo, PhotoWork } from 'common/CommonTypes'
-import { assertRendererProcess } from 'common/util/ElectronUtil'
 
 import { rotatePhotos, setPhotosFlagged, movePhotosToTrash, restorePhotosFromTrash, updatePhotoWork } from 'app/controller/PhotoController'
 import { openExportAction } from 'app/state/actions'
 import { PhotoCollection } from 'app/state/StateTypes'
 import store from 'app/state/store'
 import { walkLoadedPhotosOfCollection } from 'app/util/PhotoCollectionResolver'
-
-
-assertRendererProcess()
 
 
 export interface PhotoActionController {

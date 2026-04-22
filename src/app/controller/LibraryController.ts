@@ -4,7 +4,6 @@ import { profileLibraryLayout, profileThumbnailRenderer } from 'common/LogConsta
 import { PhotoSectionId, PhotoSectionById, LoadedPhotoSection, isLoadedPhotoSection, Photo, PhotoId, PhotoSet } from 'common/CommonTypes'
 import CancelablePromise, { isCancelError } from 'common/util/CancelablePromise'
 import { getMasterPath } from 'common/util/DataUtil'
-import { assertRendererProcess } from 'common/util/ElectronUtil'
 import Profiler from 'common/util/Profiler'
 import SerialJobQueue from 'common/util/SerialJobQueue'
 
@@ -17,9 +16,6 @@ import store from 'app/state/store'
 
 import { getThumbnailSrc } from './PhotoController'
 import { collectionContainsSection } from 'app/util/PhotoCollectionResolver'
-
-
-assertRendererProcess()
 
 
 /**
@@ -335,13 +331,13 @@ export function createLayoutForLoadedSection(section: LoadedPhotoSection, viewpo
 
     const aspects = section.photoIds.map(photoId => {
         const photo = photoData[photoId]
-        const { edited_width, edited_height } = photo
+        const { editedWidth, editedHeight } = photo
         // If we have no edited size yet (which happens when loading an old DB were it was missing), the following will happen:
         //   - We calculate a layout using the average aspect (which is how the loading rect of the photo is shown)
         //   - `PhotoRenderer.renderPhoto` will detect that the edited size is missing and will update the DB
         //   - The Grid will trigger a layout, because the photo has changed in the app state
         //   - `getLayoutForSections` will detect that the section changed and so it will get a ney layout using the correct edited size
-        return (edited_width && edited_height) ? (edited_width / edited_height) : averageAspect
+        return (editedWidth && editedHeight) ? (editedWidth / editedHeight) : averageAspect
     })
     const layoutResult = createLayout(aspects, { containerPadding, boxSpacing, containerWidth: viewportWidth, targetRowHeight, targetRowHeightTolerance })
 

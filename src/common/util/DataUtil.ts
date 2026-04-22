@@ -1,23 +1,29 @@
+import { convertFileSrc } from '@tauri-apps/api/core'
+
 import config from 'common/config'
-import { PhotoId, Photo, ExifOrientation, PhotoWork, BinaryString } from 'common/CommonTypes'
-
-import { fileUrlFromPath } from './TextUtil'
+import { PhotoId, Photo, ExifOrientation, PhotoWork, BinaryString, UiConfig } from 'common/CommonTypes'
 
 
-export function getMasterPath(photo: Photo | { master_dir: string, master_filename: string }): string {
-    return `${photo.master_dir}/${photo.master_filename}`
+let uiConfig: UiConfig
+
+export function init(nextUiConfig: UiConfig) {
+    uiConfig = nextUiConfig
+}
+
+export function getMasterPath(photo: Photo | { master_dir: string, master_filename: string }): string {
+    return `${photo.masterDir}/${photo.masterFilename}`
 }
 
 export function getThumbnailPath(photoId: PhotoId): string {
-    return `${config.thumbnailPath}/${shortId(photoId)}.${config.workExt}`
+    return `${uiConfig.thumbnailPath}/${shortId(photoId)}.${config.workExt}`
 }
 
 export function getThumbnailUrl(photoId: PhotoId): string {
-    return fileUrlFromPath(getThumbnailPath(photoId))
+    return convertFileSrc(getThumbnailPath(photoId))
 }
 
 export function getRenderedRawPath(photoId: PhotoId): string {
-    return `${config.nonRawPath}/${shortId(photoId)}.${config.workExt}`
+    return `${uiConfig.nonRawPath}/${shortId(photoId)}.${config.workExt}`
 }
 
 export function getNonRawPath(photo: Photo): string {
@@ -30,7 +36,7 @@ export function getNonRawPath(photo: Photo): string {
     }
     */
 
-    return photo.master_is_raw ? getRenderedRawPath(photo.id) : getMasterPath(photo)
+    return photo.masterIsRaw ? getRenderedRawPath(photo.id) : getMasterPath(photo)
 }
 
 
@@ -58,10 +64,10 @@ export function decodeImageDataUrlAsBinaryString(dataUrl: string): BinaryString 
     return atob(decodeImageDataUrlAsBase64String(dataUrl))
 }
 
-export function decodeImageDataUrlAsBuffer(dataUrl: string): Buffer {
-    return Buffer.from(decodeImageDataUrlAsBase64String(dataUrl), 'base64')
-}
+//export function decodeImageDataUrlAsBuffer(dataUrl: string): Buffer {
+//    return Buffer.from(decodeImageDataUrlAsBase64String(dataUrl), 'base64')
+//}
 
-export function encodeImageDataUrl(mimeType: 'image/jpg' | 'image/png', imageData: Buffer): string {
-    return `data:${mimeType};base64,${imageData.toString('base64')}`
-}
+//export function encodeImageDataUrl(mimeType: 'image/jpg' | 'image/png', imageData: Buffer): string {
+//    return `data:${mimeType};base64,${imageData.toString('base64')}`
+//}

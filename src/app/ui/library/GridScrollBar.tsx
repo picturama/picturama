@@ -1,7 +1,7 @@
 import React from 'react'
 import { findDOMNode } from 'react-dom'
 import classnames from 'classnames'
-import moment = require('moment')
+import moment from 'moment'
 
 import { PhotoSectionId, PhotoSectionById } from 'common/CommonTypes'
 import { bindMany } from 'common/util/LangUtil'

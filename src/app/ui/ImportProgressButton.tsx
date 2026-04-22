@@ -47,7 +47,7 @@ export default class ImportProgressButton extends React.Component<Props, State> 
         const { props, state } = this
         const { progress } = props
 
-        const spinnerProgress = progress.phase === 'import-photos' ? progress.processed / Math.max(1, progress.total) : undefined
+        const spinnerProgress = progress.phase === 'importPhotos' ? progress.processed / Math.max(1, progress.total) : undefined
         const hasError = progress.phase === 'error'
 
         const popoverContent = (

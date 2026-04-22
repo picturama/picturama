@@ -1,3 +1,5 @@
+// Mirrors src-tauri/src/common_types.rs
+
 import { Rect } from 'common/util/GeometryTypes'
 
 
@@ -8,31 +10,31 @@ export type PhotoId = number
 export interface Photo {
     id: PhotoId,
     /** The directory of the original image. Example: '/User/me/Pictures' */
-    master_dir: string,
+    masterDir: string,
     /** The filename (without directory) of the original image. Example: 'IMG_9700.JPG' */
-    master_filename: string,
+    masterFilename: string,
     /** The width of the original image - only with EXIF rotation applied (in px). */
-    master_width: number
+    masterWidth: number
     /** The height of the original image - only with EXIF rotation applied (in px). */
-    master_height: number
+    masterHeight: number
     /** Whether the master image has a raw format */
-    master_is_raw: 0 | 1,
+    masterIsRaw: boolean,
     /** The width of the original image - after EXIF rotation and all PhotoWork have been applied (in px). */
-    edited_width: number | null
+    editedWidth: number | null
     /** The height of the original image - after EXIF rotation and all PhotoWork have been applied (in px). */
-    edited_height: number | null
+    editedHeight: number | null
     /** Example: '2016-09-18' */
-    date_section: string,
+    dateSection: string,
     /** The timestamp when the photo was created */
-    created_at: number,
+    createdAt: number,
     /** The timestamp when the photo was modified */
-    updated_at: number,
+    updatedAt: number,
     /** The timestamp when the photo was imported */
-    imported_at: number,
-    /** Whether the image is flagged. */
-    flag: 0 | 1,
-    /** Example: 0 */
-    trashed: 0 | 1,
+    importedAt: number,
+    /** Whether the image is flagged (= marked as favorite). */
+    flag: boolean,
+    /** Whether the image is in the trash (Picturama trash - not the file system's trash). */
+    trashed: boolean,
 }
 export type PhotoById = { [K in PhotoId]: Photo }
 
@@ -48,16 +50,16 @@ export interface Tag {
 export type TagById = { [K in TagId]: Tag }
 
 
-export type VersionId = number
-export interface Version {
-    id: VersionId
-    type: string | null,
-    master: string | null,
-    output: string | null,
-    thumbnail: string | null,
-    version: number | null,
-    photo_id: number | null,
-}
+//export type VersionId = number
+//export interface Version {
+//    id: VersionId
+//    type: string | null,
+//    master: string | null,
+//    output: string | null,
+//    thumbnail: string | null,
+//    version: number | null,
+//    photo_id: number | null,
+//}
 
 
 // ----- Other types (not database) -----
@@ -71,6 +73,12 @@ export type BinaryString = string
 export enum ExifOrientation { Up = 1, Bottom = 3, Right = 6, Left = 8 }
 
 
+export interface IpcErrorInfo {
+    message: string
+    errorCode?: string
+}
+
+
 export interface Settings {
     photoDirs: string[]
     exportOptions?: PhotoExportOptions
@@ -82,10 +90,12 @@ export interface Settings {
 
 export interface UiConfig {
     version: string
-    platform: NodeJS.Platform
+    platform: 'linux' | 'macos' | 'windows'
     windowStyle: WindowStyle
     hasNativeMenu: boolean
     locale: string
+    nonRawPath: string
+    thumbnailPath: string
 }
 
 /**
@@ -95,8 +105,10 @@ export interface UiConfig {
  */
 export type WindowStyle = 'nativeTrafficLight' | 'windowsButtons'
 
+export type ImportPhase = 'scanDirs' | 'cleanup' | 'importPhotos' | 'error'
+
 export type ImportProgress = {
-    phase: 'scan-dirs' | 'cleanup' | 'import-photos' | 'error'
+    phase: ImportPhase
     isPaused: boolean
     /** Total number of photos found in file system */
     total: number
@@ -110,17 +122,8 @@ export type ImportProgress = {
     currentPath: string | null
 }
 
-/** See: src/usb.js */
-export interface Device {
-    id: any  // TODO
-    type: 'usb-storage' | 'sd-card'
-    name: string
-    // TODO: Maybe there are more attributes. See src/usb.js
-}
-
-
 export interface PhotoDetail {
-    versions: Version[],
+    //versions: Version[],
     /** The tags attached to this photo. This may also contain new tags which don't exist in DB yet. */
     tags: string[]
 }
@@ -156,12 +159,12 @@ export function isLoadedPhotoSection(section: PhotoSection | null | undefined |
 export type PhotoSectionById = { [K in PhotoSectionId]: PhotoSection | LoadedPhotoSection }
 
 
-export type PhotoFilterType = 'all' | 'favorites' | 'processed' | 'trash' | 'tag'
+export type PhotoFilterType = 'all' | 'favorites' | 'trash' | 'tag'  //  | 'processed'
 export type PhotoFilter =
-    { readonly type: 'all' } |
-    { readonly type: 'favorites' } |
-    { readonly type: 'trash' } |
-    { readonly type: 'tag', readonly tagId: TagId }
+    { readonly filterType: 'all' } |
+    { readonly filterType: 'favorites' } |
+    { readonly filterType: 'trash' } |
+    { readonly filterType: 'tag', readonly tagId: TagId }
     // TODO: Revive Legacy code of 'version' feature
     // -> Add 'processed'
 
@@ -194,9 +197,9 @@ export interface PhotoExportProgress {
 }
 
 
-export interface IpcErrorInfo {
-    message: string
-    errorCode?: string
+export interface EmptyTrashResult {
+    photoIds: number[]
+    updatedTags: Tag[]
 }
 
 
@@ -248,5 +251,5 @@ export interface DecodedHeifImage {
     /** The height of the image (in px) */
     height: number
     /** The image data in RGB (8 bit per channel). size in bytes = 3 * width * height */
-    data: Buffer
+    data: Int8Array
 }

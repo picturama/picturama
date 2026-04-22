@@ -1,7 +1,6 @@
 import { PhotoId, PhotoSectionId } from 'common/CommonTypes'
 import CancelablePromise, { isCancelError } from 'common/util/CancelablePromise'
 import { getMasterPath } from 'common/util/DataUtil'
-import { assertRendererProcess } from 'common/util/ElectronUtil'
 
 import BackgroundClient from 'app/BackgroundClient'
 import { showError } from 'app/ErrorPresenter'
@@ -11,9 +10,6 @@ import store from 'app/state/store'
 import { AppState } from 'app/state/StateTypes'
 import SerialUpdater from 'app/util/SerialUpdater'
 import { FetchState } from 'app/UITypes'
-
-
-assertRendererProcess()
 
 
 export function setDetailPhotoById(sectionId: PhotoSectionId, photoId: PhotoId | null) {

@@ -1,12 +1,5 @@
-import { remote } from 'electron'
-
-import { assertRendererProcess } from 'common/util/ElectronUtil'
-
 import BackgroundClient from 'app/BackgroundClient'
 import { Command } from 'app/controller/HotkeyController'
-
-
-assertRendererProcess()
 
 
 /**
@@ -17,7 +10,7 @@ assertRendererProcess()
 export function createGlobalCommands(): Command[] {
     return [
         { combo: 'F11',          onAction: () => BackgroundClient.toggleFullScreen() },
-        { combo: 'Shift+Ctrl+I', onAction: () => remote.getCurrentWindow().webContents.toggleDevTools() },
+        { combo: 'Shift+Ctrl+I', onAction: () => BackgroundClient.toggleDevTools() },
         { combo: 'Shift+Ctrl+T', onAction: () => BackgroundClient.toggleUiTester() },
         { combo: 'Shift+Ctrl+R', onAction: () => BackgroundClient.reloadUi() },
     ]

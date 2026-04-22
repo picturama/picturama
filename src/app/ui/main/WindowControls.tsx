@@ -1,60 +1,78 @@
 import React from 'react'
 import classnames from 'classnames'
-import { remote } from 'electron'
+import { invoke } from '@tauri-apps/api/core'
+import { listen, UnlistenFn } from '@tauri-apps/api/event'
 
 import { bindMany } from 'common/util/LangUtil'
 
+import { showError } from 'app/ErrorPresenter'
 import SvgIcon from 'app/ui/widget/icon/SvgIcon'
 
 import './WindowControls.less'
 
 
-const currentWindow = remote.getCurrentWindow()
-
+interface WindowStatePayload {
+    isMaximized: boolean
+    isFullscreen: boolean
+}
 
 export interface Props {
     className?: any
 }
 
-export default class WindowControls extends React.Component<Props> {
+interface State {
+    isMaximized: boolean
+}
+
+export default class WindowControls extends React.Component<Props, State> {
+
+    private unlistenWindowState: UnlistenFn | null = null
 
     constructor(props: Props) {
         super(props)
-        bindMany(this, 'onClose', 'onMaximize', 'onMinimize', 'onMaximizeChange')
+        this.state = { isMaximized: false }
+        bindMany(this, 'onClose', 'onMaximize', 'onMinimize', 'onWindowStateChanged')
     }
 
     componentDidMount() {
-        currentWindow.on('maximize', this.onMaximizeChange)
-        currentWindow.on('unmaximize', this.onMaximizeChange)
+        // Seed initial state from Rust
+        invoke<WindowStatePayload>('window_get_state')
+            .then(windowState => {
+                this.setState({ isMaximized: windowState.isMaximized })
+        
+                // Subscribe to future changes (maximize, unmaximize, fullscreen toggle)
+                return listen<WindowStatePayload>('window-state-changed', this.onWindowStateChanged)
+            })
+            .then(unlistenWindowState => {
+                this.unlistenWindowState = unlistenWindowState
+            })
+            .catch(error => {
+                showError('Listening to window state failed', error)
+            })
     }
 
     componentWillUnmount() {
-        currentWindow.off('maximize', this.onMaximizeChange)
-        currentWindow.off('unmaximize', this.onMaximizeChange)
+        this.unlistenWindowState?.()
+    }
+
+    private onWindowStateChanged(event: { payload: WindowStatePayload }) {
+        this.setState({ isMaximized: event.payload.isMaximized })
     }
 
     private onClose() {
-        currentWindow.close()
+        invoke('window_close')
     }
 
     private onMaximize() {
-        if (currentWindow.isMaximized()) {
-            currentWindow.unmaximize()
-        } else {
-            currentWindow.maximize()
-        }
+        invoke(this.state.isMaximized ? 'window_unmaximize' : 'window_maximize')
     }
 
     private onMinimize() {
-        currentWindow.minimize()
-    }
-
-    private onMaximizeChange() {
-        this.forceUpdate()
+        invoke('window_minimize')
     }
 
     render() {
-        const { props } = this
+        const { props, state } = this
         return (
             <div className={classnames(props.className, 'WindowControls')}>
                 <div className='WindowControls-button' onClick={this.onMinimize}>
@@ -64,7 +82,10 @@ export default class WindowControls extends React.Component<Props> {
                 </div>
                 <div className='WindowControls-button' onClick={this.onMaximize}>
                     <SvgIcon size={10}>
-                        <path d={currentWindow.isMaximized() ? 'M0.5,2.5l7,0l0,7l-7,0zM2.5,2.5l0,-2l7,0l0,7l-2,0' : 'M0.5,0.5l9,0l0,9l-9,0z'}/>
+                        <path d={state.isMaximized
+                            ? 'M0.5,2.5l7,0l0,7l-7,0zM2.5,2.5l0,-2l7,0l0,7l-2,0'
+                            : 'M0.5,0.5l9,0l0,9l-9,0z'}
+                        />
                     </SvgIcon>
                 </div>
                 <div className='WindowControls-button WindowControls-closeButton' onClick={this.onClose}>

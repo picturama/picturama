@@ -35,7 +35,7 @@ const defaultProps: Props = {
     librarySelectionController: mockLibrarySelectionController,
     getThumbnailSrc: (photo: Photo) => fileUrlFromPath(getNonRawPath(photo)),
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => {
-        if (photo.master_filename === 'dummy') {
+        if (photo.masterFilename === 'dummy') {
             return new CancelablePromise<string>(() => {})
         } else {
             return new CancelablePromise<string>(Promise.resolve(fileUrlFromPath(getNonRawPath(photo))))
@@ -79,7 +79,7 @@ addSection('GridSection')
         for (let i = 0; i < 20; i++) {
             photos.push(createRandomDummyPhoto())
         }
-        photos[0] = { ...photos[0], id: createTestPhotoId(), master_filename: 'dummy' }
+        photos[0] = { ...photos[0], id: createTestPhotoId(), masterFilename: 'dummy' }
         const section = createSection(defaultSectionId, photos)
         const layout = createLayoutForSection(section, viewportWidth, defaultGridRowHeight)
 

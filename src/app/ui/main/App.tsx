@@ -62,9 +62,6 @@ class App extends React.Component<Props> {
         if (this.props.globalCommands) {
             this.commandGroupId = addCommandGroup(this.props.globalCommands)
         }
-
-        const splashElem = document.getElementById('splash')
-        if (splashElem) splashElem.parentNode!.removeChild(splashElem)
     }
 
     componentWillUnmount() {

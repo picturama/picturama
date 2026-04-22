@@ -2,7 +2,6 @@ import { mat4 } from 'gl-matrix'
 import heic2any from 'heic2any'
 
 import Profiler from 'common/util/Profiler'
-import config from 'common/config'
 import { fileUrlFromPath } from 'common/util/TextUtil'
 
 import BackgroundClient from 'app/BackgroundClient'
@@ -14,7 +13,8 @@ const exifrOrientationOptions = {
 }
 
 
-const heicExtensionRE = new RegExp(`\\.(${config.acceptedHeicExtensions.join('|')})$`, 'i')
+const acceptedHeicExtensions = [ 'heic', 'heif' ]
+const heicExtensionRE = new RegExp(`\\.(${acceptedHeicExtensions.join('|')})$`, 'i')
 
 
 // Workaround: Prevent tree-shaking from removing `heic2any`.

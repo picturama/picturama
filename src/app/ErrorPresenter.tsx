@@ -13,6 +13,13 @@ let errorToastKey: string | undefined = undefined
 let errorReport = ''
 
 
+let mapStackTraceOptions: any = undefined
+if (navigator.userAgent.toLowerCase().indexOf('like gecko') > -1) {
+    // Workaround: On Mac OS 'sourcemapped-stacktrace' can't detect the browser type of the AppleWebKit view
+    mapStackTraceOptions = { traceFormat: 'firefox' }
+}
+
+
 export function showError(msg: string, error?: unknown) {
     console.error(msg, error)
     if (!errorReport) {
@@ -21,7 +28,7 @@ export function showError(msg: string, error?: unknown) {
             resolve => {
                 if (error instanceof Error) {
                     errorReport += '\n\n' + error.name + ': ' + error.message
-                    mapStackTrace(error.stack, resolve)
+                    mapStackTrace(error.stack, resolve, mapStackTraceOptions)
                 } else {
                     resolve(null)
                 }

@@ -52,7 +52,7 @@ export interface ImportScannerDelegate {
     showError(msg: string, error?: Error): void
 }
 
-export type ImportScannerState = 'idle' | 'scan-dirs' | 'cleanup' | 'import-photos'
+export type ImportScannerState = 'idle' | 'scanDirs' | 'cleanup' | 'importPhotos'
 
 export default class ImportScanner {
 
@@ -79,7 +79,7 @@ export default class ImportScanner {
         this.shouldCancel = false
         this.pausePromise = null
         this.progress = {
-            phase: 'scan-dirs',
+            phase: 'scanDirs',
             isPaused: false,
             total: 0,
             processed: 0,
@@ -99,9 +99,9 @@ export default class ImportScanner {
         const profiler = profileScanner ? new Profiler('Import scanning') : null
 
         this.reset()
-        this.state = 'scan-dirs'
+        this.state = 'scanDirs'
         this.importStartTime = Date.now()
-        this.progress.phase = 'scan-dirs'
+        this.progress.phase = 'scanDirs'
         this.onProgressChange(true)
 
         if (libraw === null) {
@@ -146,8 +146,8 @@ export default class ImportScanner {
                 this.onProgressChange()
                 if (profiler) { profiler.addPoint(`Deleted ${deletedPhotoCount} photos of removed directories`) }
 
-                this.state = 'import-photos'
-                this.progress.phase = 'import-photos'
+                this.state = 'importPhotos'
+                this.progress.phase = 'importPhotos'
                 this.onProgressChange(true)
 
                 return dirs

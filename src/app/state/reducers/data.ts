@@ -7,7 +7,7 @@ import { Action } from 'app/state/ActionType'
 import {
     INIT, SET_SETTINGS, FETCH_TOTAL_PHOTO_COUNT, FETCH_SECTIONS_REQUEST, FETCH_SECTIONS_SUCCESS, FETCH_SECTIONS_FAILURE,
     CHANGE_PHOTOS, EMPTY_TRASH,
-    FETCH_TAGS, INIT_DEVICES, ADD_DEVICE, REMOVE_DEVICE, FORGET_SECTION_PHOTOS, FETCH_SECTION_PHOTOS
+    FETCH_TAGS, FORGET_SECTION_PHOTOS, FETCH_SECTION_PHOTOS
 } from 'app/state/actionTypes'
 import { DataState, TagsState, DevicesState, SectionsState } from 'app/state/StateTypes'
 import { FetchState } from 'app/UITypes'
@@ -53,23 +53,6 @@ const tags = (state: TagsState = initialTagsState, action: Action): TagsState =>
             }
             return { ids, byId }
         }
-        default:
-            return state
-    }
-}
-
-
-const devices = (state: DevicesState = [], action: Action): DevicesState => {
-    switch (action.type) {
-        case INIT_DEVICES:
-            return [ ...action.payload.devices ]
-        case ADD_DEVICE:
-            return [
-                ...state,
-                action.payload.device
-            ]
-        case REMOVE_DEVICE:
-            return cloneArrayWithItemRemoved(state, action.payload.device, 'id')
         default:
             return state
     }
@@ -231,6 +214,5 @@ export const data = combineReducers<DataState>({
     uiConfig,
     settings,
     tags,
-    devices,
     sections
 })

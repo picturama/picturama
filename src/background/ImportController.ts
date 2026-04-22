@@ -122,7 +122,7 @@ class ImportScannerDelegateImpl implements ImportScannerDelegate {
         let progressBarProgress = 0
         if (state === 'idle') {
             progressBarProgress = -1  // Don't show progress
-        } else if (state === 'import-photos') {
+        } else if (state === 'importPhotos') {
             progressBarProgress = progress.processed / (progress.total || 1)
         } else {
             progressBarProgress = 2  // indeterminate

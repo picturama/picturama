@@ -8,13 +8,9 @@
 import { IKeyCombo, getKeyCombo, getKeyComboString, comboMatches, parseKeyCombo } from '@blueprintjs/core'
 
 import { msg } from 'common/i18n/i18n'
-import { assertRendererProcess } from 'common/util/ElectronUtil'
 
 import { setShiftPressedAction } from 'app/state/actions'
 import store from 'app/state/store'
-
-
-assertRendererProcess()
 
 
 export interface Command {

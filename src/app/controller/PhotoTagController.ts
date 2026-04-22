@@ -1,5 +1,4 @@
 import { Photo, Tag } from 'common/CommonTypes'
-import { assertRendererProcess } from 'common/util/ElectronUtil'
 import { slug } from 'common/util/LangUtil'
 
 import { fetchTagsAction, setPhotoTagsAction } from 'app/state/actions'
@@ -7,9 +6,6 @@ import store from 'app/state/store'
 import BackgroundClient from 'app/BackgroundClient'
 
 import { updatePhotoWork } from './PhotoController'
-
-
-assertRendererProcess()
 
 
 export function setTags(tags: Tag[]) {

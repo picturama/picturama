@@ -16,7 +16,6 @@ export interface Props {
 }
 
 export function createErrorToastProps(props: Props): IToastProps {
-
     return {
         className: 'ErrorToast',
         icon: <FaIcon className='ErrorToast-icon' name='frown-o' />,

@@ -1,5 +1,3 @@
-import notifier from 'node-notifier'
-
 import { msg } from 'common/i18n/i18n'
 import { bindMany } from 'common/util/LangUtil'
 import { PhotoExportOptions } from 'common/CommonTypes'
@@ -9,6 +7,7 @@ import { PhotoCollection } from 'app/state/StateTypes'
 import store from 'app/state/store'
 import BackgroundClient from 'app/BackgroundClient'
 import { showError } from 'app/ErrorPresenter'
+import toaster from 'app/Toaster'
 import { getPhotosOfCollection } from 'app/util/PhotoCollectionResolver'
 
 
@@ -106,9 +105,10 @@ async function runExport(exportInfo: ExportInfo): Promise<void> {
 
     // Show done notification
 
-    notifier.notify({
-        title: 'Picturama',
-        message: photoCount === 1 ? msg('ExportDialog_done_one') : msg('ExportDialog_done_more', photoCount)
+    toaster.show({
+        icon: 'tick',
+        message: photoCount === 1 ? msg('ExportDialog_done_one') : msg('ExportDialog_done_more', formatNumber(photoCount)),
+        intent: 'success'
     })
 
     store.dispatch(closeExportAction())

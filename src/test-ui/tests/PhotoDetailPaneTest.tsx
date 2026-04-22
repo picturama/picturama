@@ -97,6 +97,6 @@ addSection('PhotoDetailPane')
     .add('error', context => (
         <PhotoDetailPane
             {...createDefaultProps(context)}
-            photo={{ ...testBigPhoto, master_filename: 'missing-master' }}
+            photo={{ ...testBigPhoto, masterFilename: 'missing-master' }}
         />
     ))

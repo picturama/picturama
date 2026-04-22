@@ -12,7 +12,7 @@ import {
     FETCH_SECTION_PHOTOS, FORGET_SECTION_PHOTOS,
     CHANGE_PHOTOWORK, CHANGE_PHOTOS, EMPTY_TRASH, SET_SHOW_INFO, SET_INFO_PHOTO_DATA, SET_INFO_PHOTO_DATA_FAILURE,
     SET_IMPORT_PROGRESS, FETCH_TAGS, SET_PHOTO_TAGS,
-    INIT_DEVICES, ADD_DEVICE, REMOVE_DEVICE, OPEN_EXPORT, CLOSE_EXPORT, SET_EXPORT_OPTIONS,
+    OPEN_EXPORT, CLOSE_EXPORT, SET_EXPORT_OPTIONS,
     TOGGLE_SHOW_EXPORT_REMOVE_INFO_DESC, SET_EXPORT_PROGRESS
 } from './actionTypes'
 import { PhotoCollection, PhotoLibraryPosition, SelectionState } from './StateTypes'
@@ -53,10 +53,6 @@ export const setImportProgressAction = (progress: ImportProgress | null) => act
 
 export const fetchTagsAction = (tags: Tag[]) => action(FETCH_TAGS, tags)
 export const setPhotoTagsAction = (photoId: PhotoId, tags: string[]) => action(SET_PHOTO_TAGS, { photoId, tags })
-
-export const initDevicesAction = (devices: Device[]) => action(INIT_DEVICES, { devices })
-export const addDeviceAction = (device: Device) => action(ADD_DEVICE, { device })
-export const removeDeviceAction = (device: Device) => action(REMOVE_DEVICE, { device })
 
 export const openExportAction = (photos: PhotoCollection) => action(OPEN_EXPORT, { photos })
 export const closeExportAction = () => action(CLOSE_EXPORT)

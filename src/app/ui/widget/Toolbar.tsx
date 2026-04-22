@@ -1,34 +1,42 @@
 import React from 'react'
 import classnames from 'classnames'
-import { remote } from 'electron'
+import { invoke } from '@tauri-apps/api/core'
 
+import { showError } from 'app/ErrorPresenter'
 import { bindMany } from 'common/util/LangUtil'
 
 import './Toolbar.less'
 
 
 interface ToolbarSpacerProps {
+    isTopBar?: boolean
 }
 
 class ToolbarSpacer extends React.Component<ToolbarSpacerProps> {
 
-    constructor(props: Props) {
+    constructor(props: ToolbarSpacerProps) {
         super(props)
         bindMany(this, 'onDoubleClick')
     }
 
     private onDoubleClick() {
-        const currentWindow = remote.getCurrentWindow()
-        if (currentWindow.isMaximized()) {
-            currentWindow.unmaximize()
-        } else {
-            currentWindow.maximize()
-        }
+        invoke<{ isMaximized: boolean }>('window_get_state')
+            .then(state => {
+                invoke(state.isMaximized ? 'window_unmaximize' : 'window_maximize')
+            })
+            .catch(error => {
+                showError('Handling toolbar double click failed', error)
+            })
     }
 
     render() {
+        const { props } = this
         return (
-            <div className='Toolbar-spacer' onDoubleClick={this.onDoubleClick}/>
+            <div
+                className='Toolbar-spacer'
+                data-tauri-drag-region={props.isTopBar}
+                onDoubleClick={this.onDoubleClick}
+            />
         )
     }
 
@@ -54,12 +62,13 @@ export default class Toolbar extends React.Component<Props> {
     }
 
     render() {
-        const props = this.props
+        const { props } = this
         return (
             <div
                 id={props.id}
                 className={classnames(props.className, 'Toolbar bp3-dark', { isTopBar: props.isTopBar, isLeft: props.isLeft, isRight: props.isRight })}
                 style={props.style}
+                data-tauri-drag-region={props.isTopBar}
             >
                 {props.children}
             </div>

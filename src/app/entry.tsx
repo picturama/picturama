@@ -16,25 +16,25 @@ import './entry.less'
 import pkgs from '../../package.json'
 import { showError } from 'app/ErrorPresenter'
 import { hasWebGLSupport } from 'app/renderer/WebGLCanvas'
+import { init as initDataUtil } from 'common/util/DataUtil'
 
 
-if (process.env.PICTURAMA_DEV_MODE) {
+if ((window as any).PICTURAMA_DEV_MODE) {
     document.title = 'Picturama - DEV MODE'
 } else {
     document.title = `Picturama - ${pkgs.version}`
 }
-
-BackgroundClient.init()
 
 Promise
     .all([
         BackgroundClient.fetchUiConfig(),
         BackgroundClient.fetchSettings(),
         BackgroundClient.waitForBackgroundReady(),
+        initForegroundService(),
     ])
-    .then(([ uiConfig, settings, backgroundReady ]) => {
+    .then(([ uiConfig, settings, backgroundReady, foregroundReady ]) => {
         setLocale(uiConfig.locale)
-        initForegroundService()
+        initDataUtil(uiConfig)
         initInfoController()
         store.dispatch(initAction(uiConfig, settings))
 

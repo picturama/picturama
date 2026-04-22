@@ -1,21 +1,18 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <title>UI Tester</title>
-
-    <link rel="stylesheet" href="test-ui.css">
-</head>
-<body>
-
+  </head>
+  <body>
     <div id="root"></div>
-
-    <script src="test-ui.js"></script>
+    <script type="module" src="/src/test-ui/entry.tsx"></script>
     <script>
+      window.addEventListener('load', () => {
         UiTester.start(document.getElementById('root'))
+      })
     </script>
-</body>
+  </body>
 </html>

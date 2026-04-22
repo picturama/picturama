@@ -1,5 +1,5 @@
-import { clipboard } from 'electron'
 import classNames from 'classnames'
+import copyToClipboard from 'copy-text-to-clipboard'
 import React from 'react'
 import { Button, Icon, NonIdealState, Popover, Position, Classes, Menu, MenuItem, MaybeElement } from '@blueprintjs/core'
 import moment from 'moment'
@@ -70,14 +70,14 @@ export default class PhotoInfo extends React.Component<Props, State> {
 
     private copyPhotoPath() {
         if (this.props.photo) {
-            clipboard.writeText(getMasterPath(this.props.photo))
+            copyToClipboard(getMasterPath(this.props.photo))
         }
     }
 
     private copyCoordinates() {
         const coordinates = this.getCoordinates()
         if (coordinates) {
-            clipboard.writeText(formatLatLon(coordinates))
+            copyToClipboard(formatLatLon(coordinates))
         }
     }
 
@@ -113,7 +113,7 @@ export default class PhotoInfo extends React.Component<Props, State> {
             body = null
         } else if (photo && photoData) {
             const { metaData } = photoData
-            const momentCreated = moment(photo.created_at)
+            const momentCreated = moment(photo.createdAt)
             const coordinates = this.getCoordinates()
 
             body = (
@@ -132,7 +132,7 @@ export default class PhotoInfo extends React.Component<Props, State> {
                         <div className="PhotoInfo-infoBody">
                             <h1 className="PhotoInfo-infoTitle hasColumns">
                                 <div className="PhotoInfo-shrinkable" title={getMasterPath(photo)}>
-                                    {photo.master_filename}
+                                    {photo.masterFilename}
                                 </div>
                                 <Popover position={Position.BOTTOM_RIGHT}>
                                     <span className={classNames('PhotoInfo-breadcrumbs',  Classes.BREADCRUMBS_COLLAPSED)} />
@@ -143,13 +143,13 @@ export default class PhotoInfo extends React.Component<Props, State> {
                                 </Popover>
                             </h1>
                             <div className="PhotoInfo-minorInfo hasColumns">
-                                <div>{formatImageMegaPixel(photo.master_width, photo.master_height)}</div>
-                                <div>{`${photo.master_width} \u00d7 ${photo.master_height}`}</div>
+                                <div>{formatImageMegaPixel(photo.masterWidth, photo.masterHeight)}</div>
+                                <div>{`${photo.masterWidth} \u00d7 ${photo.masterHeight}`}</div>
                                 <div>{renderPhotoSize(photoData)}</div>
                             </div>
-                            {(photo.edited_width !== photo.master_width || photo.edited_height !== photo.master_height) &&
+                            {(photo.editedWidth !== photo.masterWidth || photo.editedHeight !== photo.masterHeight) &&
                                 <div className='PhotoInfo-minorInfo isCentered'>
-                                    {`(${photo.edited_width} \u00d7 ${photo.edited_height})`}
+                                    {`(${photo.editedWidth} \u00d7 ${photo.editedHeight})`}
                                 </div>
                             }
                         </div>
@@ -240,9 +240,9 @@ export default class PhotoInfo extends React.Component<Props, State> {
     
         return (
             <div className={classNames(props.className, 'PhotoInfo bp3-dark')} style={props.style}>
-                <Toolbar className="PhotoInfo-topBar">
+                <Toolbar className="PhotoInfo-topBar" isTopBar>
                     <span className="PhotoInfo-title">{msg('PhotoInfo_title')}</span>
-                    <Toolbar.Spacer/>
+                    <Toolbar.Spacer isTopBar/>
                     <Button icon="cross" minimal={true} onClick={props.closeInfo} />
                 </Toolbar>
                 <div className='PhotoInfo-body'>

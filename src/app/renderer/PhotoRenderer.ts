@@ -1,7 +1,6 @@
 import { Photo, PhotoWork, PhotoRenderOptions, PhotoRenderFormat, BinaryString } from 'common/CommonTypes'
 import { CameraMetricsBuilder } from 'common/util/CameraMetrics'
 import { decodeImageDataUrlAsBinaryString, getMasterPath, getNonRawPath } from 'common/util/DataUtil'
-import { assertRendererProcess } from 'common/util/ElectronUtil'
 import { Size } from 'common/util/GeometryTypes'
 import { isShallowEqual } from 'common/util/LangUtil'
 import SerialJobQueue from 'common/util/SerialJobQueue'
@@ -10,9 +9,6 @@ import Profiler from 'common/util/Profiler'
 import { updatePhoto } from 'app/controller/PhotoController'
 
 import PhotoCanvas from './PhotoCanvas'
-
-
-assertRendererProcess()
 
 
 type RenderJobSource =
@@ -99,18 +95,18 @@ async function renderNext(job: RenderJob): Promise<BinaryString> {
     if (source.type === 'photo') {
         const { photo } = source
         const { cropRect } = cameraMetrics
-        const master_width = texture.width
-        const master_height = texture.height
-        const masterSizeIsWrong = photo.master_width !== master_width || photo.master_height !== master_height
-        const editedSizeIsWrong = photo.edited_width !== cropRect.width || photo.edited_height !== cropRect.height
-        if (masterSizeIsWrong || photo.edited_width !== cropRect.width || photo.edited_height !== cropRect.height) {
+        const masterWidth = texture.width
+        const masterHeight = texture.height
+        const masterSizeIsWrong = photo.masterWidth !== masterWidth || photo.masterHeight !== masterHeight
+        const editedSizeIsWrong = photo.editedWidth !== cropRect.width || photo.editedHeight !== cropRect.height
+        if (masterSizeIsWrong || photo.editedWidth !== cropRect.width || photo.editedHeight !== cropRect.height) {
             if (masterSizeIsWrong) {
-                console.info(`Correcting master size of #${photo.id} (${getMasterPath(photo)}) from ${photo.master_width}x${photo.master_height} to ${master_width}x${master_height}`)
+                console.info(`Correcting master size of #${photo.id} (${getMasterPath(photo)}) from ${photo.masterWidth}x${photo.masterHeight} to ${masterWidth}x${masterHeight}`)
             }
             if (editedSizeIsWrong) {
-                console.info(`Correcting edited size of #${photo.id} (${getMasterPath(photo)}) from ${photo.edited_width}x${photo.edited_height} to ${cropRect.width}x${cropRect.height}`)
+                console.info(`Correcting edited size of #${photo.id} (${getMasterPath(photo)}) from ${photo.editedWidth}x${photo.editedHeight} to ${cropRect.width}x${cropRect.height}`)
             }
-            updatePhoto(photo, { master_width, master_height, edited_width: cropRect.width, edited_height: cropRect.height })
+            updatePhoto(photo, { masterWidth, masterHeight, editedWidth: cropRect.width, editedHeight: cropRect.height })
         }
         if (profiler) profiler.addPoint('Checked photo size in DB')
     }

@@ -1,4 +1,4 @@
-import { PhotoId, TagId, TagById, Device, PhotoSectionId, PhotoSectionById, Settings, UiConfig, PhotoDetail, PhotoWork, ImportProgress, PhotoFilter, PhotoExportOptions, PhotoExportProgress, MetaData, ExifData, Photo} from 'common/CommonTypes'
+import { PhotoId, TagId, TagById, PhotoSectionId, PhotoSectionById, Settings, UiConfig, PhotoDetail, PhotoWork, ImportProgress, PhotoFilter, PhotoExportOptions, PhotoExportProgress, MetaData, ExifData, Photo} from 'common/CommonTypes'
 import { FetchState } from 'app/UITypes'
 
 
@@ -28,7 +28,6 @@ export type DataState = {
     readonly uiConfig: UiConfig
     readonly settings: Settings
     readonly tags: TagsState
-    readonly devices: DevicesState
     readonly sections: SectionsState
 }
 
@@ -91,8 +90,6 @@ export type TagsState = {
     readonly ids: TagId[]
     readonly byId: TagById
 }
-
-export type DevicesState = Device[]
 
 export type SectionsState = {
     readonly fetchState: FetchState

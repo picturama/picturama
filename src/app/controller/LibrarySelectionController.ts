@@ -1,5 +1,4 @@
 import { isLoadedPhotoSection, LoadedPhotoSection, PhotoId, PhotoSectionId } from 'common/CommonTypes'
-import { assertRendererProcess } from 'common/util/ElectronUtil'
 
 import { setLibraryActivePhotoAction, setLibraryHoverPhotoAction, setLibrarySelectionAction } from 'app/state/actions'
 import { getPreselectionRange } from 'app/state/selectors'
@@ -8,9 +7,6 @@ import store from 'app/state/store'
 import { GridSectionLayout } from 'app/UITypes'
 
 import { getPrevGridLayout } from './LibraryController'
-
-
-assertRendererProcess()
 
 
 /**

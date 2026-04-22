@@ -115,7 +115,7 @@ export default class ViewModeLayer extends React.Component<Props> {
                             <FaIcon name="arrow-right"/>
                         </Button>
                     </ButtonGroup>
-                    <Toolbar.Spacer/>
+                    <Toolbar.Spacer isTopBar/>
                     <div className='PhotoDetailPane-zoomPane'>
                         <Slider className='PhotoDetailPane-zoomSlider'
                             disabled={cameraMetrics === null}
