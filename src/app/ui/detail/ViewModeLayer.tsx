@@ -1,12 +1,12 @@
 import classnames from 'classnames'
 import React from 'react'
 import { Button, ButtonGroup, MaybeElement, Slider } from '@blueprintjs/core'
+import { FaArrowLeft, FaArrowRight, FaChevronLeft, FaCrop } from 'react-icons/fa'
 
 import { msg } from 'common/i18n/i18n'
 import { CameraMetrics, RequestedPhotoPosition, limitPhotoPosition } from 'common/util/CameraMetrics'
 import { bindMany } from 'common/util/LangUtil'
 
-import FaIcon from 'app/ui/widget/icon/FaIcon'
 import Toolbar from 'app/ui/widget/Toolbar'
 import { Command, getCommandButtonProps, CommandGroupId, addCommandGroup, setCommandGroupEnabled, removeCommandGroup } from 'app/controller/HotkeyController'
 
@@ -104,15 +104,15 @@ export default class ViewModeLayer extends React.Component<Props> {
                     isRight={props.isTopBarRight}
                 >
                     <Button onClick={commands.close.onAction}>
-                        <FaIcon name="chevron-left"/>
+                        <FaChevronLeft/>
                         <span>{commands.close.label}</span>
                     </Button>
                     <ButtonGroup>
                         <Button minimal={true} {...getCommandButtonProps(commands.prevPhoto)}>
-                            <FaIcon name="arrow-left"/>
+                            <FaArrowLeft/>
                         </Button>
                         <Button minimal={true} {...getCommandButtonProps(commands.nextPhoto)}>
-                            <FaIcon name="arrow-right"/>
+                            <FaArrowRight/>
                         </Button>
                     </ButtonGroup>
                     <Toolbar.Spacer isTopBar/>
@@ -131,7 +131,7 @@ export default class ViewModeLayer extends React.Component<Props> {
                     </div>
                     {props.showEditButton &&
                         <Button minimal={true} {...getCommandButtonProps(commands.edit)}>
-                            <FaIcon name='crop'/>
+                            <FaCrop/>
                         </Button>
                     }
                     {props.topBarRightItem}

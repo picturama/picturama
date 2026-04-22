@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react'
 import { connect } from 'react-redux'
 import { Button } from '@blueprintjs/core'
 import classnames from 'classnames'
+import { FaChevronLeft } from 'react-icons/fa'
 
 import { Settings } from 'common/CommonTypes'
 import { msg } from 'common/i18n/i18n'
@@ -10,7 +11,6 @@ import { bindMany } from 'common/util/LangUtil'
 import BackgroundClient from 'app/BackgroundClient'
 import { showError } from 'app/ErrorPresenter'
 import Toolbar from 'app/ui/widget/Toolbar'
-import FaIcon from 'app/ui/widget/icon/FaIcon'
 import List from 'app/ui/widget/List'
 import LogoDecoration from 'app/ui/widget/LogoDecoration'
 import { setSettingsAction, closeSettingsAction } from 'app/state/actions'
@@ -86,7 +86,7 @@ export class SettingsPane extends React.Component<Props> {
                     isLeft={true}
                 >
                     <Button onClick={this.onClose}>
-                        <FaIcon name="chevron-left"/>
+                        <FaChevronLeft/>
                         <span>{msg('common_backToLibrary')}</span>
                     </Button>
                     <Toolbar.Spacer isTopBar/>

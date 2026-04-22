@@ -7,14 +7,16 @@
 }
 
 .bp3-button {
-    .SvgIcon {
+    svg {  // Icons from react-icons, e.g. FaChevronLeft
         &:not(:last-child) {
-            margin-right: 5px;   // E.g. restore from trash button
+            margin-right: 10px;
+            vertical-align: middle;
+            margin-bottom: 1px;
         }
     }
-    .FaIcon {
+    .SvgIcon { // SvgIcons. E.g. restore from trash button
         &:not(:last-child) {
-            margin-right: 10px;   // E.g. detail back button
+            margin-right: 5px;
         }
     }
     .SvgIcon {

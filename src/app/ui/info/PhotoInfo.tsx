@@ -3,6 +3,7 @@ import copyToClipboard from 'copy-text-to-clipboard'
 import React from 'react'
 import { Button, Icon, NonIdealState, Popover, Position, Classes, Menu, MenuItem, MaybeElement } from '@blueprintjs/core'
 import moment from 'moment'
+import { FaTags } from 'react-icons/fa'
 
 import { Photo, ExifData, ExifSegment, allExifSegments } from 'common/CommonTypes'
 import { msg, hasMsg } from 'common/i18n/i18n'
@@ -15,7 +16,6 @@ import { InfoPhotoData } from 'app/state/StateTypes'
 import { FetchState } from 'app/UITypes'
 import MiniWorldMap from 'app/ui/widget/MiniWorldMap'
 import Toolbar from 'app/ui/widget/Toolbar'
-import FaIcon from 'app/ui/widget/icon/FaIcon'
 
 import TagEditor from './TagEditor'
 
@@ -179,7 +179,7 @@ export default class PhotoInfo extends React.Component<Props, State> {
                         </div>
                     }
                     <div className="PhotoInfo-infoRow">
-                        <FaIcon className="PhotoInfo-infoIcon" name="tags" style={{ fontSize: infoIconSize }} />
+                        <FaTags className="PhotoInfo-infoIcon" style={{ fontSize: infoIconSize }} />
                         <TagEditor
                             className="PhotoInfo-tagEditor PhotoInfo-infoBody"
                             photo={props.photo}

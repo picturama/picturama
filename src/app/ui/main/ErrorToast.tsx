@@ -1,10 +1,9 @@
 import React from 'react'
 import { Button, IToastProps, Collapse } from '@blueprintjs/core'
+import { FaFrownOpen } from 'react-icons/fa'
 
 import { msg } from 'common/i18n/i18n'
 import { bindMany } from 'common/util/LangUtil'
-
-import FaIcon from 'app/ui/widget/icon/FaIcon'
 
 import './ErrorToast.less'
 
@@ -18,7 +17,7 @@ export interface Props {
 export function createErrorToastProps(props: Props): IToastProps {
     return {
         className: 'ErrorToast',
-        icon: <FaIcon className='ErrorToast-icon' name='frown-o' />,
+        icon: <FaFrownOpen className='ErrorToast-icon'/>,
         intent: 'danger',
         timeout: 0,
         message: <Message {...props}/>,

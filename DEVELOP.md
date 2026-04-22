@@ -211,7 +211,7 @@ Icons
 Used icon libs:
 
   - [Blueprint icons](https://blueprintjs.com/docs/#icons) - using `@blueprintjs/icons`
-  - [Font Awesome](https://fontawesome.com/icons) - using `app/ui/widget/icon/FaIcon`
+  - [Font Awesome](https://fontawesome.com/icons) - using `react-icons/fa`
   - [Material Design](https://material.io/tools/icons/) - using `react-icons/md`
 
 
