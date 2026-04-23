@@ -1,8 +1,8 @@
 import { readFileSync, writeFileSync } from 'fs'
 
 
-const packageJson = JSON.parse(readFileSync('package.json', 'utf8'))
-const languages = packageJson.build.mac.electronLanguages
+// Keep in sync with src/common/i18n/i18n.ts
+const languages = [ 'cs', 'de', 'en', 'es', 'fr', 'ru', 'zh' ]
 
 const masterLines = readFileAsLines('src/common/i18n/text_en.ts')
 

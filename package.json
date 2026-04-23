@@ -9,6 +9,7 @@
     "start": "cargo tauri dev",
     "dev": "vite",
     "build": "vite build",
+    "i18n": "node src/script/check-i18n.mjs",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",

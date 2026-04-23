@@ -18,6 +18,7 @@ import text_ru from './text_ru'
 import text_zh from './text_zh'
 
 
+// Keep in sync with src/script/check-i18n.mjs
 export type Locale = 'cs' | 'de' | 'en' | 'es' | 'fr' | 'ru' | 'zh'
 export const locales = [ 'cs', 'de', 'en', 'es', 'fr', 'ru', 'zh' ]
 
