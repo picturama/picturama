@@ -1,6 +1,9 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::Manager;
+use tauri::{
+    Manager,
+    menu::{Menu, Submenu},
+};
 
 mod app_config_builder;
 mod common_types;
@@ -37,7 +40,7 @@ fn main() {
             window_service::window_get_state,
             window_service::toggle_dev_tools,
             // Lifecycle
-            main_service::wait_for_background_ready,
+            main_service::on_before_render_ui,
             main_service::fetch_ui_config,
             main_service::fetch_settings,
             main_service::store_settings,
@@ -76,7 +79,14 @@ fn main() {
             // Export
             main_service::export_photo,
         ])
-        .menu(|app| menu::build(app))
+        .menu(|app| {
+            // Create empty menu on startup until the real menu is created later (after I18N initialisation)
+            // That " " label avoids weird macOS behavior while staying invisible enough.
+            Ok(Menu::with_items(
+                app,
+                &[&Submenu::with_items(app, " ", true, &[])?], // basically empty
+            )?)
+        })
         .on_menu_event(menu::handle_event)
         .setup(|app| {
             let app_config = app_config_builder::build_app_config(app.handle()).map_err(|e| e.to_string())?;

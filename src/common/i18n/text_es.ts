@@ -89,9 +89,13 @@ export default {
     LibraryTopBar_moveToTrash: 'Mover a la papelera del sistema operativo',
     LibraryTopBar_emptyTrash: 'Vaciar papelera',
 
-    MainMenu_version: `Version {0}`,
+    MainMenu_about: 'Acerca de Picturama',
     MainMenu_settings: 'Ajustes',
     MainMenu_quit: `Salir`,
+    MainMenu_hide: 'Ocultar Picturama',
+    MainMenu_hideOthers: 'Ocultar otros',
+    MainMenu_showAll: 'Mostrar todo',
+    MainMenu_services: 'Servicios',
     MainMenu_file: `Archivo`,
     MainMenu_export: `Exportar fotos`,
     MainMenu_scan: `Escanear en busca de imágenes`,
@@ -121,7 +125,7 @@ export default {
 
     PhotoDetailBody_selected: 'Seleccionado',
     PhotoDetailBody_select: 'Escoger',
-    PhotoDetailBody_error_loadingFailed: 'Error al cargar la foto',  
+    PhotoDetailBody_error_loadingFailed: 'Error al cargar la foto',
     PhotoDetailBody_error_loadingFailed_desc: 'Picturama no puede visualizar esta foto',
 
     PhotoDetailPane_prevPhoto: 'Anterior foto',

@@ -24,10 +24,10 @@ import {
 const toSnakeCase = (s: string): string =>
     s.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`)
 
-async function invokeCommand<T>(action: string, params?: unknown): Promise<T> {
+async function invokeCommand<T>(action: string, payload?: unknown): Promise<T> {
     let result: T
     try {
-        result = await invoke(toSnakeCase(action), params ?? {})
+        result = await invoke(toSnakeCase(action), payload ?? {})
     } catch (error) {
         throw new Error(`Invoking ${action} on background failed: ${error}`)
     }
@@ -35,8 +35,8 @@ async function invokeCommand<T>(action: string, params?: unknown): Promise<T> {
 }
 
 const BackgroundClient = {
-    waitForBackgroundReady(): Promise<void> {
-        return invokeCommand('waitForBackgroundReady')
+    onBeforeRenderUi(payload: { locale: string, localeTexts: Record<string, string> }): Promise<void> {
+        return invokeCommand('onBeforeRenderUi', payload)
     },
 
     toggleFullScreen(): Promise<void> {

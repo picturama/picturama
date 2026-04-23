@@ -45,16 +45,19 @@ const msgSplitRe = /(\{\d+\})/g
 
 let locale: Locale
 
-export function setLocale(newLocale: string) {
-    if (newLocale.length > 2) {
-        newLocale = newLocale.substr(0, 2)
-    }
-    if (locales.indexOf(newLocale) === -1) {
-        newLocale = fallbackLocale
-    }
-
-    locale = newLocale as Locale
+export function setLocale(rawLocale: string) {
+    locale = sanitizeLocale(rawLocale)
     dayjs.locale(locale)
+}
+
+function sanitizeLocale(rawLocale: string): Locale {
+    if (rawLocale.length > 2) {
+        rawLocale = rawLocale.substring(0, 2)
+    }
+    if (locales.indexOf(rawLocale) === -1) {
+        rawLocale = fallbackLocale
+    }
+    return rawLocale as Locale
 }
 
 export function getLocale(): string {
@@ -91,4 +94,25 @@ export function hasMsg(key: string): key is I18nKey {
 
 export function splitMsg(key: I18nKey): string[] {
     return msg(key).split(msgSplitRe)
+}
+
+/**
+ * Returns the full texts map for the given locale, falling back to English
+ * for any missing keys. Called by the Rust backend via the foreground RPC
+ * so it can use the same translations for native UI elements (e.g. the menu).
+ *
+ * The return type is a plain string-to-string map so it serialises cleanly
+ * to JSON without TypeScript-specific type information.
+ */
+export function getLocaleTexts(): Record<string, string> {
+    if (!locale) {
+        throw new Error('msg was called before locale was set')
+    }
+
+    let result: Record<string, string> = textsByLang[locale]
+    if (locale !== fallbackLocale) {
+        // Merge: start with English (all keys present), then overlay the target locale
+        result = { ...textsByLang[fallbackLocale], ...result }
+    }
+    return result
 }

@@ -93,7 +93,7 @@ export interface UiConfig {
     platform: 'linux' | 'macos' | 'windows'
     windowStyle: WindowStyle
     hasNativeMenu: boolean
-    locale: string
+    rawLocale: string
     nonRawPath: string
     thumbnailPath: string
 }

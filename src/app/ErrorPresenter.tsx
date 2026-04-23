@@ -1,6 +1,6 @@
 import copyToClipboard from 'copy-text-to-clipboard'
 
-import { msg } from 'common/i18n/i18n'
+import { getLocale, msg } from 'common/i18n/i18n'
 
 import toaster from 'app/Toaster'
 import store from 'app/state/store'
@@ -59,7 +59,7 @@ export function showExternalError(processName: string, msg: string, errorStack?:
 function createBasicErrorReport(msg: string, processName: string): string {
     const state = store.getState()
     const uiConfig = state.data.uiConfig
-    return `${msg}\n\nVersion: ${uiConfig.version}\nPlatform: ${uiConfig.platform}\nLocale: ${uiConfig.locale}\nProcess: ${processName}`
+    return `${msg}\n\nVersion: ${uiConfig.version}\nPlatform: ${uiConfig.platform}\nLocale: ${getLocale()}\nProcess: ${processName}`
 }
 
 

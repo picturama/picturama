@@ -1,8 +1,9 @@
 use chrono::{ NaiveDate, TimeZone, Utc };
 use std::env;
-use tauri::{AppHandle, State};
+use std::collections::HashMap;
+use tauri::{AppHandle, Manager, State};
 
-use crate::{common_types::*, app_config_builder::AppConfig};
+use crate::{common_types::*, app_config_builder::AppConfig, i18n::I18n, menu};
 
 
 // ---------------------------------------------------------------------------
@@ -10,22 +11,35 @@ use crate::{common_types::*, app_config_builder::AppConfig};
 // ---------------------------------------------------------------------------
 
 #[tauri::command]
-pub async fn wait_for_background_ready() -> Result<(), String> {
-    // Always succeeds – no separate background process needed (yet).
+pub async fn on_before_render_ui(app: AppHandle, locale: String, locale_texts: HashMap<String, String>)
+    -> Result<(), String>
+{
+    let i18n = I18n::new(locale, locale_texts);
+
+    match menu::build(&app, &i18n) {
+        Ok(native_menu) => {
+            let _ = app.set_menu(native_menu);
+        }
+        Err(e) => {
+            eprintln!("Failed to build menu: {}", e);
+        }
+    }
+
+    app.manage(i18n);
+
     Ok(())
 }
 
-/// TODO(phase1): Returns a hardcoded locale; later read from system settings.
 #[tauri::command]
 pub async fn fetch_ui_config(app_config: State<'_, AppConfig>) -> Result<UiConfig, String> {
     Ok(UiConfig {
-        version: "dev".to_string(),
-        platform: env::consts::OS.to_string(),
-        window_style: if env::consts::OS == "macos" { WindowStyle::NativeTrafficLight } else { WindowStyle::WindowsButtons },
+        version:         "dev".to_string(),
+        platform:        env::consts::OS.to_string(),
+        window_style:    if env::consts::OS == "macos" { WindowStyle::NativeTrafficLight } else { WindowStyle::WindowsButtons },
         has_native_menu: env::consts::OS == "macos",
-        locale: "en".to_string(),
-        non_raw_path:   app_config.picturama_home_dir.join("non-raw").to_str().unwrap().to_string(),
-        thumbnail_path: app_config.picturama_home_dir.join("thumbnails").to_str().unwrap().to_string(),
+        raw_locale:      app_config.raw_locale.to_string(),
+        non_raw_path:    app_config.picturama_home_dir.join("non-raw").to_str().unwrap().to_string(),
+        thumbnail_path:  app_config.picturama_home_dir.join("thumbnails").to_str().unwrap().to_string(),
     })
 }
 

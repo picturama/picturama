@@ -1,26 +1,36 @@
+// Builds the native application menu using localised strings from I18n.
+//
+// `build()` is called from setup() in main.rs (not from Builder::menu())
+// because the translations must be fetched from the frontend first — which
+// requires the WebView to be running — and only then can the menu be built
+// and applied to the window.
+
 use tauri::{
-    AppHandle, Manager, menu::{
-        AboutMetadataBuilder, Menu, MenuBuilder, MenuItemBuilder, PredefinedMenuItem,
-        SubmenuBuilder,
-    }
+    AppHandle, Manager,
+    menu::{
+        AboutMetadataBuilder, Menu, MenuBuilder, MenuItemBuilder,
+        PredefinedMenuItem, SubmenuBuilder,
+    },
 };
 
-use crate::{foreground_client::show_settings, window_service};
+use crate::i18n::I18n;
+use crate::window_service;
 
-/// Build and return the application menu.
-pub fn build(app: &AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
+/// Build and apply the application menu to the main window.
+/// Must be called after I18n is loaded (i.e. inside setup()).
+pub fn build(app: &AppHandle, i18n: &I18n) -> tauri::Result<Menu<tauri::Wry>> {
     // -----------------------------------------------------------------------
-    // Picturama / File
+    // File menu (on macOS this is the app menu)
     // -----------------------------------------------------------------------
     let file_menu = {
-        let mut b = SubmenuBuilder::new(app, "File");
+        let mut b = SubmenuBuilder::new(app, i18n.msg("MainMenu_file"));
 
         #[cfg(target_os = "macos")]
         {
             b = b
                 .item(&PredefinedMenuItem::about(
                     app,
-                    None,
+                    Some(&i18n.msg("MainMenu_about")),
                     Some(
                         AboutMetadataBuilder::new()
                             .name(Some("Picturama"))
@@ -32,59 +42,46 @@ pub fn build(app: &AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
                     ),
                 )?)
                 .separator()
-                .item(&PredefinedMenuItem::services(app, None)?)
+                .item(&PredefinedMenuItem::services(app, Some(&i18n.msg("MainMenu_services")))?)
                 .separator()
-                .item(&PredefinedMenuItem::hide(app, None)?)
-                .item(&PredefinedMenuItem::hide_others(app, None)?)
-                .item(&PredefinedMenuItem::show_all(app, None)?)
+                .item(&PredefinedMenuItem::hide(app, Some(&i18n.msg("MainMenu_hide")))?)
+                .item(&PredefinedMenuItem::hide_others(app, Some(&i18n.msg("MainMenu_hideOthers")))?)
+                .item(&PredefinedMenuItem::show_all(app, Some(&i18n.msg("MainMenu_showAll")))?)
                 .separator();
         }
 
         b.item(
-            &MenuItemBuilder::with_id("file_scan", "Scan for photos")
+            &MenuItemBuilder::with_id("file_scan", i18n.msg("MainMenu_scan"))
                 .accelerator("CmdOrCtrl+R")
                 .build(app)?,
         )
         .separator()
         .item(
-            &MenuItemBuilder::with_id("file_settings", "Settings…")
+            &MenuItemBuilder::with_id("file_settings", i18n.msg("MainMenu_settings"))
                 .accelerator("CmdOrCtrl+,")
                 .build(app)?,
         )
         .separator()
-        .item(&PredefinedMenuItem::quit(app, None)?)
+        .item(&PredefinedMenuItem::quit(app, Some(&i18n.msg("MainMenu_quit")))?)
         .build()?
     };
 
     // -----------------------------------------------------------------------
-    // Edit
+    // View menu
     // -----------------------------------------------------------------------
-    //let edit_menu = SubmenuBuilder::new(app, "Edit")
-    //    .item(&PredefinedMenuItem::undo(app, None)?)
-    //    .item(&PredefinedMenuItem::redo(app, None)?)
-    //    .separator()
-    //    .item(&PredefinedMenuItem::cut(app, None)?)
-    //    .item(&PredefinedMenuItem::copy(app, None)?)
-    //    .item(&PredefinedMenuItem::paste(app, None)?)
-    //    .item(&PredefinedMenuItem::select_all(app, None)?)
-    //    .build()?;
-
-    // -----------------------------------------------------------------------
-    // View
-    // -----------------------------------------------------------------------
-    let view_menu = SubmenuBuilder::new(app, "View")
+    let view_menu = SubmenuBuilder::new(app, i18n.msg("MainMenu_view"))
         .item(
-            &MenuItemBuilder::with_id("view_toggle_devtools", "Toggle Developer Tools")
+            &MenuItemBuilder::with_id("view_toggle_devtools", i18n.msg("MainMenu_toggleDevTools"))
                 .accelerator("CmdOrCtrl+Alt+I")
                 .build(app)?,
         )
         .item(
-            &MenuItemBuilder::with_id("view_show_ui_tester", "Show UI tester")
+            &MenuItemBuilder::with_id("view_show_ui_tester", i18n.msg("MainMenu_toggleUiTester"))
                 .accelerator("CmdOrCtrl+Alt+T")
                 .build(app)?,
         )
         .item(
-            &MenuItemBuilder::with_id("view_reload", "Reload UI")
+            &MenuItemBuilder::with_id("view_reload", i18n.msg("MainMenu_reloadUi"))
                 .accelerator("CmdOrCtrl+Shift+R")
                 .build(app)?,
         )
@@ -93,55 +90,27 @@ pub fn build(app: &AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
         .build()?;
 
     // -----------------------------------------------------------------------
-    // Window (macOS)
-    // -----------------------------------------------------------------------
-    //#[cfg(target_os = "macos")]
-    //let window_menu = SubmenuBuilder::new(app, "Window")
-    //    .item(&PredefinedMenuItem::minimize(app, None)?)
-    //    .item(&PredefinedMenuItem::zoom(app, None)?)
-    //    .separator()
-    //    .item(&PredefinedMenuItem::bring_all_to_front(app, None)?)
-    //    .build()?;
-
-    // -----------------------------------------------------------------------
-    // Help
-    // -----------------------------------------------------------------------
-    //let help_menu = SubmenuBuilder::new(app, "Help")
-    //    .item(
-    //        &MenuItemBuilder::with_id("help_github", "View on GitHub")
-    //            .build(app)?,
-    //    )
-    //    .build()?;
-
-    // -----------------------------------------------------------------------
     // Assemble
     // -----------------------------------------------------------------------
-    let mut menu = MenuBuilder::new(app)
+    let menu = MenuBuilder::new(app)
         .item(&file_menu)
-        //.item(&edit_menu)
-        .item(&view_menu);
+        .item(&view_menu)
+        .build()?;
 
-    //#[cfg(target_os = "macos")]
-    //{
-    //    menu = menu.item(&window_menu);
-    //}
-
-    //menu = menu.item(&help_menu);
-
-    Ok(menu.build()?)
+    Ok(menu)
 }
 
 /// Handle menu events.
-/// Register this with `.on_menu_event(menu::handle_event)` in main.rs.
 pub fn handle_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
     match event.id().as_ref() {
         "file_scan" => {
+            // TODO(phase3): trigger import
         }
 
         "file_settings" => {
             let app = app.clone();
             tauri::async_runtime::spawn(async move {
-                let _ = show_settings(&app).await;
+                let _ = crate::foreground_client::show_settings(&app).await;
             });
         }
 
@@ -175,16 +144,11 @@ pub fn handle_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
         "view_reload" => {
             let app = app.clone();
             tauri::async_runtime::spawn(async move {
-                use tauri::Manager;
                 if let Some(window) = app.get_webview_window("main") {
-                    let _ = window.eval("location.reload()").map_err(|e| e.to_string());
+                    let _ = window.eval("location.reload()");
                 }
             });
         }
-
-        //"help_github" => {
-        //    let _ = open::that("https://github.com/picturama/picturama");
-        //}
 
         other => {
             eprintln!("Unhandled menu event: {}", other);

@@ -80,7 +80,7 @@ pub struct UiConfig {
     pub platform: String,
     pub window_style: WindowStyle,
     pub has_native_menu: bool,
-    pub locale: String,
+    pub raw_locale: String,
     pub non_raw_path: String,
     pub thumbnail_path: String,
 }

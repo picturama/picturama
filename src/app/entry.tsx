@@ -2,7 +2,7 @@ import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'react-redux'
 
-import { setLocale } from 'common/i18n/i18n'
+import { getLocale, getLocaleTexts, setLocale } from 'common/i18n/i18n'
 
 import BackgroundClient from 'app/BackgroundClient'
 import { init as initForegroundService } from 'app/ForegroundService'
@@ -29,11 +29,10 @@ Promise
     .all([
         BackgroundClient.fetchUiConfig(),
         BackgroundClient.fetchSettings(),
-        BackgroundClient.waitForBackgroundReady(),
         initForegroundService(),
     ])
-    .then(([ uiConfig, settings, backgroundReady, foregroundReady ]) => {
-        setLocale(uiConfig.locale)
+    .then(async ([ uiConfig, settings, foregroundReady ]) => {
+        setLocale(uiConfig.rawLocale)
         initDataUtil(uiConfig)
         initInfoController()
         store.dispatch(initAction(uiConfig, settings))
@@ -43,6 +42,11 @@ Promise
         if (!hasWebGLSupport()) {
             store.dispatch(setWebGLSupport(false))
         }
+
+        await BackgroundClient.onBeforeRenderUi({
+            locale: getLocale(),
+            localeTexts: getLocaleTexts(),
+        })
 
         render(
             <Provider store={store}>
