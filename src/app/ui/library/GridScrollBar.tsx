@@ -1,7 +1,7 @@
 import React from 'react'
 import { findDOMNode } from 'react-dom'
 import classnames from 'classnames'
-import moment from 'moment'
+import dayjs from 'dayjs'
 
 import { PhotoSectionId, PhotoSectionById } from 'common/CommonTypes'
 import { bindMany } from 'common/util/LangUtil'
@@ -63,7 +63,7 @@ export default class GridScrollBar extends React.Component<Props, State> {
         if (!monthLabels) {
             monthLabels = []
             for (let month = 0; month < 12; month++) {
-                monthLabels[month] = moment(new Date(2000, month)).format('MMM')
+                monthLabels[month] = dayjs(new Date(2000, month)).format('MMM')
             }
         }
     }

@@ -2,7 +2,7 @@ import classNames from 'classnames'
 import copyToClipboard from 'copy-text-to-clipboard'
 import React from 'react'
 import { Button, Icon, NonIdealState, Popover, Position, Classes, Menu, MenuItem, MaybeElement } from '@blueprintjs/core'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import { FaTags } from 'react-icons/fa'
 
 import { Photo, ExifData, ExifSegment, allExifSegments } from 'common/CommonTypes'
@@ -113,7 +113,7 @@ export default class PhotoInfo extends React.Component<Props, State> {
             body = null
         } else if (photo && photoData) {
             const { metaData } = photoData
-            const momentCreated = moment(photo.createdAt)
+            const dayjsCreated = dayjs(photo.createdAt)
             const coordinates = this.getCoordinates()
 
             body = (
@@ -121,9 +121,9 @@ export default class PhotoInfo extends React.Component<Props, State> {
                     <div className="PhotoInfo-infoRow">
                         <Icon className="PhotoInfo-infoIcon" icon="calendar" iconSize={infoIconSize} />
                         <div className="PhotoInfo-infoBody">
-                            <h1>{momentCreated.format('LL')}</h1>
+                            <h1>{dayjsCreated.format('LL')}</h1>
                             <div className="PhotoInfo-minorInfo">
-                                {`${momentCreated.format('dd')}, ${momentCreated.format('LT')} \u00b7 ${momentCreated.fromNow()}`}
+                                {`${dayjsCreated.format('dd')}, ${dayjsCreated.format('LT')} \u00b7 ${dayjsCreated.fromNow()}`}
                             </div>
                         </div>
                     </div>

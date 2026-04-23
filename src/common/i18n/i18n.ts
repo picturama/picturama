@@ -1,13 +1,14 @@
-import moment from 'moment'  // This includes locale 'en'
-import 'moment/locale/cs'
-import 'moment/locale/de'
-import 'moment/locale/es'
-import 'moment/locale/fr'
-import 'moment/locale/ru'
-import 'moment/locale/zh-cn'
-import 'moment/locale/zh-hk'
-import 'moment/locale/zh-mo'
-import 'moment/locale/zh-tw'
+import dayjs from 'dayjs'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
+import 'dayjs/locale/cs'
+import 'dayjs/locale/de'
+import 'dayjs/locale/en'
+import 'dayjs/locale/es'
+import 'dayjs/locale/fr'
+import 'dayjs/locale/ru'
+import 'dayjs/locale/zh'
 
 import text_cs from './text_cs'
 import text_de from './text_de'
@@ -16,6 +17,9 @@ import text_es from './text_es'
 import text_fr from './text_fr'
 import text_ru from './text_ru'
 import text_zh from './text_zh'
+
+dayjs.extend(localizedFormat)
+dayjs.extend(relativeTime)
 
 
 // Keep in sync with src/script/check-i18n.mjs
@@ -50,7 +54,7 @@ export function setLocale(newLocale: string) {
     }
 
     locale = newLocale as Locale
-    moment.locale(locale)
+    dayjs.locale(locale)
 }
 
 export function getLocale(): string {
