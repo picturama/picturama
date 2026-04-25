@@ -426,7 +426,7 @@ function layoutSectionRow(rowTop: number, rowStartSectionIndex: number, rowEndSe
             if (layout.originalLayout) {
                 // Use the original (unscaled) layout
                 layout = layout.originalLayout
-                sectionLayouts[rowStartSectionIndex] = layout
+                sectionLayouts[sectionIndex] = layout
                 sectionsChanged = true
             }
         } else if (layout.scaleFactor !== scaleFactor) {
