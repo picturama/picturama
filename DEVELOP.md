@@ -52,6 +52,10 @@ Fetch dependencies and build and start Picturama:
     npm i
     npm start
 
+Clean project:
+
+    npm run clean
+
 Development hotkeys:
 
   - Toggle developer tools: `Shift`+`Ctrl`+`I` (On Mac: `Cmd`+`Shift`+`I`)

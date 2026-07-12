@@ -7,6 +7,7 @@
   "private": true,
   "scripts": {
     "start": "cargo tauri dev",
+    "clean": "rm -rf dist && cd src-tauri && cargo clean",
     "dev": "vite",
     "build": "vite build",
     "i18n": "node src/script/check-i18n.mjs",
