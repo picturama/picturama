@@ -13,6 +13,7 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tauri::{AppHandle, Manager};
 
 use crate::common_types::{ImportPhase, ImportProgress, PhotoId};
+use crate::exif_reader;
 use crate::foreground_client;
 use crate::store::db::DbHandle;
 use crate::store::{photo_store, photo_work_store};
@@ -482,21 +483,42 @@ fn build_new_photo(
 
     let meta = std::fs::metadata(&full_path).map_err(|e| e.to_string())?;
     let modified = system_time_to_millis(meta.modified().ok());
-    // TODO: Get EXIF creation date; fall back to the file's creation time, then its modified time.
-    let created = match meta.created().ok().map(|t| system_time_to_millis(Some(t))) {
-        Some(ms) if ms > 0 => ms,
-        _ => modified,
-    };
 
-    let size = match imagesize::size(&full_path) {
-        Ok(s) => s,
-        Err(e) => {
-            log::warn!("Could not determine size of {}: {}", full_path, e);
+    // Read EXIF metadata for the capture date, orientation and (rarely) dimensions.
+    let meta_data = exif_reader::read_metadata_of_image(&full_path);
+
+    // Capture date: EXIF date, then the file's creation time, then its modified time.
+    let created = meta_data
+        .created_at
+        .filter(|&ms| ms > 0)
+        .or_else(|| meta.created().ok().map(|t| system_time_to_millis(Some(t))).filter(|&ms| ms > 0))
+        .unwrap_or(modified);
+
+    // Dimensions: prefer EXIF, fall back to a header probe, then to the assumed EXIF size. The chosen
+    // size is the encoded (un-rotated) size, so we swap width/height for left/right EXIF orientations.
+    let switch_sides = exif_reader::has_exif_orientation_switched_sides(meta_data.orientation);
+    let raw_size = match (meta_data.img_width, meta_data.img_height) {
+        (Some(w), Some(h)) => Some((w, h)),
+        _ => match imagesize::size(&full_path) {
+            Ok(s) => Some((s.width as u32, s.height as u32)),
+            Err(_) => match (meta_data.img_width_assumed, meta_data.img_height_assumed) {
+                (Some(w), Some(h)) => Some((w, h)),
+                _ => None,
+            },
+        },
+    };
+    let (raw_width, raw_height) = match raw_size {
+        Some(size) => size,
+        None => {
+            log::warn!("Could not determine size of {}", full_path);
             return Ok(None);
         }
     };
-    let master_width = size.width as u32;
-    let master_height = size.height as u32;
+    let (master_width, master_height) = if switch_sides {
+        (raw_height, raw_width)
+    } else {
+        (raw_width, raw_height)
+    };
     if master_width == 0 || master_height == 0 {
         log::warn!("Invalid image size for {}", full_path);
         return Ok(None);

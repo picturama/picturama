@@ -8,6 +8,7 @@ use tauri_plugin_dialog::DialogExt;
 use crate::{
     common_types::*,
     app_config_builder::AppConfig,
+    exif_reader,
     foreground_client,
     geometry_types::Size,
     i18n::I18n,
@@ -370,23 +371,11 @@ pub async fn delete_thumbnail(app_config: State<'_, AppConfig>, photo_id: PhotoI
 // Image metadata & EXIF
 // ---------------------------------------------------------------------------
 
-/// TODO(phase5): Read real metadata with image-rs.
+/// Reads a summarized `MetaData` (camera, capture date, orientation, exposure, ...) from an image's
+/// EXIF data. On any error it falls back to the file's creation time + orientation 1 (Up).
 #[tauri::command]
-pub async fn read_metadata_of_image(_image_path: String) -> Result<MetaData, String> {
-    Ok(MetaData {
-        img_width:          None,
-        img_height:         None,
-        img_width_assumed:  None,
-        img_height_assumed: None,
-        camera:             None,
-        exposure_time:      None,
-        iso:                None,
-        aperture:           None,
-        focal_length:       None,
-        created_at:         None,
-        orientation:        1,  // 1=Up
-        tags:               vec![],
-    })
+pub async fn read_metadata_of_image(image_path: String) -> Result<MetaData, String> {
+    Ok(tokio::task::block_in_place(|| exif_reader::read_metadata_of_image(&image_path)))
 }
 
 // ---------------------------------------------------------------------------

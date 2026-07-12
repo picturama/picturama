@@ -4,6 +4,7 @@ use tauri::Manager;
 
 mod app_config_builder;
 mod common_types;
+mod exif_reader;
 mod foreground_client;
 mod geometry_types;
 mod i18n;
