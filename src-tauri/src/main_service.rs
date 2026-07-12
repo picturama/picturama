@@ -1,9 +1,21 @@
-use chrono::{ NaiveDate, TimeZone, Utc };
 use std::env;
 use std::collections::HashMap;
+use std::path::Path;
 use tauri::{AppHandle, Manager, State};
 
-use crate::{common_types::*, app_config_builder::AppConfig, i18n::I18n, menu};
+use crate::{
+    common_types::*,
+    app_config_builder::AppConfig,
+    i18n::I18n,
+    menu,
+    store::{
+        db::DbHandle,
+        photo_store,
+        photo_work_store,
+        settings_store,
+        tag_store,
+    }
+};
 
 
 // ---------------------------------------------------------------------------
@@ -33,7 +45,7 @@ pub async fn on_before_render_ui(app: AppHandle, locale: String, locale_texts: H
 #[tauri::command]
 pub async fn fetch_ui_config(app_config: State<'_, AppConfig>) -> Result<UiConfig, String> {
     Ok(UiConfig {
-        version:         "dev".to_string(),
+        version:         env!("CARGO_PKG_VERSION").to_string(),
         platform:        env::consts::OS.to_string(),
         window_style:    if env::consts::OS == "macos" { WindowStyle::NativeTrafficLight } else { WindowStyle::WindowsButtons },
         has_native_menu: env::consts::OS == "macos",
@@ -43,19 +55,19 @@ pub async fn fetch_ui_config(app_config: State<'_, AppConfig>) -> Result<UiConfi
     })
 }
 
-/// TODO(phase2): Load settings from SQLite.
 #[tauri::command]
-pub async fn fetch_settings() -> Result<Settings, String> {
-    Ok(Settings {
-        photo_dirs: vec![],
-        export_options: None,
-    })
+pub async fn fetch_settings(app_config: State<'_, AppConfig>) -> Result<Settings, String> {
+    let settings_path = app_config.picturama_home_dir.join("settings.json");
+    settings_store::fetch_settings(&settings_path)
 }
 
-/// TODO(phase2): Persist settings to SQLite.
 #[tauri::command]
-pub async fn store_settings(_settings: Settings) -> Result<(), String> {
-    Ok(())
+pub async fn store_settings(
+    settings: Settings,
+    app_config: State<'_, AppConfig>,
+) -> Result<(), String> {
+    let settings_path = app_config.picturama_home_dir.join("settings.json");
+    settings_store::store_settings(&settings_path, &settings)
 }
 
 // ---------------------------------------------------------------------------
@@ -64,7 +76,7 @@ pub async fn store_settings(_settings: Settings) -> Result<(), String> {
 
 #[tauri::command]
 pub async fn file_exists(path: String) -> Result<bool, String> {
-    Ok(std::path::Path::new(&path).exists())
+    Ok(Path::new(&path).exists())
 }
 
 #[tauri::command]
@@ -91,9 +103,9 @@ pub async fn show_item_in_folder(full_path: String) -> Result<(), String> {
     #[cfg(target_os = "linux")]
     std::process::Command::new("xdg-open")
         .arg(
-            std::path::Path::new(&full_path)
+            Path::new(&full_path)
                 .parent()
-                .unwrap_or(std::path::Path::new("/")),
+                .unwrap_or(Path::new("/")),
         )
         .spawn()
         .map_err(|e| e.to_string())?;
@@ -144,100 +156,112 @@ pub async fn cancel_import() -> Result<(), String> {
 // Photo queries
 // ---------------------------------------------------------------------------
 
-/// TODO(phase3): Read from SQLite.
 #[tauri::command]
-pub async fn fetch_total_photo_count() -> Result<u32, String> {
-    Ok(mock_photos().len() as u32)
+pub async fn fetch_total_photo_count(db: State<'_, DbHandle>) -> Result<u32, String> {
+    tokio::task::block_in_place(|| photo_store::fetch_total_photo_count(&db))
 }
 
-/// TODO(phase3): Read from SQLite and apply filter.
 #[tauri::command]
 pub async fn fetch_sections(
-    _filter: PhotoFilter,
-    _section_ids_to_keep_loaded: Option<Vec<PhotoSectionId>>,
+    filter: PhotoFilter,
+    section_ids_to_keep_loaded: Option<Vec<PhotoSectionId>>,
+    db: State<'_, DbHandle>,
 ) -> Result<Vec<PhotoSection>, String> {
-    Ok(vec![
-        PhotoSection {
-            id: "2024-01-01".to_string(),
-            title: "2024-01-01".to_string(),
-            count: 2,
-        },
-        PhotoSection {
-            id: "2024-03-01".to_string(),
-            title: "2024-03-01".to_string(),
-            count: 1,
-        },
-    ])
+    let keep = section_ids_to_keep_loaded.unwrap_or_default();
+    tokio::task::block_in_place(|| {
+        photo_store::fetch_sections(
+            &db,
+            &filter,
+            if keep.is_empty() { None } else { Some(&keep) },
+        )
+    })
 }
 
-/// TODO(phase3): Load photos per section from SQLite.
 #[tauri::command]
 pub async fn fetch_section_photos(
     section_ids: Vec<PhotoSectionId>,
-    _filter: PhotoFilter,
+    filter: PhotoFilter,
+    db: State<'_, DbHandle>,
 ) -> Result<Vec<PhotoSet>, String> {
-    let mut all_photos = mock_photos();
-    let sets = section_ids
-        .into_iter()
-        .map(|sid| {
-            let photos: Vec<Photo> = all_photos
-                .extract_if(.., |photo| photo.date_section == sid)
-                .collect();
-            let photo_ids: Vec<PhotoId> = photos.iter().map(|p| p.id).collect();
-            PhotoSet {
-                photo_ids,
-                photo_data: photos.into_iter().map(|p| (p.id, p)).collect(),
-            }
-        })
-        .collect();
-    Ok(sets)
+    tokio::task::block_in_place(|| {
+        photo_store::fetch_section_photos(&db, &section_ids, &filter)
+    })
 }
 
-/// TODO(phase3): Update photo record in SQLite.
 #[tauri::command]
 pub async fn update_photos(
-    _photo_ids: Vec<PhotoId>,
-    _update: serde_json::Value,
+    photo_ids: Vec<PhotoId>,
+    update: serde_json::Value,
+    db: State<'_, DbHandle>,
 ) -> Result<(), String> {
-    Ok(())
+    tokio::task::block_in_place(|| photo_store::update_photos(&db, &photo_ids, &update))
 }
 
-/// TODO(phase3): Delete photos record in SQLite and move files to system trash.
 #[tauri::command]
-pub async fn empty_trash() -> Result<EmptyTrashResult, String> {
-    Ok(EmptyTrashResult { photo_ids: vec![], updated_tags: vec![] })
+pub async fn empty_trash(
+    db: State<'_, DbHandle>,
+) -> Result<EmptyTrashResult, String> {
+    // Fetch photos to delete
+    let trashed = tokio::task::block_in_place(|| photo_store::fetch_trashed_photos(&db))?;
+    let photo_ids: Vec<PhotoId> = trashed.iter().map(|p| p.id).collect();
+
+    // Delete from DB
+    tokio::task::block_in_place(|| photo_store::delete_photos(&db, &photo_ids))?;
+
+    // Move master files to system trash
+    for photo in &trashed {
+        let master_path = format!("{}/{}", photo.master_dir, photo.master_filename);
+        // Use trash crate (added to Cargo.toml) or fall back to std::fs::remove_file
+        if let Err(e) = trash::delete(&master_path) {
+            log::warn!("Could not move {} to trash: {}", master_path, e);
+        }
+        // Remove PhotoWork sidecar (write empty work = removes the file)
+        let _ = photo_work_store::remove_photo_work(
+            Path::new(&photo.master_dir),
+            &photo.master_filename,
+        );
+    }
+
+    // Re-fetch tags in case tag references changed
+    let updated_tags = if !photo_ids.is_empty() {
+        Some(tokio::task::block_in_place(|| tag_store::fetch_tags(&db))?)
+    } else {
+        None
+    };
+
+    Ok(EmptyTrashResult { photo_ids, updated_tags })
 }
 
-/// TODO(phase3): Load photo detail from SQLite + EXIF.
 #[tauri::command]
-pub async fn fetch_photo_detail(photo_id: PhotoId) -> Result<PhotoDetail, String> {
-    Ok(PhotoDetail { tags: vec![] })
+pub async fn fetch_photo_detail(
+    photo_id: PhotoId,
+    db: State<'_, DbHandle>,
+) -> Result<PhotoDetail, String> {
+    tokio::task::block_in_place(|| photo_store::fetch_photo_detail(&db, photo_id))
 }
 
 // ---------------------------------------------------------------------------
 // PhotoWork (non-destructive edit operations)
 // ---------------------------------------------------------------------------
 
-/// TODO(phase2): Read from the ansel.json sidecar file next to the image.
 #[tauri::command]
-pub async fn fetch_photo_work_of_photo(_photo: Photo) -> Result<PhotoWork, String> {
-    Ok(PhotoWork {
-        rotation_turns: None,
-        tilt:           None,
-        crop_rect:      None,
-        flagged:        None,
-        tags:           None,
-    })
+pub async fn fetch_photo_work_of_photo(photo: Photo) -> Result<PhotoWork, String> {
+    tokio::task::block_in_place(|| photo_work_store::fetch_photo_work_of_photo(&photo))
 }
 
-/// TODO(phase2): Write to the ansel.json sidecar file next to the image.
 #[tauri::command]
 pub async fn store_photo_work(
-    _photo_dir: String,
-    _photo_filename: String,
-    _photo_work: PhotoWork,
+    photo_dir: String,
+    photo_filename: String,
+    photo_work: PhotoWork,
 ) -> Result<(), String> {
-    Ok(())
+    tokio::task::block_in_place(|| {
+        photo_work_store::store_photo_work(
+            Path::new(&photo_dir),
+            &photo_filename,
+            &photo_work,
+        )
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -299,34 +323,18 @@ pub async fn load_heif_file(_path: String) -> Result<DecodedHeifImage, String> {
 // Tags
 // ---------------------------------------------------------------------------
 
-/// TODO(phase2): Load tags from SQLite.
 #[tauri::command]
-pub async fn fetch_tags() -> Result<Vec<Tag>, String> {
-    Ok(vec![
-        Tag {
-            id:         1,
-            created_at: 1565357205167,
-            slug:       "flower".to_string(),
-            title:      "Flower".to_string(),
-            updated_at: None,
-        },
-        Tag {
-            id:         2,
-            created_at: 1565357205167,
-            slug:       "panorama".to_string(),
-            title:      "Panorama".to_string(),
-            updated_at: None,
-        },
-    ])
+pub async fn fetch_tags(db: State<'_, DbHandle>) -> Result<Vec<Tag>, String> {
+    tokio::task::block_in_place(|| tag_store::fetch_tags(&db))
 }
 
-/// TODO(phase2): Persist photo tags to SQLite.
 #[tauri::command]
 pub async fn store_photo_tags(
-    _photo_id: PhotoId,
-    _photo_tags: Vec<String>,
+    photo_id: PhotoId,
+    photo_tags: Vec<String>,
+    db: State<'_, DbHandle>,
 ) -> Result<Option<Vec<Tag>>, String> {
-    Ok(None)
+    tokio::task::block_in_place(|| tag_store::store_photo_tags(&db, photo_id, &photo_tags))
 }
 
 // ---------------------------------------------------------------------------
@@ -341,72 +349,4 @@ pub async fn export_photo(
     _options: PhotoExportOptions,
 ) -> Result<(), String> {
     Ok(())
-}
-
-// ---------------------------------------------------------------------------
-// Mock data (replaced by real DB queries in phase 3)
-// ---------------------------------------------------------------------------
-
-fn mock_photos() -> Vec<Photo> {
-    vec![
-        Photo {
-            id: 1,
-            master_dir: "/mock/photos/2024-03".to_string(),
-            master_filename: "DSC_0001.jpg".to_string(),
-            master_width: 4000,
-            master_height: 3000,
-            master_is_raw: false,
-            edited_width: None,
-            edited_height: None,
-            date_section: "2024-03-01".to_string(),
-            created_at: to_timestamp("2024-03-01"),
-            updated_at: to_timestamp("2024-03-01"),
-            imported_at: to_timestamp("2024-03-01"),
-            flag: false,
-            trashed: false,
-        },
-        Photo {
-            id: 2,
-            master_dir: "/mock/photos/2024-03".to_string(),
-            master_filename: "DSC_0002.jpg".to_string(),
-            master_width: 3000,
-            master_height: 4000,
-            master_is_raw: false,
-            edited_width: None,
-            edited_height: None,
-            date_section: "2024-03-01".to_string(),
-            created_at: to_timestamp("2024-03-01"),
-            updated_at: to_timestamp("2024-03-01"),
-            imported_at: to_timestamp("2024-03-01"),
-            flag: false,
-            trashed: false,
-        },
-        Photo {
-            id: 3,
-            master_dir: "/mock/photos/2024-01".to_string(),
-            master_filename: "IMG_0042.png".to_string(),
-            master_width: 1920,
-            master_height: 1080,
-            master_is_raw: false,
-            edited_width: None,
-            edited_height: None,
-            date_section: "2024-01-01".to_string(),
-            created_at: to_timestamp("2024-01-01"),
-            updated_at: to_timestamp("2024-01-01"),
-            imported_at: to_timestamp("2024-01-01"),
-            flag: false,
-            trashed: false,
-        },
-    ]
-}
-
-// date_str format: YYYY-MM-DD
-fn to_timestamp(date_str: &str) -> i64 {
-    let date = NaiveDate::parse_from_str(date_str, "%Y-%m-%d")
-        .expect("Invalid date format");
-
-    let datetime = date.and_hms_opt(0, 0, 0)
-        .expect("Invalid time");
-
-    Utc.from_utc_datetime(&datetime).timestamp() * 1000
 }

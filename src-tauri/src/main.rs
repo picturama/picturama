@@ -1,9 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::{
-    Manager,
-    menu::{Menu, Submenu},
-};
+use tauri::Manager;
 
 mod app_config_builder;
 mod common_types;
@@ -13,13 +10,19 @@ mod i18n;
 mod main_service;
 mod menu;
 mod window_service;
+mod store {
+    pub mod db;
+    pub mod photo_store;
+    pub mod photo_work_store;
+    pub mod settings_store;
+    pub mod tag_store;
+}
 
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(
             tauri_plugin_log::Builder::new()
-                // In debug builds log everything; in release builds log warnings and above.
                 .level(if cfg!(debug_assertions) {
                     log::LevelFilter::Debug
                 } else {
@@ -82,6 +85,7 @@ fn main() {
         .menu(|app| {
             // Create empty menu on startup until the real menu is created later (after I18N initialisation)
             // That " " label avoids weird macOS behavior while staying invisible enough.
+            use tauri::menu::{Menu, Submenu};
             Ok(Menu::with_items(
                 app,
                 &[&Submenu::with_items(app, " ", true, &[])?], // basically empty
@@ -89,8 +93,18 @@ fn main() {
         })
         .on_menu_event(menu::handle_event)
         .setup(|app| {
-            let app_config = app_config_builder::build_app_config(app.handle()).map_err(|e| e.to_string())?;
+            let app_config = app_config_builder::build_app_config(app.handle())
+                .map_err(|e| e.to_string())?;
+
+            // Open (and migrate) the SQLite database.
+            let db_path = app_config.picturama_home_dir.join("db.sqlite3");
+            let migrations_dir = app_config.app_dir.join("migrations");
+            let db = store::db::open(&db_path, &migrations_dir)
+                .map_err(|e| e.to_string())?;
+
             app.manage(app_config);
+            app.manage(db);
+
             window_service::register_window_state_listener(app.handle());
             Ok(())
         })

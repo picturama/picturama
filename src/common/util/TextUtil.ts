@@ -71,23 +71,23 @@ export function parseFilename(filename: string, targetParts?: FilenameParts): Fi
 }
 
 
-export function fileUrlFromPath(path: string): string {
-    // Original code from https://github.com/sindresorhus/file-url/blob/master/index.js
-    // (But without dependency to node.js)
-
-	path = path.replace(/\\/g, '/')
-
-	if (path[0] !== '.') {
-        // This is an absolute URL
-        if (path[0] !== '/') {
-            // Windows drive letter must be prefixed with a slash
-            path = `///${path}`
-        } else {
-            path = `//${path}`
-        }
-	}
-
-	// Escape required characters for path components
-	// See: https://tools.ietf.org/html/rfc3986#section-3.3
-	return encodeURI(`file:${path}`).replace(/[?#]/g, encodeURIComponent)
-}
+//export function fileUrlFromPath(path: string): string {
+//    // Original code from https://github.com/sindresorhus/file-url/blob/master/index.js
+//    // (But without dependency to node.js)
+//
+//	path = path.replace(/\\/g, '/')
+//
+//	if (path[0] !== '.') {
+//        // This is an absolute URL
+//        if (path[0] !== '/') {
+//            // Windows drive letter must be prefixed with a slash
+//            path = `///${path}`
+//        } else {
+//            path = `//${path}`
+//        }
+//	}
+//
+//	// Escape required characters for path components
+//	// See: https://tools.ietf.org/html/rfc3986#section-3.3
+//	return encodeURI(`file:${path}`).replace(/[?#]/g, encodeURIComponent)
+//}

@@ -1,8 +1,8 @@
 import { mat4 } from 'gl-matrix'
 import heic2any from 'heic2any'
+import { convertFileSrc } from '@tauri-apps/api/core'
 
 import Profiler from 'common/util/Profiler'
-import { fileUrlFromPath } from 'common/util/TextUtil'
 
 import BackgroundClient from 'app/BackgroundClient'
 
@@ -120,7 +120,7 @@ export default class WebGLCanvas {
                 height = imageData.height
                 if (profiler) profiler.addPoint('Prepared image data')
             } else {
-                const encodedHeicBuffer = await (await fetch(fileUrlFromPath(filePath))).arrayBuffer()
+                const encodedHeicBuffer = await (await fetch(convertFileSrc(filePath))).arrayBuffer()
                 if (profiler) profiler.addPoint('Fetch encoded heic data')
                 const imageData = await decodeBuffer(encodedHeicBuffer)
                 if (profiler) profiler.addPoint('Decoded heic data')
@@ -137,7 +137,7 @@ export default class WebGLCanvas {
                 image.onerror = errorEvt => {
                     reject(new Error(`Loading image failed: ${filePath}`))
                 }
-                image.src = fileUrlFromPath(filePath)
+                image.src = convertFileSrc(filePath)
             })
             textureSource = image
             textureFormat = -1  // Not needed for images

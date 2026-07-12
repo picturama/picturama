@@ -1,6 +1,7 @@
 // Mirrors src/common/CommonTypes.ts.
 
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 
 // ----- Database types -----
@@ -126,7 +127,7 @@ pub struct PhotoDetail {
     pub tags: Vec<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct PhotoWork {
     /// 1 = 90°, 2 = 180°, 3 = 270°
@@ -145,13 +146,19 @@ pub struct PhotoSection {
     pub id: PhotoSectionId,
     pub title: String,
     pub count: u32,
+    /// Only set for LoadedPhotoSection
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub photo_ids: Option<Vec<PhotoId>>,
+    /// Only set for LoadedPhotoSection
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub photo_data: Option<HashMap<PhotoId, Photo>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PhotoSet {
     pub photo_ids: Vec<PhotoId>,
-    pub photo_data: std::collections::HashMap<PhotoId, Photo>,
+    pub photo_data: HashMap<PhotoId, Photo>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -216,7 +223,7 @@ pub struct PhotoExportProgress {
 #[serde(rename_all = "camelCase")]
 pub struct EmptyTrashResult {
     pub photo_ids: Vec<PhotoId>,
-    pub updated_tags: Vec<Tag>,
+    pub updated_tags: Option<Vec<Tag>>,
 }
 
 

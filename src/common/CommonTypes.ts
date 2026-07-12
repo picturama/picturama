@@ -6,7 +6,8 @@ import { Rect } from 'common/util/GeometryTypes'
 // ----- Database types -----
 
 
-export type PhotoId = number
+declare const __photoId: unique symbol
+export type PhotoId = number & { [__photoId]: '' }
 export interface Photo {
     id: PhotoId,
     /** The directory of the original image. Example: '/User/me/Pictures' */
@@ -39,7 +40,8 @@ export interface Photo {
 export type PhotoById = { [K in PhotoId]: Photo }
 
 
-export type TagId = number
+declare const __tagId: unique symbol
+export type TagId = number & { [__tagId]: '' }
 export interface Tag {
     id: TagId
     title: string
@@ -50,7 +52,8 @@ export interface Tag {
 export type TagById = { [K in TagId]: Tag }
 
 
-//export type VersionId = number
+//declare const __versionId: unique symbol
+//export type VersionId = number & { [__versionId]: '' }
 //export interface Version {
 //    id: VersionId
 //    type: string | null,
@@ -141,7 +144,8 @@ export interface PhotoWork {
     tags?: string[]
 }
 
-export type PhotoSectionId = string
+declare const __photoSectionId: unique symbol
+export type PhotoSectionId = string & { [__photoSectionId]: '' }
 export interface PhotoSection {
     id: PhotoSectionId
     title: string
@@ -199,7 +203,7 @@ export interface PhotoExportProgress {
 
 export interface EmptyTrashResult {
     photoIds: number[]
-    updatedTags: Tag[]
+    updatedTags?: Tag[]
 }
 
 
