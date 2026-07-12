@@ -8,6 +8,8 @@ use tauri_plugin_dialog::DialogExt;
 use crate::{
     common_types::*,
     app_config_builder::AppConfig,
+    foreground_client,
+    geometry_types::Size,
     i18n::I18n,
     import_scanner,
     menu,
@@ -17,6 +19,7 @@ use crate::{
         photo_work_store,
         settings_store,
         tag_store,
+        thumbnail_store,
     }
 };
 
@@ -327,16 +330,40 @@ pub async fn store_photo_work(
 // Thumbnails
 // ---------------------------------------------------------------------------
 
-/// TODO(phase4): Generate thumbnail and store in cache.
+/// Writes a thumbnail image to `<picturama_home>/thumbnails/<short_id>.webp`.
+/// 
+/// Will be called after a thumbnail was rendered by the frontend WebGL canvas via the `renderPhoto` RPC.
 #[tauri::command]
-pub async fn create_thumbnail(_photo: Photo) -> Result<(), String> {
-    Ok(())
+pub async fn create_thumbnail(
+    app: AppHandle,
+    app_config: State<'_, AppConfig>,
+    photo: Photo,
+) -> Result<(), String> {
+    let thumbnail_path = thumbnail_store::thumbnail_path(&app_config.picturama_home_dir, photo.id);
+    if thumbnail_path.exists() {
+        return Ok(());
+    }
+
+    let master_path = format!("{}/{}", photo.master_dir, photo.master_filename);
+    if !Path::new(&master_path).exists() {
+        // The frontend special-cases missing masters (error code 'master-missing').
+        return Err(format!("Photo does not exist: {}", master_path));
+    }
+
+    let photo_work = tokio::task::block_in_place(|| photo_work_store::fetch_photo_work_of_photo(&photo))?;
+
+    // Default row height of 'justified-layout' is 320px; wide max keeps panoramas at full height.
+    let max_size = Size { width: 1024, height: 320 };
+    let options = PhotoRenderOptions { format: PhotoRenderFormat::Webp, quality: 0.92 };
+    let binary = foreground_client::render_photo(&app, &photo, &photo_work, Some(max_size), &options).await?;
+
+    tokio::task::block_in_place(|| thumbnail_store::write_thumbnail(&thumbnail_path, &binary))
 }
 
-/// TODO(phase4): Remove thumbnail from cache.
+/// Remove a photo's thumbnail from the cache.
 #[tauri::command]
-pub async fn delete_thumbnail(_photo_id: PhotoId) -> Result<(), String> {
-    Ok(())
+pub async fn delete_thumbnail(app_config: State<'_, AppConfig>, photo_id: PhotoId) -> Result<(), String> {
+    tokio::task::block_in_place(|| thumbnail_store::delete_thumbnail(&app_config.picturama_home_dir, photo_id))
 }
 
 // ---------------------------------------------------------------------------

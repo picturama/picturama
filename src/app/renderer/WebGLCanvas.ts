@@ -137,6 +137,12 @@ export default class WebGLCanvas {
                 image.onerror = errorEvt => {
                     reject(new Error(`Loading image failed: ${filePath}`))
                 }
+
+                // The asset-protocol URL (convertFileSrc) is a different origin than the WebView, so without
+                // CORS the image taints the WebGL texture and texImage2D throws a SecurityError. The Tauri asset
+                // protocol sends the matching CORS headers, so an anonymous request loads it untainted.
+                image.crossOrigin = 'anonymous'
+
                 image.src = convertFileSrc(filePath)
             })
             textureSource = image

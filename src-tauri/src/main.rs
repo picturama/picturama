@@ -17,6 +17,7 @@ mod store {
     pub mod photo_work_store;
     pub mod settings_store;
     pub mod tag_store;
+    pub mod thumbnail_store;
 }
 
 fn main() {
