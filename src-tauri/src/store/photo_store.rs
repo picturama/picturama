@@ -2,6 +2,8 @@ use rusqlite::types::Value;
 
 use crate::common_types::*;
 use crate::store::db::DbHandle;
+use crate::store::tag_store;
+
 
 pub fn fetch_total_photo_count(db: &DbHandle) -> Result<u32, String> {
     let conn = db.lock().unwrap();
@@ -240,6 +242,128 @@ pub fn delete_photos(db: &DbHandle, photo_ids: &[PhotoId]) -> Result<(), String>
          COMMIT;"
     ))
     .map_err(|e| e.to_string())
+}
+
+// ---------------------------------------------------------------------------
+// Import helpers
+// ---------------------------------------------------------------------------
+
+/// A photo row that is about to be inserted. `id` is assigned by the DB, and `trashed` is always 0
+/// for freshly imported photos, so neither is part of this struct.
+pub struct NewPhoto {
+    pub master_dir: String,
+    pub master_filename: String,
+    pub master_width: u32,
+    pub master_height: u32,
+    pub master_is_raw: bool,
+    pub edited_width: u32,
+    pub edited_height: u32,
+    pub date_section: String,
+    pub created_at: i64,
+    pub updated_at: i64,
+    pub imported_at: i64,
+    pub flag: bool,
+}
+
+/// Inserts a batch of photos (and their tags) in a single transaction. This is the durable-write side
+/// of the importer: probing/decoding already happened, so the write lock is held only briefly.
+/// Returns `(inserted_count, tags_changed)` where `tags_changed` is true if any new tag was created.
+pub fn insert_photos_batch(db: &DbHandle, items: &[(NewPhoto, Vec<String>)]) -> Result<(u32, bool), String> {
+    if items.is_empty() {
+        return Ok((0, false));
+    }
+
+    let conn = db.lock().unwrap();
+    conn.execute_batch("BEGIN").map_err(|e| e.to_string())?;
+
+    let result = (|| -> Result<(u32, bool), String> {
+        let mut added = 0u32;
+        let mut tags_changed = false;
+        for (photo, tags) in items {
+            conn.execute(
+                "INSERT INTO photos (\
+                   master_dir, master_filename, master_width, master_height, master_is_raw, \
+                   edited_width, edited_height, date_section, created_at, updated_at, imported_at, flag, trashed\
+                 ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, 0)",
+                rusqlite::params![
+                    photo.master_dir,
+                    photo.master_filename,
+                    photo.master_width,
+                    photo.master_height,
+                    photo.master_is_raw as i64,
+                    photo.edited_width,
+                    photo.edited_height,
+                    photo.date_section,
+                    photo.created_at,
+                    photo.updated_at,
+                    photo.imported_at,
+                    photo.flag as i64,
+                ],
+            )
+            .map_err(|e| e.to_string())?;
+
+            let photo_id = conn.last_insert_rowid();
+            if !tags.is_empty() && tag_store::apply_photo_tags(&conn, photo_id, tags)? {
+                tags_changed = true;
+            }
+            added += 1;
+        }
+        Ok((added, tags_changed))
+    })();
+
+    match result {
+        Ok(value) => {
+            conn.execute_batch("COMMIT").map_err(|e| e.to_string())?;
+            Ok(value)
+        }
+        Err(e) => {
+            let _ = conn.execute_batch("ROLLBACK");
+            Err(e)
+        }
+    }
+}
+
+/// Returns the `(id, master_filename)` of every photo already stored for the given directory.
+/// Used to diff the filesystem against the DB (insert new files, delete vanished ones).
+pub fn fetch_photos_of_directory(db: &DbHandle, dir: &str) -> Result<Vec<(PhotoId, String)>, String> {
+    let conn = db.lock().unwrap();
+    let mut stmt = conn
+        .prepare("SELECT id, master_filename FROM photos WHERE master_dir = ?")
+        .map_err(|e| e.to_string())?;
+    let rows = stmt
+        .query_map(rusqlite::params![dir], |row| {
+            Ok((row.get::<_, PhotoId>(0)?, row.get::<_, String>(1)?))
+        })
+        .map_err(|e| e.to_string())?;
+    Ok(rows.filter_map(|r| r.ok()).collect())
+}
+
+/// Deletes all photos whose `master_dir` is not in `existing_dirs` (directories that no longer exist
+/// or no longer contain photos). Returns the number of deleted photos.
+pub fn delete_photos_of_removed_dirs(db: &DbHandle, existing_dirs: &[String]) -> Result<u32, String> {
+    let ids: Vec<PhotoId> = {
+        let conn = db.lock().unwrap();
+        let (sql, params): (String, Vec<Value>) = if existing_dirs.is_empty() {
+            ("SELECT id FROM photos".to_string(), vec![])
+        } else {
+            let placeholders = existing_dirs.iter().map(|_| "?").collect::<Vec<_>>().join(", ");
+            (
+                format!("SELECT id FROM photos WHERE master_dir NOT IN ({})", placeholders),
+                existing_dirs.iter().map(|d| Value::Text(d.clone())).collect(),
+            )
+        };
+        let mut stmt = conn.prepare(&sql).map_err(|e| e.to_string())?;
+        let rows = stmt
+            .query_map(rusqlite::params_from_iter(params.iter()), |row| row.get::<_, PhotoId>(0))
+            .map_err(|e| e.to_string())?;
+        rows.filter_map(|r| r.ok()).collect()
+    };
+
+    if ids.is_empty() {
+        return Ok(0);
+    }
+    delete_photos(db, &ids)?;
+    Ok(ids.len() as u32)
 }
 
 // ---------------------------------------------------------------------------

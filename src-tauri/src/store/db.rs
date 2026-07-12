@@ -26,6 +26,17 @@ pub fn open_with_options(db_path: &Path, migrations_dir: &Path, force: bool) -> 
     conn.pragma_update(None, "journal_mode", "WAL")
         .map_err(|e| e.to_string())?;
 
+    // The migrations rebuild `photos` via `ALTER TABLE photos RENAME TO photos_old`. Modern SQLite
+    // rewrites foreign-key references in other tables (photos_tags, versions) to follow the rename, so
+    // they would end up pointing at the temporary `photos_old` table that the migration then drops.
+    // We keep foreign_keys off (deletes are done explicitly in the store layer, not via cascade) and enable
+    // legacy_alter_table so the migrated schema keeps valid `photos` references. Note: legacy_alter_table
+    // is ignored while foreign_keys is on, so the order matters.
+    conn.pragma_update(None, "foreign_keys", "OFF")
+        .map_err(|e| e.to_string())?;
+    conn.pragma_update(None, "legacy_alter_table", "ON")
+        .map_err(|e| e.to_string())?;
+
     migrate(&conn, migrations_dir, force)?;
 
     Ok(Arc::new(Mutex::new(conn)))

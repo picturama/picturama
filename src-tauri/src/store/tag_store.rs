@@ -44,87 +44,21 @@ pub fn store_photo_tags(
     photo_tags: &[String],
 ) -> Result<Option<Vec<Tag>>, String> {
     let conn = db.lock().unwrap();
-    let slugged: Vec<String> = photo_tags.iter().map(|t| slug(t)).collect();
-
-    let mut tags_changed = false;
 
     conn.execute_batch("BEGIN").map_err(|e| e.to_string())?;
 
-    let result = (|| -> Result<bool, String> {
-        // Find existing tags whose slugs match the new tags
-        let existing_tags: Vec<(String, TagId)> = if slugged.is_empty() {
-            vec![]
-        } else {
-            let placeholders = slugged.iter().map(|_| "?").collect::<Vec<_>>().join(", ");
-            let sql = format!(
-                "SELECT id, slug FROM tags WHERE slug IN ({})",
-                placeholders
-            );
-            let mut stmt = conn.prepare(&sql).map_err(|e| e.to_string())?;
-            let rows = stmt.query_map(
-                rusqlite::params_from_iter(slugged.iter().map(|s| s.as_str())),
-                |row| Ok((row.get::<_, String>(1)?, row.get::<_, TagId>(0)?)),
-            )
-            .map_err(|e| e.to_string())?;
-            let collected: Vec<_> = rows.filter_map(|r| r.ok()).collect();
-            drop(stmt);
-            collected
-        };
+    let result = apply_photo_tags(&conn, photo_id, photo_tags);
 
-        let tag_id_by_slug: std::collections::HashMap<String, TagId> =
-            existing_tags.into_iter().collect();
-
-        // Insert new tags and build the mapping list
-        let mut mappings: Vec<(PhotoId, TagId)> = vec![];
-        let now = chrono::Utc::now().timestamp_millis();
-
-        for (tag_text, tag_slug) in photo_tags.iter().zip(slugged.iter()) {
-            let tag_id = if let Some(&id) = tag_id_by_slug.get(tag_slug) {
-                id
-            } else {
-                conn.execute(
-                    "INSERT INTO tags (title, slug, created_at) VALUES (?1, ?2, ?3)",
-                    params![tag_text, tag_slug, now],
-                )
-                .map_err(|e| e.to_string())?;
-                tags_changed = true;
-                conn.last_insert_rowid()
-            };
-            mappings.push((photo_id, tag_id));
-        }
-
-        // Remove old photo→tag mappings
-        let deleted = conn
-            .execute(
-                "DELETE FROM photos_tags WHERE photo_id = ?",
-                params![photo_id],
-            )
-            .map_err(|e| e.to_string())?;
-        if deleted > 0 {
-            tags_changed = true;
-        }
-
-        // Insert new photo→tag mappings
-        for (pid, tid) in &mappings {
-            conn.execute(
-                "INSERT OR IGNORE INTO photos_tags (photo_id, tag_id) VALUES (?1, ?2)",
-                params![pid, tid],
-            )
-            .map_err(|e| e.to_string())?;
-        }
-
-        Ok(tags_changed)
-    })();
-
-    match result {
-        Ok(_) => {
+    let tags_changed = match result {
+        Ok(changed) => {
             conn.execute_batch("COMMIT").map_err(|e| e.to_string())?;
+            changed
         }
         Err(e) => {
             let _ = conn.execute_batch("ROLLBACK");
             return Err(e);
         }
-    }
+    };
 
     if tags_changed {
         // Re-fetch and return updated tag list (while still holding the lock)
@@ -155,6 +89,75 @@ pub fn store_photo_tags(
     } else {
         Ok(None)
     }
+}
+
+/// Applies the given tags to a photo on an already-open connection/transaction (no BEGIN/COMMIT here).
+/// Existing tags are reused by slug, new tags are inserted, and the photo→tag mappings are replaced.
+/// Returns whether the global tag set changed (new tags added or old mappings removed).
+pub fn apply_photo_tags(
+    conn: &rusqlite::Connection,
+    photo_id: PhotoId,
+    photo_tags: &[String],
+) -> Result<bool, String> {
+    let slugged: Vec<String> = photo_tags.iter().map(|t| slug(t)).collect();
+    let mut tags_changed = false;
+
+    // Find existing tags whose slugs match the new tags
+    let existing_tags: Vec<(String, TagId)> = if slugged.is_empty() {
+        vec![]
+    } else {
+        let placeholders = slugged.iter().map(|_| "?").collect::<Vec<_>>().join(", ");
+        let sql = format!("SELECT id, slug FROM tags WHERE slug IN ({})", placeholders);
+        let mut stmt = conn.prepare(&sql).map_err(|e| e.to_string())?;
+        let rows = stmt.query_map(
+            rusqlite::params_from_iter(slugged.iter().map(|s| s.as_str())),
+            |row| Ok((row.get::<_, String>(1)?, row.get::<_, TagId>(0)?)),
+        )
+        .map_err(|e| e.to_string())?;
+        let collected: Vec<_> = rows.filter_map(|r| r.ok()).collect();
+        drop(stmt);
+        collected
+    };
+
+    let tag_id_by_slug: std::collections::HashMap<String, TagId> = existing_tags.into_iter().collect();
+
+    // Insert new tags and build the mapping list
+    let mut mappings: Vec<(PhotoId, TagId)> = vec![];
+    let now = chrono::Utc::now().timestamp_millis();
+
+    for (tag_text, tag_slug) in photo_tags.iter().zip(slugged.iter()) {
+        let tag_id = if let Some(&id) = tag_id_by_slug.get(tag_slug) {
+            id
+        } else {
+            conn.execute(
+                "INSERT INTO tags (title, slug, created_at) VALUES (?1, ?2, ?3)",
+                params![tag_text, tag_slug, now],
+            )
+            .map_err(|e| e.to_string())?;
+            tags_changed = true;
+            conn.last_insert_rowid()
+        };
+        mappings.push((photo_id, tag_id));
+    }
+
+    // Remove old photo→tag mappings
+    let deleted = conn
+        .execute("DELETE FROM photos_tags WHERE photo_id = ?", params![photo_id])
+        .map_err(|e| e.to_string())?;
+    if deleted > 0 {
+        tags_changed = true;
+    }
+
+    // Insert new photo→tag mappings
+    for (pid, tid) in &mappings {
+        conn.execute(
+            "INSERT OR IGNORE INTO photos_tags (photo_id, tag_id) VALUES (?1, ?2)",
+            params![pid, tid],
+        )
+        .map_err(|e| e.to_string())?;
+    }
+
+    Ok(tags_changed)
 }
 
 pub fn delete_tags_of_photos(conn: &rusqlite::Connection, photo_ids: &[PhotoId]) -> Result<bool, String> {

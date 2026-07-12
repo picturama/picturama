@@ -7,6 +7,7 @@ mod common_types;
 mod foreground_client;
 mod geometry_types;
 mod i18n;
+mod import_scanner;
 mod main_service;
 mod menu;
 mod window_service;
@@ -21,6 +22,7 @@ mod store {
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(
             tauri_plugin_log::Builder::new()
                 .level(if cfg!(debug_assertions) {
@@ -31,6 +33,7 @@ fn main() {
                 .build(),
         )
         .manage(foreground_client::PendingCalls::default())
+        .manage(import_scanner::ImportState::default())
         .invoke_handler(tauri::generate_handler![
             // Foreground RPC
             foreground_client::foreground_action_done,
