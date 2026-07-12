@@ -25,7 +25,6 @@
     "copy-text-to-clipboard": "^3.2.2",
     "dayjs": "^1.11.20",
     "gl-matrix": "^3.4.4",
-    "heic2any": "^0.0.4",
     "justified-layout": "^4.1.0",
     "normalize.css": "^8.0.1",
     "react": "^17.0.1",

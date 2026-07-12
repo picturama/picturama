@@ -87,12 +87,15 @@ const BackgroundClient = {
         return Promise.resolve(null)
     },
 
-    loadHeifFileSupported(): Promise<boolean> {
-        return invokeCommand('loadHeifFileSupported')
-    },
-
-    loadHeifFile(path: string): Promise<DecodedHeifImage> {
-        return invokeCommand('loadHeifFile', { path })
+    async loadHeifFile(path: string): Promise<DecodedHeifImage> {
+        // The command returns raw bytes (an 8-byte little-endian header with width/height, then the
+        // interleaved RGB8 pixels) as an ArrayBuffer, avoiding a > 100 MB JSON number array.
+        const buf = await invokeCommand<ArrayBuffer>('loadHeifFile', { path })
+        const header = new DataView(buf)
+        const width = header.getUint32(0, true)
+        const height = header.getUint32(4, true)
+        const data = new Uint8Array(buf, 8) // view over the pixel bytes, no copy
+        return { width, height, data }
     },
 
     selectScanDirectories(): Promise<string[] | undefined> {

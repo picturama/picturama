@@ -79,7 +79,6 @@ fn main() {
             // Metadata & EXIF
             main_service::read_metadata_of_image,
             // HEIC
-            main_service::load_heif_file_supported,
             main_service::load_heif_file,
             // Tags
             main_service::fetch_tags,

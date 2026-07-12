@@ -852,6 +852,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "enumn"
+version = "0.1.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2f9ed6b3789237c8a0c1c505af1c7eb2c560df6186f01b098c3a1064ea532f38"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
+]
+
+[[package]]
 name = "env_filter"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1003,6 +1014,12 @@ checksum = "cb4cb245038516f5f85277875cdaa4f7d2c9a0fa0468de06ed190163b1581fcf"
 dependencies = [
  "percent-encoding",
 ]
+
+[[package]]
+name = "four-cc"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "431a4c31778fde52b4400de34975f219eeca55cc829a9de157cd743a5b230ecb"
 
 [[package]]
 name = "funty"
@@ -1972,6 +1989,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "52ff2c0fe9bc6cb6b14a0592c2ff4fa9ceb83eea9db979b0487cd054946a2b8f"
 
 [[package]]
+name = "libheif-rs"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "58aadeecb2ab1815aecfa20fd5f9905a9e4d90884d9d8b63759c53edf0ab9ad3"
+dependencies = [
+ "enumn",
+ "four-cc",
+ "libc",
+ "libheif-sys",
+]
+
+[[package]]
+name = "libheif-sys"
+version = "1.14.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b17c7541359ee9b234c5a179483bcc779f94b9d1142b1c9118ae62116f889643"
+dependencies = [
+ "libc",
+ "pkg-config",
+ "vcpkg",
+]
+
+[[package]]
 name = "libloading"
 version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2661,6 +2701,8 @@ dependencies = [
  "dirs 5.0.1",
  "imagesize",
  "kamadak-exif",
+ "libheif-rs",
+ "libheif-sys",
  "log",
  "once_cell",
  "open",

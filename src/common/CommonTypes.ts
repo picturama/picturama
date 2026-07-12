@@ -255,5 +255,5 @@ export interface DecodedHeifImage {
     /** The height of the image (in px) */
     height: number
     /** The image data in RGB (8 bit per channel). size in bytes = 3 * width * height */
-    data: Int8Array
+    data: Uint8Array
 }

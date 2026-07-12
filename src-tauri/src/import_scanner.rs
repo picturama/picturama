@@ -344,8 +344,8 @@ impl Scanner {
     /// Probes a single new photo and queues it for the next batch write.
     /// Per-photo failures are logged and swallowed so the import continues.
     async fn import_photo(&mut self, dir: &str, filename: &str) -> Result<(), ScanControl> {
-        if is_raw_ext(filename) || is_heic_ext(filename) {
-            return Ok(()); // TODO: Support RAW/HEIC
+        if is_raw_ext(filename) {
+            return Ok(()); // TODO: Support RAW
         }
 
         let import_start = self.import_start;
@@ -494,18 +494,26 @@ fn build_new_photo(
         .or_else(|| meta.created().ok().map(|t| system_time_to_millis(Some(t))).filter(|&ms| ms > 0))
         .unwrap_or(modified);
 
-    // Dimensions: prefer EXIF, fall back to a header probe, then to the assumed EXIF size. The chosen
-    // size is the encoded (un-rotated) size, so we swap width/height for left/right EXIF orientations.
-    let switch_sides = exif_reader::has_exif_orientation_switched_sides(meta_data.orientation);
-    let raw_size = match (meta_data.img_width, meta_data.img_height) {
-        (Some(w), Some(h)) => Some((w, h)),
-        _ => match imagesize::size(&full_path) {
-            Ok(s) => Some((s.width as u32, s.height as u32)),
-            Err(_) => match (meta_data.img_width_assumed, meta_data.img_height_assumed) {
-                (Some(w), Some(h)) => Some((w, h)),
-                _ => None,
+    // Dimensions: prefer EXIF, fall back to a header probe, then to the assumed EXIF size. For most
+    // formats the probed size is the encoded (un-rotated) size, so we swap width/height for left/right
+    // EXIF orientations.
+    // HEIF is special: `imagesize` reads the container's `ispe` + `irot`, so it already returns the oriented
+    // (display) size — matching libheif's decode — and must NOT be swapped again.
+    let is_heic = is_heic_ext(filename);
+    let switch_sides = !is_heic && exif_reader::has_exif_orientation_switched_sides(meta_data.orientation);
+    let raw_size = if is_heic {
+        imagesize::size(&full_path).ok().map(|s| (s.width as u32, s.height as u32))
+    } else {
+        match (meta_data.img_width, meta_data.img_height) {
+            (Some(w), Some(h)) => Some((w, h)),
+            _ => match imagesize::size(&full_path) {
+                Ok(s) => Some((s.width as u32, s.height as u32)),
+                Err(_) => match (meta_data.img_width_assumed, meta_data.img_height_assumed) {
+                    (Some(w), Some(h)) => Some((w, h)),
+                    _ => None,
+                },
             },
-        },
+        }
     };
     let (raw_width, raw_height) = match raw_size {
         Some(size) => size,
@@ -631,10 +639,11 @@ mod tests {
     #[test]
     fn classifies_extensions() {
         assert!(is_accepted_ext("a.jpg") && is_accepted_ext("a.JPG") && is_accepted_ext("a.png"));
-        assert!(is_accepted_ext("a.cr2") && is_accepted_ext("a.heic")); // recognised (counted), imported later
+        assert!(is_accepted_ext("a.cr2") && is_accepted_ext("a.heic")); // both recognised
         assert!(!is_accepted_ext("a.txt") && !is_accepted_ext("Picasa.ini") && !is_accepted_ext("noext"));
         assert!(is_raw_ext("a.CR2") && !is_raw_ext("a.jpg"));
-        assert!(is_heic_ext("a.heif") && !is_heic_ext("a.png"));
+        // HEIC is imported like a normal photo, so it is accepted but not classified as RAW.
+        assert!(is_accepted_ext("a.heif") && !is_raw_ext("a.heif"));
     }
 
     #[test]
@@ -669,6 +678,21 @@ mod tests {
     }
 
     #[test]
+    fn imports_heic_as_normal_photo_with_swapped_dimensions() {
+        // Apple_iPhone_XR_portrait.HEIC has EXIF orientation 6 (encoded landscape, displayed portrait).
+        // HEIC is imported like a normal raster photo (master_is_raw = false).
+        let dir = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("..").join("submodules").join("test-data").join("photos").join("heic");
+        let dir = dir.to_string_lossy().to_string();
+        let (photo, _tags) = build_new_photo(&dir, "Apple_iPhone_XR_portrait.HEIC", 222)
+            .unwrap()
+            .expect("HEIC should be importable");
+        assert!(!photo.master_is_raw);
+        assert!(photo.master_width > 0 && photo.master_height > 0);
+        assert!(photo.master_height > photo.master_width); // portrait after orientation-6 swap
+    }
+
+    #[test]
     fn imports_new_photos_and_cleans_up_vanished_ones() {
         let photos = TempDir::new("photos");
         let home = TempDir::new("home");
@@ -683,7 +707,7 @@ mod tests {
         // Nothing imported yet.
         assert!(photo_store::fetch_photos_of_directory(&db, &dir).unwrap().is_empty());
 
-        // Replicate what the scanner does per directory: keep accepted files, defer RAW/HEIC, probe the
+        // Replicate what the scanner does per directory: keep accepted files, defer RAW, probe the
         // rest, and write them in one batch.
         let filenames: Vec<String> = std::fs::read_dir(&photos.path)
             .unwrap()
@@ -695,8 +719,8 @@ mod tests {
 
         let mut batch: Vec<(NewPhoto, Vec<String>)> = Vec::new();
         for name in &filenames {
-            if is_raw_ext(name) || is_heic_ext(name) {
-                continue; // deferred to Phase 6
+            if is_raw_ext(name) {
+                continue; // TODO: RAW support
             }
             if let Some(item) = build_new_photo(&dir, name, 999).unwrap() {
                 batch.push(item);
