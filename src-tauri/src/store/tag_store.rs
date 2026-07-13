@@ -1,18 +1,36 @@
+use std::sync::atomic::{AtomicBool, Ordering};
+
 use rusqlite::params;
 
 use crate::types::common_types::{PhotoId, Tag, TagId};
 use crate::store::db::DbHandle;
 
 
+// The orphan-tag cleanup in `fetch_tags` runs only after a photo→tag mapping was actually removed, not on every fetch.
+// Initialised to `true`: the flag is in-memory and resets on every process start, so a mapping deleted in a
+/// previous session — e.g. an import that removes a directory without adding new tags, the one path that sets the flag
+/// without a following `fetch_tags` — would otherwise leave orphan tags lingering across restarts.
+/// Starting `true` sweeps them once on the session's first `fetch_tags`, then stays lazy.
+static TAGS_HAVE_BEEN_DELETED: AtomicBool = AtomicBool::new(true);
+
+/// Signals that photo→tag mappings were removed, so the next `fetch_tags` runs the orphan-tag cleanup
+pub fn mark_tags_deleted() {
+    TAGS_HAVE_BEEN_DELETED.store(true, Ordering::Relaxed);
+}
+
+
 pub fn fetch_tags(db: &DbHandle) -> Result<Vec<Tag>, String> {
     let conn = db.lock().unwrap();
 
-    // Remove tags that are no longer referenced by any photo (mirrors TagStore.ts)
-    conn.execute_batch(
-        "DELETE FROM tags WHERE id NOT IN \
-         (SELECT tag_id FROM photos_tags GROUP BY tag_id)",
-    )
-    .map_err(|e| e.to_string())?;
+    // Remove tags that are no longer referenced by any photo — only after a mapping was actually deleted, so a plain
+    // fetch does not run the subquery.
+    if TAGS_HAVE_BEEN_DELETED.swap(false, Ordering::Relaxed) {
+        conn.execute_batch(
+            "DELETE FROM tags WHERE id NOT IN \
+             (SELECT tag_id FROM photos_tags GROUP BY tag_id)",
+        )
+        .map_err(|e| e.to_string())?;
+    }
 
     let mut stmt = conn
         .prepare("SELECT id, title, slug, created_at, updated_at FROM tags ORDER BY slug")
@@ -68,6 +86,9 @@ pub fn store_photo_tags(
                  (SELECT tag_id FROM photos_tags GROUP BY tag_id)",
             )
             .map_err(|e| e.to_string())?;
+            // This global cleanup removed every orphan (whoever caused it), so a following `fetch_tags`
+            // need not repeat it.
+            TAGS_HAVE_BEEN_DELETED.store(false, Ordering::Relaxed);
             let mut stmt = conn
                 .prepare("SELECT id, title, slug, created_at, updated_at FROM tags ORDER BY slug")
                 .map_err(|e| e.to_string())?;
@@ -146,6 +167,7 @@ pub fn apply_photo_tags(
         .map_err(|e| e.to_string())?;
     if deleted > 0 {
         tags_changed = true;
+        mark_tags_deleted();
     }
 
     // Insert new photo→tag mappings
@@ -171,6 +193,9 @@ pub fn delete_tags_of_photos(conn: &rusqlite::Connection, photo_ids: &[PhotoId])
             [],
         )
         .map_err(|e| e.to_string())?;
+    if deleted > 0 {
+        mark_tags_deleted();
+    }
     Ok(deleted > 0)
 }
 

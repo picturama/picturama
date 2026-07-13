@@ -241,7 +241,12 @@ pub fn delete_photos(db: &DbHandle, photo_ids: &[PhotoId]) -> Result<(), String>
          DELETE FROM photos       WHERE id       IN ({ids_csv});
          COMMIT;"
     ))
-    .map_err(|e| e.to_string())
+    .map_err(|e| e.to_string())?;
+
+    // The deleted photos may have had tags
+    crate::store::tag_store::mark_tags_deleted();
+
+    Ok(())
 }
 
 // ---------------------------------------------------------------------------
