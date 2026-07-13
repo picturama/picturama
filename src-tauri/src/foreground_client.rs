@@ -204,6 +204,12 @@ pub async fn show_settings(app: &AppHandle) -> Result<(), String> {
     Ok(())
 }
 
+/// Tell UI to open the export dialog for the current selection.
+pub async fn trigger_export(app: &AppHandle) -> Result<(), String> {
+    call_foreground(app, "showExport", serde_json::Value::Null).await?;
+    Ok(())
+}
+
 /// Ask the UI to show the "import finished" toast.
 pub async fn show_import_finished_toast(app: &AppHandle, photo_count: u32, duration_ms: u64) -> Result<(), String> {
     let params = serde_json::json!({ "photoCount": photo_count, "durationMs": duration_ms });

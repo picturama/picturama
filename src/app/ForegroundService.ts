@@ -6,7 +6,7 @@ import { encodeIpcError } from 'common/util/IpcUtil'
 import { showExternalError } from 'app/ErrorPresenter'
 import ImportProgressController from 'app/controller/ImportProgressController'
 import { renderPhoto, renderImage } from 'app/renderer/PhotoRenderer'
-import { setFullScreenAction, openSettingsAction } from 'app/state/actions'
+import { setFullScreenAction, openSettingsAction, openExportAction } from 'app/state/actions'
 import store from 'app/state/store'
 
 /** RPC request payload emitted by Rust (see src-tauri/src/foreground_client.rs) */
@@ -40,6 +40,11 @@ async function executeForegroundAction(action: string, params: any): Promise<any
         store.dispatch(setFullScreenAction(params.isFullScreen))
     } else if (action === 'showSettings') {
         store.dispatch(openSettingsAction())
+    } else if (action === 'showExport') {
+        const selection = store.getState().library.selection
+        if (selection) {
+            store.dispatch(openExportAction(selection))
+        }
     } else if (action === 'setImportProgress') {
         ImportProgressController.setImportProgress(params.progress, params.updatedTags)
     } else if (action === 'showImportFinishedToast') {

@@ -51,6 +51,10 @@ const BackgroundClient = {
         return invokeCommand('toggleUiTester')
     },
 
+    setExportMenuEnabled(enabled: boolean): Promise<void> {
+        return invokeCommand('setExportMenuEnabled', { enabled })
+    },
+
     reloadUi(): Promise<void> {
         return invokeCommand('reloadUi')
     },

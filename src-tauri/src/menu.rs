@@ -5,10 +5,12 @@
 // requires the WebView to be running — and only then can the menu be built
 // and applied to the window.
 
+use std::sync::Mutex;
+
 use tauri::{
-    AppHandle, Manager,
+    AppHandle, Manager, State, Wry,
     menu::{
-        AboutMetadataBuilder, Menu, MenuBuilder, MenuItemBuilder,
+        AboutMetadataBuilder, Menu, MenuBuilder, MenuItem, MenuItemBuilder,
         PredefinedMenuItem, SubmenuBuilder,
     },
 };
@@ -16,12 +18,24 @@ use tauri::{
 use crate::i18n::I18n;
 use crate::window_service;
 
+/// Holds a handle to the File → Export menu item so its enabled state can be toggled from a command
+/// (managed as Tauri state). Refreshed each time the menu is (re)built in [`build`].
+#[derive(Default)]
+pub struct ExportMenuItem(pub Mutex<Option<MenuItem<Wry>>>);
+
 /// Build and apply the application menu to the main window.
 /// Must be called after I18n is loaded (i.e. inside setup()).
 pub fn build(app: &AppHandle, i18n: &I18n) -> tauri::Result<Menu<tauri::Wry>> {
     // -----------------------------------------------------------------------
     // File menu (on macOS this is the app menu)
     // -----------------------------------------------------------------------
+    // Built as a named binding (not inline) so a handle can be kept in managed state to toggle its
+    // enabled state from `set_export_menu_enabled`. Starts disabled: nothing is selected at startup.
+    let file_export = MenuItemBuilder::with_id("file_export", i18n.msg("MainMenu_export"))
+        .accelerator("CmdOrCtrl+Shift+E")
+        .enabled(false)
+        .build(app)?;
+
     let file_menu = {
         let mut b = SubmenuBuilder::new(app, i18n.msg("MainMenu_file"));
 
@@ -55,6 +69,7 @@ pub fn build(app: &AppHandle, i18n: &I18n) -> tauri::Result<Menu<tauri::Wry>> {
                 .accelerator("CmdOrCtrl+R")
                 .build(app)?,
         )
+        .item(&file_export)
         .separator()
         .item(
             &MenuItemBuilder::with_id("file_settings", i18n.msg("MainMenu_settings"))
@@ -97,7 +112,19 @@ pub fn build(app: &AppHandle, i18n: &I18n) -> tauri::Result<Menu<tauri::Wry>> {
         .item(&view_menu)
         .build()?;
 
+    // Keep the export item so its enabled state can be toggled as the selection changes.
+    *app.state::<ExportMenuItem>().0.lock().unwrap() = Some(file_export);
+
     Ok(menu)
+}
+
+/// Enable or disable the File → Export menu item. Driven from the frontend as the photo selection
+/// changes (see `entry.tsx` / `BackgroundClient.setExportMenuEnabled`).
+#[tauri::command]
+pub fn set_export_menu_enabled(enabled: bool, export_item: State<'_, ExportMenuItem>) {
+    if let Some(item) = export_item.0.lock().unwrap().as_ref() {
+        let _ = item.set_enabled(enabled);
+    }
 }
 
 /// Handle menu events.
@@ -114,6 +141,13 @@ pub fn handle_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
             let app = app.clone();
             tauri::async_runtime::spawn(async move {
                 let _ = crate::foreground_client::show_settings(&app).await;
+            });
+        }
+
+        "file_export" => {
+            let app = app.clone();
+            tauri::async_runtime::spawn(async move {
+                let _ = crate::foreground_client::trigger_export(&app).await;
             });
         }
 

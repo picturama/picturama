@@ -36,6 +36,7 @@ fn main() {
         )
         .manage(foreground_client::PendingCalls::default())
         .manage(import_scanner::ImportState::default())
+        .manage(menu::ExportMenuItem::default())
         .invoke_handler(tauri::generate_handler![
             // Foreground RPC
             foreground_client::foreground_action_done,
@@ -47,6 +48,8 @@ fn main() {
             window_service::window_close,
             window_service::window_get_state,
             window_service::toggle_dev_tools,
+            // Menu
+            menu::set_export_menu_enabled,
             // Lifecycle
             commands::lifecycle::on_before_render_ui,
             commands::lifecycle::fetch_ui_config,
