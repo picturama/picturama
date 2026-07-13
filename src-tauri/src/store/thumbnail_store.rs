@@ -3,7 +3,7 @@
 
 use std::path::{Path, PathBuf};
 
-use crate::common_types::PhotoId;
+use crate::types::common_types::PhotoId;
 
 /// File extension for cached thumbnails (matches `config.workExt` in the frontend).
 const THUMBNAIL_EXT: &str = "webp";

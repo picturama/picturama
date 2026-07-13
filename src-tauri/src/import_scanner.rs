@@ -12,10 +12,10 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use tauri::{AppHandle, Manager};
 
-use crate::common_types::{ImportPhase, ImportProgress, PhotoId};
-use crate::exif_reader;
+use crate::types::common_types::{ImportPhase, ImportProgress, PhotoId};
+use crate::image::exif_reader;
 use crate::foreground_client;
-use crate::raw_reader;
+use crate::image::raw_reader;
 use crate::store::db::DbHandle;
 use crate::store::{photo_store, photo_work_store};
 use crate::store::photo_store::NewPhoto;

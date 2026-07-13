@@ -1,6 +1,6 @@
 use rusqlite::params;
 
-use crate::common_types::{PhotoId, Tag, TagId};
+use crate::types::common_types::{PhotoId, Tag, TagId};
 use crate::store::db::DbHandle;
 
 

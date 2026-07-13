@@ -21,6 +21,15 @@ Directory structure
         +-- test-ui/          Code running in renderer electron process of UI Tester
         +-- typings/          TypeScript type definitions
     +-- src-tauri/            Code running on native side (Rust / Tauri)
+        +-- src/
+            +-- main.rs           Tauri builder, managed state, setup(), module declarations
+            +-- commands/         Tauri command layer, split by domain (photos, tags, import, thumbnails, ...)
+            +-- image/            Image-format readers/decoders (exif_reader, raw_reader, xmp_reader, heif)
+            +-- types/            Shared IPC types (common_types) + geometry (geometry_types)
+            +-- store/            DB & file persistence (db, photo/tag/settings/photo_work/thumbnail stores)
+            +-- ...               menu, window_service, foreground_client, i18n, import_scanner, app_config_builder
+        +-- Cargo.toml
+        +-- tauri.conf.json
     +-- submodules/           Third-party projects fetched as git submodules
         +-- node-libraw/      Own fork of node-libraw
         +-- test-data/        Data used for testing

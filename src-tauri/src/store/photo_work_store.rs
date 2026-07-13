@@ -10,7 +10,7 @@ use std::sync::Mutex;
 use once_cell::sync::Lazy;
 use serde_yaml;
 
-use crate::common_types::{Photo, PhotoWork};
+use crate::types::common_types::{Photo, PhotoWork};
 
 #[derive(Debug, serde::Serialize, serde::Deserialize, Default)]
 struct DirectoryWorkData {

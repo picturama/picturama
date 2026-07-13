@@ -1,6 +1,6 @@
 use rusqlite::types::Value;
 
-use crate::common_types::*;
+use crate::types::common_types::*;
 use crate::store::db::DbHandle;
 use crate::store::tag_store;
 

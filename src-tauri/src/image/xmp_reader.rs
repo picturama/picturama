@@ -6,7 +6,7 @@
 use indexmap::IndexMap;
 use serde_json::Value as JsonValue;
 
-use crate::common_types::ExifSegment;
+use crate::types::common_types::ExifSegment;
 
 /// Reads and flattens the XMP packet of an image, if present.
 /// Returns `None` when the file has no XMP or it cannot be parsed.

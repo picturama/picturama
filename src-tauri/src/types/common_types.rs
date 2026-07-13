@@ -135,7 +135,7 @@ pub struct PhotoWork {
     /// 1 = 90°, 2 = 180°, 3 = 270°
     pub rotation_turns: Option<u8>,
     pub tilt: Option<f64>,
-    pub crop_rect: Option<crate::geometry_types::Rect>,
+    pub crop_rect: Option<crate::types::geometry_types::Rect>,
     pub flagged: Option<bool>,
     pub tags: Option<Vec<String>>,
 }
@@ -290,16 +290,4 @@ pub struct ExifData {
     pub maker_note: Option<Vec<u8>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_comment: Option<Vec<u8>>,
-}
-
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct DecodedHeifImage {
-    /// The width of the image (in px)
-    pub width: u32,
-    /// The height of the image (in px)
-    pub height: u32,
-    /// The image data in RGB (8 bit per channel). size in bytes = 3 * width * height
-    pub data: Vec<u8>,
 }

@@ -3,17 +3,14 @@
 use tauri::Manager;
 
 mod app_config_builder;
-mod common_types;
-mod exif_reader;
+mod commands;
 mod foreground_client;
-mod geometry_types;
 mod i18n;
+mod image;
 mod import_scanner;
-mod main_service;
 mod menu;
-mod raw_reader;
+mod types;
 mod window_service;
-mod xmp_reader;
 mod store {
     pub mod db;
     pub mod photo_store;
@@ -50,46 +47,46 @@ fn main() {
             window_service::window_get_state,
             window_service::toggle_dev_tools,
             // Lifecycle
-            main_service::on_before_render_ui,
-            main_service::fetch_ui_config,
-            main_service::fetch_settings,
-            main_service::store_settings,
+            commands::lifecycle::on_before_render_ui,
+            commands::lifecycle::fetch_ui_config,
+            commands::lifecycle::fetch_settings,
+            commands::lifecycle::store_settings,
             // Filesystem
-            main_service::file_exists,
-            main_service::get_file_size,
-            main_service::show_item_in_folder,
+            commands::fs::file_exists,
+            commands::fs::get_file_size,
+            commands::fs::show_item_in_folder,
             // Directory selection
-            main_service::select_scan_directories,
-            main_service::select_export_directory,
+            commands::fs::select_scan_directories,
+            commands::fs::select_export_directory,
             // Import / scan
-            main_service::start_import,
-            main_service::toggle_import_paused,
-            main_service::cancel_import,
+            commands::import::start_import,
+            commands::import::toggle_import_paused,
+            commands::import::cancel_import,
             // Photos
-            main_service::fetch_total_photo_count,
-            main_service::fetch_sections,
-            main_service::fetch_section_photos,
-            main_service::update_photos,
-            main_service::empty_trash,
-            main_service::fetch_photo_detail,
+            commands::photos::fetch_total_photo_count,
+            commands::photos::fetch_sections,
+            commands::photos::fetch_section_photos,
+            commands::photos::update_photos,
+            commands::photos::empty_trash,
+            commands::photos::fetch_photo_detail,
             // PhotoWork
-            main_service::fetch_photo_work_of_photo,
-            main_service::store_photo_work,
+            commands::photo_work::fetch_photo_work_of_photo,
+            commands::photo_work::store_photo_work,
             // Thumbnails
-            main_service::create_thumbnail,
-            main_service::delete_thumbnail,
+            commands::thumbnails::create_thumbnail,
+            commands::thumbnails::delete_thumbnail,
             // Metadata & EXIF
-            main_service::read_metadata_of_image,
-            main_service::get_exif_data,
+            commands::metadata::read_metadata_of_image,
+            commands::metadata::get_exif_data,
             // HEIC
-            main_service::load_heif_file,
+            commands::image::load_heif_file,
             // RAW
-            main_service::extract_raw_preview_jpg,
+            commands::image::extract_raw_preview_jpg,
             // Tags
-            main_service::fetch_tags,
-            main_service::store_photo_tags,
+            commands::tags::fetch_tags,
+            commands::tags::store_photo_tags,
             // Export
-            main_service::export_photo,
+            commands::export::export_photo,
         ])
         .menu(|app| {
             // Create empty menu on startup until the real menu is created later (after I18N initialisation)

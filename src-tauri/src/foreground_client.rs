@@ -34,7 +34,7 @@ use serde_json::Value;
 use tauri::{AppHandle, Emitter, Manager, State};
 use tokio::sync::oneshot;
 
-use crate::common_types::IpcErrorInfo;
+use crate::types::common_types::IpcErrorInfo;
 
 // ---------------------------------------------------------------------------
 // Pending-calls registry (stored as Tauri managed state)
@@ -124,10 +124,10 @@ pub async fn foreground_action_done(
 /// Ask the UI to render a photo and return the result as a BinaryString.
 pub async fn render_photo(
     app: &AppHandle,
-    photo: &crate::common_types::Photo,
-    photo_work: &crate::common_types::PhotoWork,
-    max_size: Option<crate::geometry_types::Size>,
-    options: &crate::common_types::PhotoRenderOptions,
+    photo: &crate::types::common_types::Photo,
+    photo_work: &crate::types::common_types::PhotoWork,
+    max_size: Option<crate::types::geometry_types::Size>,
+    options: &crate::types::common_types::PhotoRenderOptions,
 ) -> Result<String, String> {
     let params = serde_json::json!({
         "photo": photo,
@@ -146,8 +146,8 @@ pub async fn render_photo(
 pub async fn render_image(
     app: &AppHandle,
     image_path: &str,
-    max_size: Option<crate::geometry_types::Size>,
-    options: &crate::common_types::PhotoRenderOptions,
+    max_size: Option<crate::types::geometry_types::Size>,
+    options: &crate::types::common_types::PhotoRenderOptions,
 ) -> Result<String, String> {
     let params = serde_json::json!({
         "imagePath": image_path,
@@ -180,8 +180,8 @@ pub fn show_error(app: &AppHandle, msg: &str, error: Option<&str>) {
 /// Push an import-progress update to the UI.
 pub async fn set_import_progress(
     app: &AppHandle,
-    progress: Option<&crate::common_types::ImportProgress>,
-    updated_tags: Option<&[crate::common_types::Tag]>,
+    progress: Option<&crate::types::common_types::ImportProgress>,
+    updated_tags: Option<&[crate::types::common_types::Tag]>,
 ) -> Result<(), String> {
     let params = serde_json::json!({
         "progress": progress,

@@ -104,7 +104,7 @@ pub fn build(app: &AppHandle, i18n: &I18n) -> tauri::Result<Menu<tauri::Wry>> {
 pub fn handle_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
     match event.id().as_ref() {
         "file_scan" => {
-            if let Err(e) = crate::main_service::run_import_if_idle(app) {
+            if let Err(e) = crate::commands::import::run_import_if_idle(app) {
                 eprintln!("file_scan: failed to start import: {}", e);
                 crate::foreground_client::show_error(app, "Could not start scanning photos.", Some(&e));
             }

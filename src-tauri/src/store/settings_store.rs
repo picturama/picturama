@@ -3,7 +3,7 @@
 
 use std::path::Path;
 
-use crate::common_types::Settings;
+use crate::types::common_types::Settings;
 
 pub fn fetch_settings(settings_path: &Path) -> Result<Settings, String> {
     if !settings_path.exists() {

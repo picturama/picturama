@@ -9,8 +9,8 @@ use exif::{Context, Exif, Field, In, Reader, Tag, Value};
 use indexmap::IndexMap;
 use serde_json::Value as JsonValue;
 
-use crate::common_types::{ExifData, ExifSegment, MetaData};
-use crate::xmp_reader;
+use crate::types::common_types::{ExifData, ExifSegment, MetaData};
+use crate::image::xmp_reader;
 
 /// Reads a summarized `MetaData` for an image.
 /// On any EXIF error (or missing EXIF) it falls back to the file's creation time + orientation 1 (Up).
