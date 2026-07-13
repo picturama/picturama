@@ -1,7 +1,6 @@
 // PhotoWork is stored as a YAML sidecar file `picturama.yml` in the photo's directory.
 // The legacy `ansel.json` format (Picturama v1.0.0 and earlier, when the app was named Ansel) is read but not written.
-
-// TODO: Picasa.ini import
+// Photos with no `picturama.yml` entry fall back to imported Picasa metadata (see `picasa_reader`).
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -10,6 +9,7 @@ use std::sync::Mutex;
 use once_cell::sync::Lazy;
 use serde_yaml;
 
+use crate::store::picasa_reader::{self, PicasaData};
 use crate::types::common_types::{Photo, PhotoWork};
 
 #[derive(Debug, serde::Serialize, serde::Deserialize, Default)]
@@ -18,8 +18,15 @@ struct DirectoryWorkData {
     photos: HashMap<String, PhotoWork>,
 }
 
+/// All work data cached for one directory: the Picturama sidecar data (`picturama.yml` / `ansel.json`) plus
+/// the read-only Picasa fallback (`.picasa.ini` / `Picasa.ini`), if any.
+struct DirectoryData {
+    picturama_data: DirectoryWorkData,
+    picasa_data: Option<PicasaData>,
+}
+
 struct DirectoryCache {
-    data: HashMap<PathBuf, DirectoryWorkData>,
+    data: HashMap<PathBuf, DirectoryData>,
 }
 
 static CACHE: Lazy<Mutex<DirectoryCache>> = Lazy::new(|| {
@@ -31,10 +38,13 @@ static CACHE: Lazy<Mutex<DirectoryCache>> = Lazy::new(|| {
 // ---------------------------------------------------------------------------
 
 pub fn fetch_photo_work_of_photo(photo: &Photo) -> Result<PhotoWork, String> {
-    fetch_photo_work(Path::new(&photo.master_dir), &photo.master_filename)
+    fetch_photo_work(Path::new(&photo.master_dir), &photo.master_filename,
+        photo.master_width, photo.master_height)
 }
 
-pub fn fetch_photo_work(photo_dir: &Path, filename: &str) -> Result<PhotoWork, String> {
+pub fn fetch_photo_work(photo_dir: &Path, filename: &str, master_width: u32, master_height: u32)
+    -> Result<PhotoWork, String>
+{
     let mut cache = CACHE.lock().unwrap();
 
     if !cache.data.contains_key(photo_dir) {
@@ -43,24 +53,42 @@ pub fn fetch_photo_work(photo_dir: &Path, filename: &str) -> Result<PhotoWork, S
     }
 
     let data = cache.data.get(photo_dir).unwrap();
-    Ok(data.photos.get(filename).cloned().unwrap_or_default())
+
+    // A `picturama.yml` entry always wins; only if absent do we convert imported Picasa rules.
+    if let Some(photo_work) = data.picturama_data.photos.get(filename) {
+        return Ok(photo_work.clone());
+    }
+    if let Some(picasa_data) = &data.picasa_data {
+        if let Some(rules) = picasa_data.photos.get(filename) {
+            return Ok(picasa_reader::create_photo_work_from_picasa_rules(
+                rules, photo_dir, filename, master_width, master_height));
+        }
+    }
+    Ok(PhotoWork::default())
 }
 
 pub fn store_photo_work(photo_dir: &Path, filename: &str, photo_work: &PhotoWork) -> Result<(), String> {
     let mut cache = CACHE.lock().unwrap();
-    let data = cache.data.entry(photo_dir.to_path_buf()).or_default();
+
+    // Load any existing sidecar data first, so a store before the first fetch doesn't clobber it.
+    if !cache.data.contains_key(photo_dir) {
+        let data = read_directory_data(photo_dir)?;
+        cache.data.insert(photo_dir.to_path_buf(), data);
+    }
+    let data = cache.data.get_mut(photo_dir).unwrap();
 
     let is_empty = serde_json::to_value(photo_work)
         .map(|v| v.as_object().map(|o| o.values().all(|v| v.is_null())).unwrap_or(true))
         .unwrap_or(true);
 
+    // Only the Picturama sidecar is written; imported Picasa data stays read-only.
     if is_empty {
-        data.photos.remove(filename);
+        data.picturama_data.photos.remove(filename);
     } else {
-        data.photos.insert(filename.to_string(), photo_work.clone());
+        data.picturama_data.photos.insert(filename.to_string(), photo_work.clone());
     }
 
-    persist_directory_data(photo_dir, data)?;
+    persist_directory_data(photo_dir, &data.picturama_data)?;
     Ok(())
 }
 
@@ -72,7 +100,14 @@ pub fn remove_photo_work(photo_dir: &Path, filename: &str) -> Result<(), String>
 // Internal helpers
 // ---------------------------------------------------------------------------
 
-fn read_directory_data(photo_dir: &Path) -> Result<DirectoryWorkData, String> {
+fn read_directory_data(photo_dir: &Path) -> Result<DirectoryData, String> {
+    let picturama_data = read_picturama_data(photo_dir)?;
+    // Picasa data is a read-only fallback used only for photos without a Picturama sidecar entry.
+    let picasa_data = picasa_reader::read_picasa_ini(photo_dir);
+    Ok(DirectoryData { picturama_data, picasa_data })
+}
+
+fn read_picturama_data(photo_dir: &Path) -> Result<DirectoryWorkData, String> {
     // 1. Try picturama.yml (current format)
     let yml_path = photo_dir.join("picturama.yml");
     if yml_path.exists() {

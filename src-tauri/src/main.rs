@@ -15,6 +15,7 @@ mod store {
     pub mod db;
     pub mod photo_store;
     pub mod photo_work_store;
+    pub mod picasa_reader;
     pub mod settings_store;
     pub mod tag_store;
     pub mod thumbnail_store;

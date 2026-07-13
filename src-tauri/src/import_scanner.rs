@@ -565,7 +565,8 @@ fn build_new_photo(
         return Ok(None);
     }
 
-    let photo_work = photo_work_store::fetch_photo_work(Path::new(dir), filename)?;
+    let photo_work =
+        photo_work_store::fetch_photo_work(Path::new(dir), filename, master_width, master_height)?;
 
     let (edited_width, edited_height) = if let Some(crop) = &photo_work.crop_rect {
         (crop.width.round() as u32, crop.height.round() as u32)
