@@ -35,6 +35,10 @@ const exifFilters: { [K in ExifSegment]?: string[] } = {
 	icc:       ['ProfileVersion', 'ProfileClass', 'ColorSpaceData', 'ProfileConnectionSpace', 'ProfileFileSignature', 'DeviceManufacturer', 'RenderingIntent', 'ProfileCreator', 'ProfileDescription'],
 }
 
+// Segments the backend does not parse (yet). A photo may well contain them — we simply don't read
+// them — so these get a "not read" message instead of the misleading "photo has no ..." one.
+const unreadExifSegments: ExifSegment[] = ['jfif', 'iptc', 'icc']
+
 export interface Props {
     style?: any
     className?: any
@@ -263,9 +267,11 @@ export default class PhotoInfo extends React.Component<Props, State> {
 
                     let body: any
                     if (!segmentData) {
+                        const noValueKey = unreadExifSegments.indexOf(exifSegment) !== -1
+                            ? 'PhotoInfo_segmentNotRead' : 'PhotoInfo_noValue'
                         body = (
                             <div className='PhotoInfo-noValueMessage'>
-                                {msg('PhotoInfo_noValue', title)}
+                                {msg(noValueKey, title)}
                             </div>
                         )
                     } else if (segmentData instanceof Uint8Array) {
@@ -357,6 +363,18 @@ function capitalize(string: string): string {
 	return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
+// EXIF/XMP timestamps arrive as ISO-8601 strings (e.g. "2019-09-12T18:22:17", possibly with a
+// timezone). Detect a full date+time and render it in the active locale via dayjs; any other string
+// (including date-only values) is left untouched.
+const isoDateTimeRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/
+function formatExifDateTime(value: string): string | null {
+    if (!isoDateTimeRegex.test(value)) {
+        return null
+    }
+    const parsed = dayjs(value)
+    return parsed.isValid() ? parsed.format('L LT') : null
+}
+
 function renderExifEntry(entry: [string, any], showAll: boolean): JSX.Element | null {
     const [ key, value ] = entry
     if (value == null) {
@@ -366,7 +384,10 @@ function renderExifEntry(entry: [string, any], showAll: boolean): JSX.Element | 
     let formattedValue: string
     if (typeof value === 'string') {
         const stringLimit = 300
-        if (showAll || value.length <= stringLimit) {
+        const formattedDate = formatExifDateTime(value)
+        if (formattedDate !== null) {
+            formattedValue = formattedDate
+        } else if (showAll || value.length <= stringLimit) {
             formattedValue = value
         } else {
             formattedValue = value.substr(0, stringLimit) + ' ... ' + msg('PhotoInfo_andMore', value.length - stringLimit)

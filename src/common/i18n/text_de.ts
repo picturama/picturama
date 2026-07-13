@@ -147,6 +147,7 @@ export default {
     PhotoInfo_exifTitle_ifd0: 'Bild (IFD0)',
     PhotoInfo_exifTitle_ifd1: 'Vorschaubild (IFD1)',
     PhotoInfo_noValue: 'Foto hat kein {0}',
+    PhotoInfo_segmentNotRead: 'Wird von Picturama nicht ausgelesen',
     PhotoInfo_error_fetchPhotoSize: 'Fotogröße konnte nicht ermittelt werden',
 
     RotateButtonGroup_rotateLeft: 'Nach links drehen',

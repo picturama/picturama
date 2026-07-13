@@ -147,6 +147,7 @@ export default {
     PhotoInfo_exifTitle_ifd0: 'Obrázek (IFD0)',
     PhotoInfo_exifTitle_ifd1: 'Náhled (IFD1)',
     PhotoInfo_noValue: 'Fotografie nemá žádné {0}',
+    PhotoInfo_segmentNotRead: 'Aplikace Picturama nečte',
     PhotoInfo_error_fetchPhotoSize: 'Zjištění velikosti fotografie selhalo',
 
     RotateButtonGroup_rotateLeft: 'Otočit doleva',

@@ -83,8 +83,19 @@ const BackgroundClient = {
         return invokeCommand('readMetadataOfImage', { imagePath })
     },
 
-    getExifData(path: string): Promise<ExifData | null> {
-        return Promise.resolve(null)
+    async getExifData(path: string): Promise<ExifData | null> {
+        const data = await invokeCommand<ExifData | null>('getExifData', { path })
+        if (data) {
+            // Rust `Vec<u8>` arrives as a plain JSON number array; the info panel branches on
+            // `instanceof Uint8Array` for these raw byte blobs, so restore the typed-array shape.
+            if (data.makerNote) {
+                data.makerNote = new Uint8Array(data.makerNote as unknown as number[])
+            }
+            if (data.userComment) {
+                data.userComment = new Uint8Array(data.userComment as unknown as number[])
+            }
+        }
+        return data
     },
 
     async loadHeifFile(path: string): Promise<DecodedHeifImage> {

@@ -147,6 +147,7 @@ export default {
     PhotoInfo_exifTitle_ifd0: '图像(IFD0)',
     PhotoInfo_exifTitle_ifd1: '缩略图(IFD1)',
     PhotoInfo_noValue: '没有照片{0}',
+    PhotoInfo_segmentNotRead: 'Picturama 未读取',
     PhotoInfo_error_fetchPhotoSize: '获取照片大小失败',
 
     RotateButtonGroup_rotateLeft: '向左旋转',

@@ -13,6 +13,7 @@ mod main_service;
 mod menu;
 mod raw_reader;
 mod window_service;
+mod xmp_reader;
 mod store {
     pub mod db;
     pub mod photo_store;
@@ -79,6 +80,7 @@ fn main() {
             main_service::delete_thumbnail,
             // Metadata & EXIF
             main_service::read_metadata_of_image,
+            main_service::get_exif_data,
             // HEIC
             main_service::load_heif_file,
             // RAW

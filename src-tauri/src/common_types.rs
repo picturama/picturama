@@ -1,6 +1,8 @@
 // Mirrors src/common/CommonTypes.ts.
 
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
+use serde_json::Value as JsonValue;
 use std::collections::HashMap;
 
 
@@ -250,6 +252,44 @@ pub struct MetaData {
     /// EXIF orientation (1=Up, 3=Bottom, 6=Right, 8=Left)
     pub orientation: u32,
     pub tags: Vec<String>,
+}
+
+
+/// One EXIF segment: an insertion-ordered map of exifr-style tag names to their (mostly
+/// human-readable) values. `IndexMap` preserves the natural EXIF field order, which keeps the info
+/// panel's "first 10 keys" fallback sensible.
+pub type ExifSegment = IndexMap<String, JsonValue>;
+
+/// The full per-segment EXIF dump for the info panel (the `getExifData` command), mirroring the
+/// frontend `ExifData` type. Segments filled by `exif_reader`/`xmp_reader`: `ifd0`, `ifd1`, `exif`,
+/// `gps`, `interop`, `xmp`, plus the raw `makerNote`/`userComment` byte blobs.
+/// `iptc`, `icc` and `jfif` are non-EXIF standards not produced yet; they are kept for type parity and the frontend
+/// renders "Photo has no …" for a missing segment.
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExifData {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub exif: Option<ExifSegment>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ifd0: Option<ExifSegment>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ifd1: Option<ExifSegment>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gps: Option<ExifSegment>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub interop: Option<ExifSegment>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub jfif: Option<ExifSegment>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub iptc: Option<ExifSegment>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub xmp: Option<ExifSegment>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icc: Option<ExifSegment>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub maker_note: Option<Vec<u8>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user_comment: Option<Vec<u8>>,
 }
 
 

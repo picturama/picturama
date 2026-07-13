@@ -5,9 +5,12 @@ use std::io::BufReader;
 use std::time::UNIX_EPOCH;
 
 use chrono::{Local, NaiveDateTime, TimeZone};
-use exif::{Exif, In, Reader, Tag, Value};
+use exif::{Context, Exif, Field, In, Reader, Tag, Value};
+use indexmap::IndexMap;
+use serde_json::Value as JsonValue;
 
-use crate::common_types::MetaData;
+use crate::common_types::{ExifData, ExifSegment, MetaData};
+use crate::xmp_reader;
 
 /// Reads a summarized `MetaData` for an image.
 /// On any EXIF error (or missing EXIF) it falls back to the file's creation time + orientation 1 (Up).
@@ -22,6 +25,171 @@ pub fn read_metadata_of_image(path: &str) -> MetaData {
 /// the screen view (true for images rotated left or right).
 pub fn has_exif_orientation_switched_sides(orientation: u32) -> bool {
     orientation >= 5
+}
+
+/// Reads the full per-segment EXIF dump for the info panel (the `getExifData` command). Buckets every
+/// EXIF field by its IFD/context into `ifd0`/`ifd1`/`exif`/`gps`/`interop`, pulls `MakerNote` and
+/// `UserComment` out as raw byte blobs, adds computed decimal GPS `latitude`/`longitude`, and merges
+/// the XMP packet. Returns `None` when the file carries neither EXIF nor XMP.
+pub fn read_exif_data(path: &str) -> Option<ExifData> {
+    let exif = read_exif(path);
+    let xmp = xmp_reader::read_xmp(path);
+    if exif.is_none() && xmp.is_none() {
+        return None;
+    }
+
+    let mut data = ExifData {
+        exif: None,
+        ifd0: None,
+        ifd1: None,
+        gps: None,
+        interop: None,
+        jfif: None,
+        iptc: None,
+        xmp,
+        icc: None,
+        maker_note: None,
+        user_comment: None,
+    };
+
+    if let Some(exif) = exif {
+        let mut ifd0: ExifSegment = IndexMap::new();
+        let mut ifd1: ExifSegment = IndexMap::new();
+        let mut exif_seg: ExifSegment = IndexMap::new();
+        let mut gps: ExifSegment = IndexMap::new();
+        let mut interop: ExifSegment = IndexMap::new();
+
+        for field in exif.fields() {
+            // MakerNote and UserComment are exposed as raw byte blobs at the top level, matching the
+            // frontend `ExifData.makerNote` / `.userComment: Uint8Array`.
+            if field.tag == Tag::MakerNote {
+                data.maker_note = undefined_bytes(&field.value);
+                continue;
+            }
+            if field.tag == Tag::UserComment {
+                data.user_comment = undefined_bytes(&field.value);
+                continue;
+            }
+
+            let key = exif_key(field.tag);
+            let value = field_value_to_json(field, &exif);
+            let segment = match field.tag.context() {
+                Context::Tiff if field.ifd_num == In::THUMBNAIL => &mut ifd1,
+                Context::Tiff => &mut ifd0,
+                Context::Exif => &mut exif_seg,
+                Context::Gps => &mut gps,
+                Context::Interop => &mut interop,
+                _ => &mut ifd0,
+            };
+            segment.insert(key, value);
+        }
+
+        // The info panel's mini map and the `gps` filter need numeric decimal coordinates, which the
+        // raw DMS `GPSLatitude`/`GPSLongitude` tags don't provide directly.
+        if let Some(lat) = gps_decimal(&exif, Tag::GPSLatitude, Tag::GPSLatitudeRef) {
+            gps.insert("latitude".to_string(), json_number(lat));
+        }
+        if let Some(lon) = gps_decimal(&exif, Tag::GPSLongitude, Tag::GPSLongitudeRef) {
+            gps.insert("longitude".to_string(), json_number(lon));
+        }
+
+        data.ifd0 = non_empty(ifd0);
+        data.ifd1 = non_empty(ifd1);
+        data.exif = non_empty(exif_seg);
+        data.gps = non_empty(gps);
+        data.interop = non_empty(interop);
+    }
+
+    Some(data)
+}
+
+/// Maps a kamadak tag to the exifr-style PascalCase key the frontend expects. kamadak only exposes a
+/// prose description at runtime ("Manufacturer of image input equipment"), so the filter-critical
+/// tags are mapped explicitly; everything else falls back to that description (which the info panel's
+/// `prettyCase` still renders readably), or a hex tag id as a last resort.
+fn exif_key(tag: Tag) -> String {
+    let name = match tag {
+        Tag::ImageWidth => "ImageWidth",
+        Tag::ImageLength => "ImageHeight",
+        Tag::Make => "Make",
+        Tag::Model => "Model",
+        Tag::Software => "Software",
+        Tag::Orientation => "Orientation",
+        Tag::DateTime => "ModifyDate",
+        Tag::DateTimeOriginal => "DateTimeOriginal",
+        Tag::DateTimeDigitized => "CreateDate",
+        Tag::ExposureTime => "ExposureTime",
+        Tag::ShutterSpeedValue => "ShutterSpeedValue",
+        Tag::FNumber => "FNumber",
+        Tag::ApertureValue => "ApertureValue",
+        Tag::PhotographicSensitivity => "ISO",
+        Tag::FocalLength => "FocalLength",
+        Tag::LensMake => "LensMake",
+        Tag::LensModel => "LensModel",
+        Tag::PixelXDimension => "ExifImageWidth",
+        Tag::PixelYDimension => "ExifImageHeight",
+        Tag::InteroperabilityIndex => "InteropIndex",
+        Tag::InteroperabilityVersion => "InteropVersion",
+        // exifr renames the IFD1 JPEG-thumbnail pointers to Thumbnail*.
+        Tag::JPEGInterchangeFormat => "ThumbnailOffset",
+        Tag::JPEGInterchangeFormatLength => "ThumbnailLength",
+        _ => return tag.description().map(str::to_string).unwrap_or_else(|| format!("Tag{:#06x}", tag.number())),
+    };
+    name.to_string()
+}
+
+/// Renders a field's value as JSON for the dump. ASCII fields become the plain string (kamadak's
+/// `display_value` would wrap them in literal quotes, unlike exifr); everything else uses the
+/// tag-specific, unit-aware display string (e.g. `f/5.6`, `Horizontal (normal)`).
+fn field_value_to_json(field: &Field, exif: &Exif) -> JsonValue {
+    if let Value::Ascii(parts) = &field.value {
+        // EXIF datetimes ("YYYY:MM:DD HH:MM:SS", no timezone) are normalized to ISO 8601 so the
+        // frontend can recognize them and format them with dayjs. XMP dates are already ISO.
+        if matches!(field.tag, Tag::DateTime | Tag::DateTimeOriginal | Tag::DateTimeDigitized) {
+            if let Some(iso) = parts.first().and_then(|p| exif_datetime_to_iso(&String::from_utf8_lossy(p))) {
+                return JsonValue::String(iso);
+            }
+        }
+        let text = parts.iter().map(|p| String::from_utf8_lossy(p).into_owned()).collect::<Vec<_>>().join(", ");
+        return JsonValue::String(text);
+    }
+    JsonValue::String(field.display_value().with_unit(exif).to_string())
+}
+
+/// Converts an EXIF datetime ("YYYY:MM:DD HH:MM:SS") to a naive ISO-8601 string
+/// ("YYYY-MM-DDTHH:MM:SS"). Returns `None` for malformed input (the raw string is kept then).
+fn exif_datetime_to_iso(s: &str) -> Option<String> {
+    let naive = NaiveDateTime::parse_from_str(s.trim(), "%Y:%m:%d %H:%M:%S").ok()?;
+    Some(naive.format("%Y-%m-%dT%H:%M:%S").to_string())
+}
+
+/// Computes a signed decimal degree from a GPS DMS rational triple + its N/S/E/W reference tag.
+fn gps_decimal(exif: &Exif, coord: Tag, reference: Tag) -> Option<f64> {
+    let dms = match exif.get_field(coord, In::PRIMARY).map(|f| &f.value) {
+        Some(Value::Rational(v)) if v.len() >= 3 => v,
+        _ => return None,
+    };
+    let degrees = dms[0].to_f64() + dms[1].to_f64() / 60.0 + dms[2].to_f64() / 3600.0;
+    let sign = match ascii_field(exif, reference).as_deref().map(str::trim) {
+        Some("S") | Some("W") => -1.0,
+        _ => 1.0,
+    };
+    Some(sign * degrees)
+}
+
+fn undefined_bytes(value: &Value) -> Option<Vec<u8>> {
+    match value {
+        Value::Undefined(bytes, _) => Some(bytes.clone()),
+        _ => None,
+    }
+}
+
+fn json_number(v: f64) -> JsonValue {
+    serde_json::Number::from_f64(v).map(JsonValue::Number).unwrap_or(JsonValue::Null)
+}
+
+fn non_empty(map: ExifSegment) -> Option<ExifSegment> {
+    if map.is_empty() { None } else { Some(map) }
 }
 
 fn read_exif(path: &str) -> Option<Exif> {
@@ -253,6 +421,60 @@ mod tests {
         }
         // Orientation 0 is invalid and must default to 1 (mirrors `Orientation || 1`).
         assert_eq!(read_metadata_of_image(&format!("{}/Landscape_0.jpg", ORIENT)).orientation, 1);
+    }
+
+    fn exif_data(rel: &str) -> ExifData {
+        read_exif_data(&format!("{}/{}", PHOTOS, rel)).unwrap()
+    }
+
+    fn str_at(map: &Option<ExifSegment>, key: &str) -> Option<String> {
+        map.as_ref()?.get(key)?.as_str().map(str::to_string)
+    }
+
+    #[test]
+    fn dumps_exif_segments_with_exifr_style_keys() {
+        let d = exif_data("IMG_9700.JPG");
+        // ifd0 filter keys, ASCII values are plain (not kamadak's quoted form).
+        assert_eq!(str_at(&d.ifd0, "Make").as_deref(), Some("Canon"));
+        assert_eq!(str_at(&d.ifd0, "Model").as_deref(), Some("Canon EOS 700D"));
+        // exif filter keys.
+        assert_eq!(str_at(&d.exif, "FNumber").as_deref(), Some("f/5.6"));
+        assert_eq!(str_at(&d.exif, "ISO").as_deref(), Some("1600"));
+        assert_eq!(str_at(&d.exif, "LensModel").as_deref(), Some("EF-S18-55mm f/3.5-5.6 IS STM"));
+        assert!(d.exif.as_ref().unwrap().contains_key("ExposureTime"));
+        assert!(d.exif.as_ref().unwrap().contains_key("ShutterSpeedValue"));
+        // EXIF datetimes are normalized to ISO 8601 ("YYYY-MM-DDTHH:MM:SS"), not the raw colon form.
+        let dt = str_at(&d.exif, "DateTimeOriginal").unwrap();
+        assert_eq!(dt.len(), 19, "dt={}", dt);
+        assert_eq!(dt.as_bytes()[4], b'-', "dt={}", dt);
+        assert_eq!(dt.as_bytes()[10], b'T', "dt={}", dt);
+        assert!(d.exif.as_ref().unwrap().contains_key("ApertureValue"));
+        // interop + ifd1 (thumbnail) with the exifr-renamed pointer.
+        assert!(d.interop.as_ref().unwrap().contains_key("InteropIndex"));
+        assert!(d.ifd1.as_ref().unwrap().contains_key("ThumbnailLength"));
+        // MakerNote / UserComment come back as raw byte blobs.
+        assert!(d.maker_note.as_ref().is_some_and(|b| !b.is_empty()));
+        assert!(d.user_comment.as_ref().is_some_and(|b| !b.is_empty()));
+        // This file carries an XMP packet with a rating.
+        assert_eq!(str_at(&d.xmp, "Rating").as_deref(), Some("0"));
+        // Non-EXIF segments stay unset.
+        assert!(d.iptc.is_none() && d.icc.is_none() && d.jfif.is_none());
+    }
+
+    #[test]
+    fn computes_decimal_gps_coordinates() {
+        let d = exif_data("jpg/Apple_iPhone_XR_landscape.jpg");
+        let gps = d.gps.as_ref().unwrap();
+        let lat = gps.get("latitude").unwrap().as_f64().unwrap();
+        let lon = gps.get("longitude").unwrap().as_f64().unwrap();
+        assert!((lat - 42.105975).abs() < 1e-4, "lat={}", lat);
+        assert!((lon - 9.550008).abs() < 1e-4, "lon={}", lon);
+    }
+
+    #[test]
+    fn returns_none_without_metadata() {
+        // A file that is not an image at all has neither EXIF nor XMP.
+        assert!(read_exif_data(concat!(env!("CARGO_MANIFEST_DIR"), "/Cargo.toml")).is_none());
     }
 
     #[test]
