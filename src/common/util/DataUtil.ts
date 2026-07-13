@@ -22,23 +22,6 @@ export function getThumbnailUrl(photoId: PhotoId): string {
     return convertFileSrc(getThumbnailPath(photoId))
 }
 
-export function getRenderedRawPath(photoId: PhotoId): string {
-    return `${uiConfig.nonRawPath}/${shortId(photoId)}.${config.workExt}`
-}
-
-export function getNonRawPath(photo: Photo): string {
-    // TODO: Revive Legacy code of 'version' feature
-    /*
-    const photoDetail = await fetchPhotoDetail(photo.id)
-    if (photoDetail.versions.length > 0) {
-        const last = photoDetail.versions[photoDetail.versions.length - 1]
-        return last.output
-    }
-    */
-
-    return photo.masterIsRaw ? getRenderedRawPath(photo.id) : getMasterPath(photo)
-}
-
 
 function shortId(id: number): string {
     return id.toString(36)

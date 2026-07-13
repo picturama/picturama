@@ -11,6 +11,7 @@ mod i18n;
 mod import_scanner;
 mod main_service;
 mod menu;
+mod raw_reader;
 mod window_service;
 mod store {
     pub mod db;
@@ -80,6 +81,8 @@ fn main() {
             main_service::read_metadata_of_image,
             // HEIC
             main_service::load_heif_file,
+            // RAW
+            main_service::extract_raw_preview_jpg,
             // Tags
             main_service::fetch_tags,
             main_service::store_photo_tags,
@@ -106,6 +109,10 @@ fn main() {
             let db = store::db::open(&db_path, &migrations_dir)
                 .map_err(|e| e.to_string())?;
 
+            // RAW no longer uses a rendered-derivative cache, so clean up a `non-raw` directory left by
+            // older versions.
+            remove_legacy_non_raw_dir(&app_config.picturama_home_dir);
+
             app.manage(app_config);
             app.manage(db);
 
@@ -115,4 +122,39 @@ fn main() {
         .build(tauri::generate_context!())
         .expect("error while building Tauri application")
         .run(|_app, _event| {});
+}
+
+/// Removes a legacy `non-raw` directory (the old RAW rendered-derivative cache). RAW is now displayed on
+/// demand from its embedded JPEG preview, so this cache is obsolete; it is cleaned up on startup if a
+/// previous version left one behind.
+fn remove_legacy_non_raw_dir(picturama_home_dir: &std::path::Path) {
+    let dir = picturama_home_dir.join("non-raw");
+    if dir.exists() {
+        match std::fs::remove_dir_all(&dir) {
+            Ok(()) => log::info!("Removed legacy non-raw directory {:?}", dir),
+            Err(e) => log::warn!("Could not remove legacy non-raw directory {:?}: {}", dir, e),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn removes_legacy_non_raw_dir_when_present_and_is_idempotent() {
+        let base = std::env::temp_dir().join(format!("picturama-nonraw-test-{}", std::process::id()));
+        let non_raw = base.join("non-raw");
+        std::fs::create_dir_all(non_raw.join("sub")).unwrap();
+        std::fs::write(non_raw.join("sub").join("2s.webp"), b"stale").unwrap();
+        assert!(non_raw.exists());
+
+        remove_legacy_non_raw_dir(&base);
+        assert!(!non_raw.exists());
+
+        // A missing directory is a no-op, not an error.
+        remove_legacy_non_raw_dir(&base);
+
+        std::fs::remove_dir_all(&base).ok();
+    }
 }

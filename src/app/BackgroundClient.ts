@@ -98,6 +98,10 @@ const BackgroundClient = {
         return { width, height, data }
     },
 
+    extractRawPreviewJpg(path: string): Promise<ArrayBuffer> {
+        return invokeCommand<ArrayBuffer>('extractRawPreviewJpg', { path })
+    },
+
     selectScanDirectories(): Promise<string[] | undefined> {
         return invokeCommand('selectScanDirectories')
     },

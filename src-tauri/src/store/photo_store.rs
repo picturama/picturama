@@ -255,7 +255,6 @@ pub struct NewPhoto {
     pub master_filename: String,
     pub master_width: u32,
     pub master_height: u32,
-    pub master_is_raw: bool,
     pub edited_width: u32,
     pub edited_height: u32,
     pub date_section: String,
@@ -280,17 +279,19 @@ pub fn insert_photos_batch(db: &DbHandle, items: &[(NewPhoto, Vec<String>)]) -> 
         let mut added = 0u32;
         let mut tags_changed = false;
         for (photo, tags) in items {
+            // The `master_is_raw` column still exists in the DB schema (kept, with `DEFAULT '0'`, so no
+            // migration is needed) but is no longer used by the code: RAW is displayed on demand from its
+            // embedded JPEG preview. We omit it from the INSERT and let the default apply.
             conn.execute(
                 "INSERT INTO photos (\
-                   master_dir, master_filename, master_width, master_height, master_is_raw, \
+                   master_dir, master_filename, master_width, master_height, \
                    edited_width, edited_height, date_section, created_at, updated_at, imported_at, flag, trashed\
-                 ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, 0)",
+                 ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, 0)",
                 rusqlite::params![
                     photo.master_dir,
                     photo.master_filename,
                     photo.master_width,
                     photo.master_height,
-                    photo.master_is_raw as i64,
                     photo.edited_width,
                     photo.edited_height,
                     photo.date_section,
@@ -400,7 +401,6 @@ fn photo_from_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<Photo> {
         master_filename: row.get("master_filename")?,
         master_width:    row.get("master_width")?,
         master_height:   row.get("master_height")?,
-        master_is_raw:   row.get::<_, i64>("master_is_raw")? != 0,
         edited_width:    row.get("edited_width")?,
         edited_height:   row.get("edited_height")?,
         date_section:    row.get("date_section")?,

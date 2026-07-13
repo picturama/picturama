@@ -27,9 +27,24 @@ pub fn has_exif_orientation_switched_sides(orientation: u32) -> bool {
 fn read_exif(path: &str) -> Option<Exif> {
     let file = File::open(path).ok()?;
     let mut reader = BufReader::new(&file);
+    read_exif_from(&mut reader)
+}
+
+/// Reads the EXIF orientation (1-8) from in-memory image bytes, e.g. a RAW's extracted JPEG preview.
+/// Returns 1 (Up) when none is present. This mirrors what a browser applies when it displays the same
+/// bytes, so callers can keep stored dimensions consistent with the on-screen image.
+pub fn read_orientation_of_bytes(bytes: &[u8]) -> u32 {
+    let mut cursor = std::io::Cursor::new(bytes);
+    read_exif_from(&mut cursor)
+        .and_then(|exif| uint_field(&exif, Tag::Orientation))
+        .filter(|&o| o != 0)
+        .unwrap_or(1)
+}
+
+fn read_exif_from<R: std::io::BufRead + std::io::Seek>(reader: &mut R) -> Option<Exif> {
     // `continue_on_error` keeps partially-parsed EXIF (e.g. a child IFD with a non-standard "next
     // IFD" pointer) instead of failing outright, matching the leniency of the reference `exifr`.
-    match Reader::new().continue_on_error(true).read_from_container(&mut reader) {
+    match Reader::new().continue_on_error(true).read_from_container(reader) {
         Ok(exif) => Some(exif),
         Err(e) => e.distill_partial_result(|_errors| {}).ok(),
     }
@@ -109,6 +124,7 @@ fn simplified_brand_name(brand: &str) -> Option<&'static str> {
         "CASIO COMPUTER CO.,LTD." => Some("CASIO"),
         "NIKON CORPORATION" => Some("Nikon"),
         "OLYMPUS IMAGING CORP." => Some("Olympus"),
+        "RICOH IMAGING COMPANY, LTD." => Some("Ricoh"),
         _ => None,
     }
 }

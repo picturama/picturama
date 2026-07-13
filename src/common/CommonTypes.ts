@@ -18,8 +18,8 @@ export interface Photo {
     masterWidth: number
     /** The height of the original image - only with EXIF rotation applied (in px). */
     masterHeight: number
-    /** Whether the master image has a raw format */
-    masterIsRaw: boolean,
+    // NOTE: the DB still has a `master_is_raw` column (kept with `DEFAULT '0'` so no migration is needed),
+    // but it is no longer part of this type: RAW is shown on demand from its embedded JPEG preview.
     /** The width of the original image - after EXIF rotation and all PhotoWork have been applied (in px). */
     editedWidth: number | null
     /** The height of the original image - after EXIF rotation and all PhotoWork have been applied (in px). */
@@ -97,7 +97,6 @@ export interface UiConfig {
     windowStyle: WindowStyle
     hasNativeMenu: boolean
     rawLocale: string
-    nonRawPath: string
     thumbnailPath: string
 }
 

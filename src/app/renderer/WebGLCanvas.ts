@@ -15,6 +15,9 @@ const exifrOrientationOptions = {
 const acceptedHeicExtensions = [ 'heic', 'heif' ]
 const heicExtensionRE = new RegExp(`\\.(${acceptedHeicExtensions.join('|')})$`, 'i')
 
+const acceptedRawExtensions = [ 'raf', 'cr2', 'arw', 'dng' ]
+const rawExtensionRE = new RegExp(`\\.(${acceptedRawExtensions.join('|')})$`, 'i')
+
 
 export function hasWebGLSupport(): boolean {
     const canvas = document.createElement('canvas')
@@ -97,19 +100,30 @@ export default class WebGLCanvas {
             if (profiler) profiler.addPoint('Prepared image data')
         } else {
             const image = new Image()
-            await new Promise((resolve, reject) => {
-                image.onload = resolve
-                image.onerror = errorEvt => {
-                    reject(new Error(`Loading image failed: ${filePath}`))
-                }
 
-                // The asset-protocol URL (convertFileSrc) is a different origin than the WebView, so without
-                // CORS the image taints the WebGL texture and texImage2D throws a SecurityError. The Tauri asset
-                // protocol sends the matching CORS headers, so an anonymous request loads it untainted.
-                image.crossOrigin = 'anonymous'
+            // The asset-protocol URL (convertFileSrc) is a different origin than the WebView, so without
+            // CORS the image taints the WebGL texture and texImage2D throws a SecurityError. The Tauri asset
+            // protocol sends the matching CORS headers, so an anonymous request loads it untainted.
+            image.crossOrigin = 'anonymous'
 
-                image.src = convertFileSrc(filePath)
-            })
+            // RAW images can't be shown directly. Rust backend extracts the largest embedded JPEG preview and we
+            // decode it with the browser like any other JPEG (via a blob URL). For all other formats the
+            // image file is loaded straight from disk.
+            const isRaw = rawExtensionRE.test(filePath)
+            const src = isRaw
+                ? URL.createObjectURL(new Blob([await BackgroundClient.extractRawPreviewJpg(filePath)], { type: 'image/jpeg' }))
+                : convertFileSrc(filePath)
+            try {
+                await new Promise((resolve, reject) => {
+                    image.onload = resolve
+                    image.onerror = errorEvt => {
+                        reject(new Error(`Loading image failed: ${filePath}`))
+                    }
+                    image.src = src
+                })
+            } finally {
+                if (isRaw) URL.revokeObjectURL(src)
+            }
             textureSource = image
             textureFormat = -1  // Not needed for images
             if (profiler) profiler.addPoint('Loaded image')

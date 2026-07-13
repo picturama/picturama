@@ -24,7 +24,6 @@ function createMockPhoto(options: { dir: string, filename: string, width: number
         masterFilename: options.filename,
         masterWidth: options.width,
         masterHeight: options.height,
-        masterIsRaw: 0,
         editedWidth: options.width,
         editedHeight:  options.height,
         dateSection: '2018-05-15',

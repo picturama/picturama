@@ -3,7 +3,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 
 import { Photo, PhotoWork, PhotoSectionId } from 'common/CommonTypes'
-import { getNonRawPath } from 'common/util/DataUtil'
+import { getMasterPath } from 'common/util/DataUtil'
 import { bindMany } from 'common/util/LangUtil'
 
 import PhotoInfo from 'app/ui/info/PhotoInfo'
@@ -103,9 +103,9 @@ export class PhotoDetailPane extends React.Component<Props, State> {
                     photo={props.photo}
                     isFirst={props.isFirst}
                     isLast={props.isLast}
-                    imagePath={getNonRawPath(props.photo)}
-                    imagePathPrev={props.photoPrev && getNonRawPath(props.photoPrev)}
-                    imagePathNext={props.photoNext && getNonRawPath(props.photoNext)}
+                    imagePath={getMasterPath(props.photo)}
+                    imagePathPrev={props.photoPrev && getMasterPath(props.photoPrev)}
+                    imagePathNext={props.photoNext && getMasterPath(props.photoNext)}
                     photoWork={props.photoWork}
                     photoActionController={props.photoActionController}
                     librarySelectionController={props.librarySelectionController}

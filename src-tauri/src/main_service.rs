@@ -15,6 +15,7 @@ use crate::{
     i18n::I18n,
     import_scanner,
     menu,
+    raw_reader,
     store::{
         db::DbHandle,
         photo_store,
@@ -58,7 +59,6 @@ pub async fn fetch_ui_config(app_config: State<'_, AppConfig>) -> Result<UiConfi
         window_style:    if env::consts::OS == "macos" { WindowStyle::NativeTrafficLight } else { WindowStyle::WindowsButtons },
         has_native_menu: env::consts::OS == "macos",
         raw_locale:      app_config.raw_locale.to_string(),
-        non_raw_path:    app_config.picturama_home_dir.join("non-raw").to_str().unwrap().to_string(),
         thumbnail_path:  app_config.picturama_home_dir.join("thumbnails").to_str().unwrap().to_string(),
     })
 }
@@ -432,6 +432,20 @@ fn decode_heif_file(path: &str) -> Result<DecodedHeifImage, String> {
     }
 
     Ok(DecodedHeifImage { width, height, data })
+}
+
+// ---------------------------------------------------------------------------
+// RAW
+// ---------------------------------------------------------------------------
+
+/// Extracts the largest embedded JPEG preview from a RAW file and returns its bytes. Picturama uses the
+/// camera-developed preview instead of demosaicing the sensor data (see `raw_reader`). The bytes are a
+/// self-describing JPEG which the frontend decodes with the browser, exactly like a normal `.jpg` — so
+/// nothing is decoded in Rust, and the compressed bytes (rather than raw RGB) cross IPC.
+#[tauri::command]
+pub async fn extract_raw_preview_jpg(path: String) -> Result<tauri::ipc::Response, String> {
+    let jpeg = tokio::task::block_in_place(|| raw_reader::extract_embedded_jpeg(&path))?;
+    Ok(tauri::ipc::Response::new(jpeg))
 }
 
 // ---------------------------------------------------------------------------

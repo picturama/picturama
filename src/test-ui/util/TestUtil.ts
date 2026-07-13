@@ -17,7 +17,6 @@ export function createRandomDummyPhoto(): Photo {
         masterFilename: 'dummy',
         masterWidth,
         masterHeight,
-        masterIsRaw: false,
         editedWidth: masterWidth,
         editedHeight: masterHeight,
     }

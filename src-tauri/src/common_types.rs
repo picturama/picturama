@@ -21,8 +21,9 @@ pub struct Photo {
     pub master_width: u32,
     /// The height of the original image - only with EXIF rotation applied (in px).
     pub master_height: u32,
-    /// Whether the master image has a raw format
-    pub master_is_raw: bool,
+    // NOTE: the DB still has a `master_is_raw` column (kept with `DEFAULT '0'` so no migration is needed),
+    // but it is no longer used: RAW is displayed on demand from its embedded JPEG preview
+    // (see `raw_reader` / `WebGLCanvas`), so the master path is used for every format.
     /// The width of the original image - after EXIF rotation and all PhotoWork have been applied (in px).
     pub edited_width: Option<u32>,
     /// The height of the original image - after EXIF rotation and all PhotoWork have been applied (in px).
@@ -82,7 +83,6 @@ pub struct UiConfig {
     pub window_style: WindowStyle,
     pub has_native_menu: bool,
     pub raw_locale: String,
-    pub non_raw_path: String,
     pub thumbnail_path: String,
 }
 

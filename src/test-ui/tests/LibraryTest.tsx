@@ -3,7 +3,7 @@ import { Button } from '@blueprintjs/core'
 
 import { Photo, PhotoSectionById, PhotoSectionId, PhotoFilter } from 'common/CommonTypes'
 import CancelablePromise from 'common/util/CancelablePromise'
-import { getNonRawPath } from 'common/util/DataUtil'
+import { getMasterPath } from 'common/util/DataUtil'
 import { addErrorCode } from 'common/util/LangUtil'
 import { fileUrlFromPath } from 'common/util/TextUtil'
 
@@ -58,14 +58,14 @@ function createDefaultProps(context: TestContext): Props {
         fetchSections: action('fetchSections'),
         fetchTags: action('fetchTags'),
         getGridLayout: getGridLayoutWithoutStoreUpdate,
-        getThumbnailSrc: (photo: Photo) => fileUrlFromPath(getNonRawPath(photo)),
+        getThumbnailSrc: (photo: Photo) => fileUrlFromPath(getMasterPath(photo)),
         createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => {
             if (photo.masterFilename === 'dummy') {
                 return new CancelablePromise<string>(() => {})
             } else if (photo.masterFilename === 'error_master-missing') {
                 return new CancelablePromise<string>(Promise.reject(addErrorCode(new Error('test error'), 'master-missing')))
             } else {
-                return new CancelablePromise<string>(Promise.resolve(fileUrlFromPath(getNonRawPath(photo))))
+                return new CancelablePromise<string>(Promise.resolve(fileUrlFromPath(getMasterPath(photo))))
             }
         },
         setGridRowHeight: (gridRowHeight: number) => {

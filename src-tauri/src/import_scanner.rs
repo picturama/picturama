@@ -15,6 +15,7 @@ use tauri::{AppHandle, Manager};
 use crate::common_types::{ImportPhase, ImportProgress, PhotoId};
 use crate::exif_reader;
 use crate::foreground_client;
+use crate::raw_reader;
 use crate::store::db::DbHandle;
 use crate::store::{photo_store, photo_work_store};
 use crate::store::photo_store::NewPhoto;
@@ -344,10 +345,6 @@ impl Scanner {
     /// Probes a single new photo and queues it for the next batch write.
     /// Per-photo failures are logged and swallowed so the import continues.
     async fn import_photo(&mut self, dir: &str, filename: &str) -> Result<(), ScanControl> {
-        if is_raw_ext(filename) {
-            return Ok(()); // TODO: Support RAW
-        }
-
         let import_start = self.import_start;
         let dir_owned = dir.to_string();
         let file_owned = filename.to_string();
@@ -494,14 +491,50 @@ fn build_new_photo(
         .or_else(|| meta.created().ok().map(|t| system_time_to_millis(Some(t))).filter(|&ms| ms > 0))
         .unwrap_or(modified);
 
-    // Dimensions: prefer EXIF, fall back to a header probe, then to the assumed EXIF size. For most
-    // formats the probed size is the encoded (un-rotated) size, so we swap width/height for left/right
-    // EXIF orientations.
-    // HEIF is special: `imagesize` reads the container's `ispe` + `irot`, so it already returns the oriented
-    // (display) size — matching libheif's decode — and must NOT be swapped again.
+    // Master dimensions must equal the *display* (oriented) size. Where the size comes from, and whether
+    // it needs an EXIF-orientation swap, differs per format:
+    //
+    // - Normal raster (JPEG/PNG/...): size from EXIF, else a header probe, else the assumed EXIF size.
+    //   This is the encoded (un-rotated) size, so it is swapped for left/right orientations — matching how
+    //   the browser rotates the file on display.
+    // - HEIF: `imagesize` reads the container's `ispe` + `irot`, so it already returns the oriented size
+    //   (matching libheif's decode, which bakes the rotation into the pixels) — so it is NOT swapped.
+    // - RAW: shown via its embedded JPEG preview (see `raw_reader`), so the size comes from that preview.
+    //   Like a normal JPEG the preview is un-rotated, and the browser applies the preview's *own* EXIF
+    //   orientation — so it is swapped by that orientation, not the RAW container's.
     let is_heic = is_heic_ext(filename);
-    let switch_sides = !is_heic && exif_reader::has_exif_orientation_switched_sides(meta_data.orientation);
-    let raw_size = if is_heic {
+    let is_raw = is_raw_ext(filename);
+
+    // For RAW, extract the embedded preview once and use it for both the size and the orientation.
+    let raw_jpeg = if is_raw {
+        match raw_reader::extract_embedded_jpeg(&full_path) {
+            Ok(jpeg) => Some(jpeg),
+            Err(e) => {
+                log::warn!("Could not extract RAW preview from {}: {}", full_path, e);
+                None
+            }
+        }
+    } else {
+        None
+    };
+
+    let switch_sides = if is_heic {
+        false
+    } else if is_raw {
+        raw_jpeg
+            .as_ref()
+            .map(|jpeg| exif_reader::has_exif_orientation_switched_sides(exif_reader::read_orientation_of_bytes(jpeg)))
+            .unwrap_or(false)
+    } else {
+        exif_reader::has_exif_orientation_switched_sides(meta_data.orientation)
+    };
+
+    let raw_size = if is_raw {
+        raw_jpeg
+            .as_ref()
+            .and_then(|jpeg| imagesize::blob_size(jpeg).ok())
+            .map(|s| (s.width as u32, s.height as u32))
+    } else if is_heic {
         imagesize::size(&full_path).ok().map(|s| (s.width as u32, s.height as u32))
     } else {
         match (meta_data.img_width, meta_data.img_height) {
@@ -547,7 +580,6 @@ fn build_new_photo(
         master_filename: filename.to_string(),
         master_width,
         master_height,
-        master_is_raw: false, // TODO: Support RAW
         edited_width,
         edited_height,
         date_section: millis_to_date_section(created),
@@ -668,7 +700,7 @@ mod tests {
         let (photo, tags) = build_new_photo(&dir.str(), "landscape.png", 111).unwrap().unwrap();
         assert_eq!((photo.master_width, photo.master_height), (40, 30));
         assert_eq!((photo.edited_width, photo.edited_height), (40, 30)); // no PhotoWork -> unchanged
-        assert!(!photo.master_is_raw && !photo.flag);
+        assert!(!photo.flag);
         assert_eq!(photo.imported_at, 111);
         assert_eq!(photo.date_section.len(), 10); // YYYY-MM-DD
         assert!(tags.is_empty());
@@ -680,16 +712,44 @@ mod tests {
     #[test]
     fn imports_heic_as_normal_photo_with_swapped_dimensions() {
         // Apple_iPhone_XR_portrait.HEIC has EXIF orientation 6 (encoded landscape, displayed portrait).
-        // HEIC is imported like a normal raster photo (master_is_raw = false).
+        // HEIC is imported like a normal raster photo.
         let dir = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("..").join("submodules").join("test-data").join("photos").join("heic");
         let dir = dir.to_string_lossy().to_string();
         let (photo, _tags) = build_new_photo(&dir, "Apple_iPhone_XR_portrait.HEIC", 222)
             .unwrap()
             .expect("HEIC should be importable");
-        assert!(!photo.master_is_raw);
         assert!(photo.master_width > 0 && photo.master_height > 0);
         assert!(photo.master_height > photo.master_width); // portrait after orientation-6 swap
+    }
+
+    #[test]
+    fn imports_raw_using_embedded_preview_dimensions() {
+        // RAW is imported like a normal photo: its master dimensions come from the largest embedded JPEG
+        // preview (which also backs display/export).
+        let (photo, _tags) = build_new_photo(&raw_corpus_dir(), "RAW_CANON_5D_ARGB.CR2", 333)
+            .unwrap()
+            .expect("RAW should be importable");
+        assert_eq!((photo.master_width, photo.master_height), (2496, 1664));
+    }
+
+    #[test]
+    fn imports_rotated_raw_with_swapped_dimensions() {
+        // The iPhone 12 Pro ProRAW DNG is a portrait shot: its embedded preview is encoded 4032x3024
+        // (landscape) with EXIF orientation 6, which the browser rotates to portrait on display. The
+        // stored master dimensions must match that display orientation, so they are swapped to 3024x4032.
+        let (photo, _tags) = build_new_photo(&raw_corpus_dir(), "RAW_APPLE_IPHONE_12_PRO.DNG", 444)
+            .unwrap()
+            .expect("RAW should be importable");
+        assert_eq!((photo.master_width, photo.master_height), (3024, 4032));
+        assert!(photo.master_height > photo.master_width); // portrait
+    }
+
+    fn raw_corpus_dir() -> String {
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("..").join("submodules").join("test-data").join("photos").join("raw")
+            .to_string_lossy()
+            .to_string()
     }
 
     #[test]
@@ -699,7 +759,12 @@ mod tests {
         write_png(&photos.path, "a.png", 4, 6);
         write_png(&photos.path, "b.png", 100, 50);
         std::fs::write(photos.path.join("notes.txt"), b"ignore me").unwrap(); // not a photo
-        std::fs::write(photos.path.join("raw.cr2"), b"raw-placeholder").unwrap(); // recognised, deferred
+        // A real RAW file: imported via its embedded JPEG preview.
+        std::fs::copy(
+            format!("{}/RAW_CANON_5D_ARGB.CR2", raw_corpus_dir()),
+            photos.path.join("raw.cr2"),
+        )
+        .unwrap();
 
         let db = db::open(&home.path.join("db.sqlite3"), &migrations_dir()).unwrap();
         let dir = photos.str();
@@ -707,8 +772,8 @@ mod tests {
         // Nothing imported yet.
         assert!(photo_store::fetch_photos_of_directory(&db, &dir).unwrap().is_empty());
 
-        // Replicate what the scanner does per directory: keep accepted files, defer RAW, probe the
-        // rest, and write them in one batch.
+        // Replicate what the scanner does per directory: keep accepted files (including RAW), probe
+        // them and write them in one batch.
         let filenames: Vec<String> = std::fs::read_dir(&photos.path)
             .unwrap()
             .filter_map(|e| e.ok())
@@ -719,21 +784,18 @@ mod tests {
 
         let mut batch: Vec<(NewPhoto, Vec<String>)> = Vec::new();
         for name in &filenames {
-            if is_raw_ext(name) {
-                continue; // TODO: RAW support
-            }
             if let Some(item) = build_new_photo(&dir, name, 999).unwrap() {
                 batch.push(item);
             }
         }
         let (added, tags_changed) = photo_store::insert_photos_batch(&db, &batch).unwrap();
-        assert_eq!(added, 2); // only a.png + b.png; raw.cr2 deferred
+        assert_eq!(added, 3); // a.png + b.png + raw.cr2 (via embedded preview)
         assert!(!tags_changed);
 
         let mut stored: Vec<String> =
             photo_store::fetch_photos_of_directory(&db, &dir).unwrap().into_iter().map(|(_, n)| n).collect();
         stored.sort();
-        assert_eq!(stored, vec!["a.png".to_string(), "b.png".to_string()]);
+        assert_eq!(stored, vec!["a.png".to_string(), "b.png".to_string(), "raw.cr2".to_string()]);
 
         // Re-running the same diff imports nothing new (already-present filenames are skipped).
         let existing: HashSet<String> = photo_store::fetch_photos_of_directory(&db, &dir)
@@ -741,12 +803,12 @@ mod tests {
             .into_iter()
             .map(|(_, n)| n)
             .collect();
-        let second: Vec<_> = filenames.iter().filter(|n| !existing.contains(*n) && !is_raw_ext(n)).collect();
+        let second: Vec<_> = filenames.iter().filter(|n| !existing.contains(*n)).collect();
         assert!(second.is_empty());
 
         // The directory is gone from the configured set -> its rows are cleaned up.
         let removed = photo_store::delete_photos_of_removed_dirs(&db, &[]).unwrap();
-        assert_eq!(removed, 2);
+        assert_eq!(removed, 3);
         assert!(photo_store::fetch_photos_of_directory(&db, &dir).unwrap().is_empty());
     }
 }

@@ -1,6 +1,6 @@
 import { Photo, PhotoWork, PhotoRenderOptions, PhotoRenderFormat, BinaryString } from 'common/CommonTypes'
 import { CameraMetricsBuilder } from 'common/util/CameraMetrics'
-import { decodeImageDataUrlAsBinaryString, getMasterPath, getNonRawPath } from 'common/util/DataUtil'
+import { decodeImageDataUrlAsBinaryString, getMasterPath } from 'common/util/DataUtil'
 import { Size } from 'common/util/GeometryTypes'
 import { isShallowEqual } from 'common/util/LangUtil'
 import SerialJobQueue from 'common/util/SerialJobQueue'
@@ -75,7 +75,7 @@ async function renderNext(job: RenderJob): Promise<BinaryString> {
 
     let imagePath: string
     if (source.type === 'photo') {
-        imagePath = getNonRawPath(source.photo)
+        imagePath = getMasterPath(source.photo)
     } else if (source.type === 'image') {
         imagePath = source.imagePath
     } else {

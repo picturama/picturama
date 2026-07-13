@@ -7,7 +7,7 @@ import { connect } from 'react-redux'
 import { Spinner } from '@blueprintjs/core'
 
 import { Photo, PhotoDetail, Version, ExifOrientation } from 'common/CommonTypes'
-import { getNonRawPath } from 'common/util/DataUtil'
+import { getMasterPath } from 'common/util/DataUtil'
 import { fileUrlFromPath } from 'common/util/TextUtil'
 
 import { CommandGroupId, addCommandGroup, removeCommandGroup } from 'app/controller/HotkeyController'
@@ -100,7 +100,7 @@ export class PictureDiff extends React.Component<Props, State> {
                 <div className="before v-align">
                     <h3>Before</h3>
                     <img
-                        src={fileUrlFromPath(getNonRawPath(props.photo))}
+                        src={fileUrlFromPath(getMasterPath(props.photo))}
                         onLoad={this.onImgLoad}
                         className={className} />
                 </div>
