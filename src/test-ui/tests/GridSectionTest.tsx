@@ -1,9 +1,9 @@
 import React from 'react'
+import { convertFileSrc } from '@tauri-apps/api/core'
 
 import CancelablePromise from 'common/util/CancelablePromise'
 import { LoadedPhotoSection, Photo, PhotoSectionId } from 'common/CommonTypes'
 import { getMasterPath } from 'common/util/DataUtil'
-import { fileUrlFromPath } from 'common/util/TextUtil'
 
 import { defaultGridRowHeight } from 'app/UiConstants'
 import { GridSectionLayout } from 'app/UITypes'
@@ -33,12 +33,12 @@ const defaultProps: Props = {
     activePhotoId: null,
     sectionSelection: undefined,
     librarySelectionController: mockLibrarySelectionController,
-    getThumbnailSrc: (photo: Photo) => fileUrlFromPath(getMasterPath(photo)),
+    getThumbnailSrc: (photo: Photo) => convertFileSrc(getMasterPath(photo)),
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => {
         if (photo.masterFilename === 'dummy') {
             return new CancelablePromise<string>(() => {})
         } else {
-            return new CancelablePromise<string>(Promise.resolve(fileUrlFromPath(getMasterPath(photo))))
+            return new CancelablePromise<string>(Promise.resolve(convertFileSrc(getMasterPath(photo))))
         }
     },
     showPhotoDetails: action('showPhotoDetails'),

@@ -1,11 +1,11 @@
 import React from 'react'
 import { Button } from '@blueprintjs/core'
+import { convertFileSrc } from '@tauri-apps/api/core'
 
 import { Photo, PhotoSectionById, PhotoSectionId, PhotoFilter } from 'common/CommonTypes'
 import CancelablePromise from 'common/util/CancelablePromise'
 import { getMasterPath } from 'common/util/DataUtil'
 import { addErrorCode } from 'common/util/LangUtil'
-import { fileUrlFromPath } from 'common/util/TextUtil'
 
 import { defaultGridRowHeight } from 'app/UiConstants'
 import { FetchState } from 'app/UITypes'
@@ -58,14 +58,14 @@ function createDefaultProps(context: TestContext): Props {
         fetchSections: action('fetchSections'),
         fetchTags: action('fetchTags'),
         getGridLayout: getGridLayoutWithoutStoreUpdate,
-        getThumbnailSrc: (photo: Photo) => fileUrlFromPath(getMasterPath(photo)),
+        getThumbnailSrc: (photo: Photo) => convertFileSrc(getMasterPath(photo)),
         createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => {
             if (photo.masterFilename === 'dummy') {
                 return new CancelablePromise<string>(() => {})
             } else if (photo.masterFilename === 'error_master-missing') {
                 return new CancelablePromise<string>(Promise.reject(addErrorCode(new Error('test error'), 'master-missing')))
             } else {
-                return new CancelablePromise<string>(Promise.resolve(fileUrlFromPath(getMasterPath(photo))))
+                return new CancelablePromise<string>(Promise.resolve(convertFileSrc(getMasterPath(photo))))
             }
         },
         setGridRowHeight: (gridRowHeight: number) => {

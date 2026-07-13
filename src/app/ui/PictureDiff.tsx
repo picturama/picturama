@@ -5,10 +5,10 @@ import classNames from 'classnames'
 import React from 'react'
 import { connect } from 'react-redux'
 import { Spinner } from '@blueprintjs/core'
+import { convertFileSrc } from '@tauri-apps/api/core'
 
 import { Photo, PhotoDetail, Version, ExifOrientation } from 'common/CommonTypes'
 import { getMasterPath } from 'common/util/DataUtil'
-import { fileUrlFromPath } from 'common/util/TextUtil'
 
 import { CommandGroupId, addCommandGroup, removeCommandGroup } from 'app/controller/HotkeyController'
 import { getPhotoById } from 'app/state/selectors'
@@ -100,7 +100,7 @@ export class PictureDiff extends React.Component<Props, State> {
                 <div className="before v-align">
                     <h3>Before</h3>
                     <img
-                        src={fileUrlFromPath(getMasterPath(props.photo))}
+                        src={convertFileSrc(getMasterPath(props.photo))}
                         onLoad={this.onImgLoad}
                         className={className} />
                 </div>

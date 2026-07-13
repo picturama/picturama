@@ -1,4 +1,5 @@
 import React from 'react'
+import { convertFileSrc } from '@tauri-apps/api/core'
 
 import { addSection, action } from 'test-ui/core/UiTester'
 import { mockLibrarySelectionController, testDarkPhoto, testLightPhoto } from 'test-ui/util/MockData'
@@ -7,7 +8,6 @@ import { Photo, PhotoSectionId } from 'common/CommonTypes'
 import CancelablePromise from 'common/util/CancelablePromise'
 import { getMasterPath } from 'common/util/DataUtil'
 import ParameterTestDecorator from 'test-ui/util/ParameterTestDecorator'
-import { fileUrlFromPath } from 'common/util/TextUtil'
 
 import { boxSpacing } from 'app/controller/LibraryController'
 import { gridBg } from 'app/style/variables'
@@ -24,12 +24,12 @@ const defaultPropsCommon: Omit<Props, 'photo' | 'layoutBox' | 'librarySelectionC
     sectionId: 'test-section',
     isActive: false,
     isSelected: false,
-    getThumbnailSrc: (photo: Photo) => fileUrlFromPath(getMasterPath(photo)),
+    getThumbnailSrc: (photo: Photo) => convertFileSrc(getMasterPath(photo)),
     createThumbnail: (sectionId: PhotoSectionId, photo: Photo) => {
         if (photo.masterFilename === 'dummy') {
             return new CancelablePromise<string>(() => {})
         } else {
-            return new CancelablePromise<string>(Promise.resolve(fileUrlFromPath(getMasterPath(photo))))
+            return new CancelablePromise<string>(Promise.resolve(convertFileSrc(getMasterPath(photo))))
         }
     },
     showPhotoDetails: action('showPhotoDetails'),
