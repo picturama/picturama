@@ -10,6 +10,7 @@ use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
+use tauri::window::{ProgressBarState, ProgressBarStatus};
 use tauri::{AppHandle, Manager};
 
 use crate::types::common_types::{ImportPhase, ImportProgress, PhotoId};
@@ -106,6 +107,9 @@ pub async fn run_import(app: AppHandle, db: DbHandle, photo_dirs: Vec<String>) {
         Err(ScanControl::Cancelled) => log::info!("Import cancelled after {} ms", start.elapsed().as_millis()),
         Err(ScanControl::Error(e)) => log::error!("Import failed: {}", e),
     }
+
+    // Clear the taskbar/dock progress bar now that the import has ended (any outcome).
+    set_taskbar_progress(&app, ProgressBarStatus::None, None);
 
     // Tell the UI the import is done (progress = null), refreshing tags if the import created any.
     let updated_tags = if scanner.tags_changed {
@@ -430,15 +434,48 @@ impl Scanner {
         self.last_emit = now;
         let paused = self.is_paused_flag();
         self.progress.is_paused = paused;
+        self.update_taskbar_progress(paused);
         if let Err(e) = foreground_client::set_import_progress(&self.app, Some(&self.progress), None).await {
             log::warn!("Failed to send import progress: {}", e);
         }
+    }
+
+    /// Maps the current import phase/pause state onto the OS taskbar/dock progress bar (indeterminate while
+    /// scanning/cleaning, a filling bar while importing photos, paused while paused).
+    fn update_taskbar_progress(&self, paused: bool) {
+        let (status, progress) = if paused {
+            (ProgressBarStatus::Paused, None)
+        } else {
+            match self.progress.phase {
+                ImportPhase::ImportPhotos => {
+                    let percent = if self.progress.total == 0 {
+                        0
+                    } else {
+                        (self.progress.processed as u64 * 100 / self.progress.total as u64).min(100)
+                    };
+                    (ProgressBarStatus::Normal, Some(percent))
+                }
+                ImportPhase::ScanDirs | ImportPhase::Cleanup => (ProgressBarStatus::Indeterminate, None),
+                ImportPhase::Error => (ProgressBarStatus::Error, None),
+            }
+        };
+        set_taskbar_progress(&self.app, status, progress);
     }
 }
 
 // ---------------------------------------------------------------------------
 // Free helpers
 // ---------------------------------------------------------------------------
+
+/// Sets (or clears) the `main` window's OS taskbar/dock progress bar. Best-effort: silently ignores a
+/// missing window or a platform error (the progress bar is a nicety, never load-bearing).
+fn set_taskbar_progress(app: &AppHandle, status: ProgressBarStatus, progress: Option<u64>) {
+    if let Some(window) = app.get_webview_window("main") {
+        if let Err(e) = window.set_progress_bar(ProgressBarState { status: Some(status), progress }) {
+            log::warn!("Failed to set taskbar progress: {}", e);
+        }
+    }
+}
 
 fn ext_lower(filename: &str) -> Option<String> {
     Path::new(filename).extension().map(|e| e.to_string_lossy().to_lowercase())
