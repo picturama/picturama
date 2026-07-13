@@ -190,7 +190,7 @@ pub struct PhotoRenderOptions {
     pub quality: f64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum PhotoRenderFormat {
     Jpg,
@@ -198,9 +198,25 @@ pub enum PhotoRenderFormat {
     Png,
 }
 
+impl PhotoRenderFormat {
+    /// File extension used for exported files (matches the TS `PhotoRenderFormat` string values).
+    pub fn extension(self) -> &'static str {
+        match self {
+            PhotoRenderFormat::Jpg => "jpg",
+            PhotoRenderFormat::Webp => "webp",
+            PhotoRenderFormat::Png => "png",
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PhotoExportOptions {
+    // Inherited from PhotoRenderOptions on the TS side (`extends`); needed here for the render call and
+    // the output file extension.
+    pub format: PhotoRenderFormat,
+    /// Quality 0.0–1.0 (ignored for PNG)
+    pub quality: f64,
     /// 'S' | 'M' | 'L' | 'original' | 'custom'
     pub size: String,
     /// 'width' | 'height' | 'size'

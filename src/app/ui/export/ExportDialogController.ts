@@ -9,6 +9,7 @@ import BackgroundClient from 'app/BackgroundClient'
 import { showError } from 'app/ErrorPresenter'
 import toaster from 'app/Toaster'
 import { getPhotosOfCollection } from 'app/util/PhotoCollectionResolver'
+import { formatNumber } from 'common/util/TextUtil'
 
 
 interface ExportInfo {

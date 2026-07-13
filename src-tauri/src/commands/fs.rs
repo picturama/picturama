@@ -61,8 +61,20 @@ pub async fn select_scan_directories(app: AppHandle) -> Result<Option<Vec<String
     Ok(Some(dirs))
 }
 
-/// TODO(phase5): Open a native folder picker for export.
+/// Opens a native folder picker for a single export target directory. Returns None when the user cancels.
 #[tauri::command]
-pub async fn select_export_directory(_app: AppHandle) -> Result<Option<String>, String> {
-    Ok(None)
+pub async fn select_export_directory(app: AppHandle) -> Result<Option<String>, String> {
+    let picked = tokio::task::block_in_place(|| app.dialog().file().blocking_pick_folder());
+    let folder = match picked {
+        Some(folder) => folder,
+        None => return Ok(None), // cancelled
+    };
+
+    let dir = folder
+        .into_path()
+        .map_err(|e| e.to_string())?
+        .to_string_lossy()
+        .to_string();
+
+    Ok(Some(dir))
 }

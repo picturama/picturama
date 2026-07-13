@@ -13,6 +13,8 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 chrono             = "0.4"
 dirs               = "5"
+# Used only by the photo export `withMetadata` option to copy the master JPEG's EXIF into the export.
+img-parts          = "0.4"
 imagesize          = "0.13"
 indexmap           = { version = "2", features = ["serde"] }
 kamadak-exif       = "0.6"
