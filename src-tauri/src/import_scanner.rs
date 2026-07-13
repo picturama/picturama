@@ -105,7 +105,10 @@ pub async fn run_import(app: AppHandle, db: DbHandle, photo_dirs: Vec<String>) {
             }
         }
         Err(ScanControl::Cancelled) => log::info!("Import cancelled after {} ms", start.elapsed().as_millis()),
-        Err(ScanControl::Error(e)) => log::error!("Import failed: {}", e),
+        Err(ScanControl::Error(e)) => {
+            log::error!("Import failed: {}", e);
+            foreground_client::show_error(&app, "Scanning photos failed", Some(e));
+        }
     }
 
     // Clear the taskbar/dock progress bar now that the import has ended (any outcome).
