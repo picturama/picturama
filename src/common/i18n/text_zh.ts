@@ -59,9 +59,9 @@ export default {
     ExportDialog_done_one: '完成导出照片',
     ExportDialog_done_more: '已完成导出{0}张照片',
 
-    ImportProgressButton_phase_scan_dirs: '扫描文件夹',
+    ImportProgressButton_phase_scanDirs: '扫描文件夹',
     ImportProgressButton_phase_cleanup: '清理',
-    ImportProgressButton_phase_import_photos: '导入',
+    ImportProgressButton_phase_importPhotos: '导入',
     ImportProgressButton_phase_error: '扫描失败',
     ImportProgressButton_resume: '继续',
     ImportProgressButton_pause: '暂停',

@@ -59,9 +59,9 @@ export default {
     ExportDialog_done_one: 'Export fotografie dokončen',
     ExportDialog_done_more: 'Export {0} fotografií dokončen',
 
-    ImportProgressButton_phase_scan_dirs: 'Prohledávám složky',
+    ImportProgressButton_phase_scanDirs: 'Prohledávám složky',
     ImportProgressButton_phase_cleanup: 'Čistím',
-    ImportProgressButton_phase_import_photos: 'Importuji',
+    ImportProgressButton_phase_importPhotos: 'Importuji',
     ImportProgressButton_phase_error: 'Prohledávání selhalo',
     ImportProgressButton_resume: 'Pokračovat',
     ImportProgressButton_pause: 'Pozastavit',

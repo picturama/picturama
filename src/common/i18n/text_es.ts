@@ -59,9 +59,9 @@ export default {
     ExportDialog_done_one: `Se terminó de exportar la foto`,
     ExportDialog_done_more: `Se terminó de exportar {0} fotos`,
 
-    ImportProgressButton_phase_scan_dirs: 'Escaneando carpetas',
+    ImportProgressButton_phase_scanDirs: 'Escaneando carpetas',
     ImportProgressButton_phase_cleanup: 'Limpiando',
-    ImportProgressButton_phase_import_photos: 'Importando',
+    ImportProgressButton_phase_importPhotos: 'Importando',
     ImportProgressButton_phase_error: 'Escaneo fallido',
     ImportProgressButton_resume: 'Reanudar',
     ImportProgressButton_pause: 'Pausa',

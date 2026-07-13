@@ -59,9 +59,9 @@ export default {
     ExportDialog_done_one: 'Exportation de la photo terminée',
     ExportDialog_done_more: 'Exportation des {0} photos terminée',
 
-    ImportProgressButton_phase_scan_dirs: 'Scan des dossiers en cours',
+    ImportProgressButton_phase_scanDirs: 'Scan des dossiers en cours',
     ImportProgressButton_phase_cleanup: 'Nettoyage en cours',
-    ImportProgressButton_phase_import_photos: 'Importation en cours',
+    ImportProgressButton_phase_importPhotos: 'Importation en cours',
     ImportProgressButton_phase_error: 'Le scan a échoué',
     ImportProgressButton_resume: 'Reprendre',
     ImportProgressButton_pause: 'Pause',

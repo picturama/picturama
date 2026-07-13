@@ -59,9 +59,9 @@ export default {
     ExportDialog_done_one: 'Finished exporting photo',
     ExportDialog_done_more: 'Finished exporting {0} photos',
 
-    ImportProgressButton_phase_scan_dirs: 'Scanning folders',
+    ImportProgressButton_phase_scanDirs: 'Scanning folders',
     ImportProgressButton_phase_cleanup: 'Cleaning up',
-    ImportProgressButton_phase_import_photos: 'Importing',
+    ImportProgressButton_phase_importPhotos: 'Importing',
     ImportProgressButton_phase_error: 'Scanning failed',
     ImportProgressButton_resume: 'Resume',
     ImportProgressButton_pause: 'Pause',
