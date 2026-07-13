@@ -149,6 +149,11 @@ export default class WebGLCanvas {
         if (textureSource instanceof HTMLImageElement) {
             gl.texImage2D(gl.TEXTURE_2D, 0, this.internalFormat, srcFormat, srcType, textureSource)
         } else {
+            // The RGB8 buffer from Rust is packed tightly (row stride = width*3), but WebGL defaults
+            // UNPACK_ALIGNMENT to 4, expecting each row to start on a 4-byte boundary. When width*3 is not a
+            // multiple of 4 (e.g. a cropped HEIC with an odd width), that mismatch shifts every row and the
+            // texture decodes to garbage/black. Setting alignment to 1 tells WebGL the rows are byte-packed.
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1)
             gl.texImage2D(gl.TEXTURE_2D, 0, textureFormat, width, height, 0, textureFormat, gl.UNSIGNED_BYTE, textureSource)
         }
 
