@@ -8,36 +8,63 @@ name = "Picturama"
 path = "src/main.rs"
 
 [build-dependencies]
+# Tauri's build script: generates the context (embeds tauri.conf.json, icons, capabilities) and runs
+# the codegen that `tauri::generate_context!()` in main.rs depends on.
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
+# Date/time handling.
 chrono             = "0.4"
+# Resolves platform standard directories (home dir) to locate `~/.picturama` in release builds.
 dirs               = "5"
-# Used only by the photo export `withMetadata` option to copy the master JPEG's EXIF into the export.
+# Pure-Rust JPEG segment read/write. Used only by the photo export `withMetadata` option to copy the
+# master JPEG's EXIF into the export.
 img-parts          = "0.4"
+# Cheap image-dimension probe: reads only the file header to get width/height without decoding pixels.
+# Feeds the import dimension chain (JPEG/HEIC/RAW-preview sizing) in import_scanner.rs.
 imagesize          = "0.13"
+# Insertion-order-preserving map. Used directly so the per-segment EXIF dump keeps natural EXIF field
+# order for the info panel's "first 10 keys" fallback.
 indexmap           = { version = "2", features = ["serde"] }
+# EXIF reader/writer (the `exif` crate).
 kamadak-exif       = "0.6"
+# Native HEIC/HEIF decode via the system libheif.
 # libheif-rs 0.20 is the newest release that still binds libheif-sys ^1.14 (libheif ~1.14/1.15) while
 # exposing the modern `LibHeif` API. libheif-sys is pinned to 1.14.4 so it links against the system
 # libheif 1.15.x rather than resolving up to the 1.16-targeted bindings. Bump both once target
 # platforms are confirmed on a newer libheif
 libheif-rs         = "0.20"
 libheif-sys        = "=1.14.4"
+# Logging facade; the actual sink is tauri-plugin-log.
 log                = "0.4"
+# Lazily-initialised statics (e.g. process-wide caches/singletons in the store layer).
 once_cell          = "1"
+# Opens paths/URLs with the OS default handler.
 open               = "5"
+# Pure-Rust XML parser.
 roxmltree          = "0.20"
+# SQLite access. `bundled` compiles SQLite from source, so no system SQLite is required.
 rusqlite           = { version = "0.31", features = ["bundled"] }
+# Serialization framework for IPC-boundary structs.
 serde              = { version = "1.0", features = ["derive"] }
+# JSON (de)serialization for IPC payloads and settings.json.
 serde_json         = "1"
+# YAML (de)serialization for the picturama.yml PhotoWork sidecar files.
 serde_yaml         = "0.9"
+# Detects the OS UI locale to pick the app language.
 sys-locale         = "0.3"
+# The Tauri runtime: Native UI, IPC with frontend.
 tauri              = { version = "2", features = ["protocol-asset"] }
+# Native file/folder pickers.
 tauri-plugin-dialog = "2"
+# Routes the `log` facade to Tauri's logging sink.
 tauri-plugin-log   = "2"
+# Shell integration (opening items / spawning).
 tauri-plugin-shell = "2"
+# Async runtime. `full` enables all features; needed for the async foreground-RPC oneshot channels and
+# the async command handlers (foreground_client.rs).
 tokio              = { version = "1", features = ["full"] }
+# Moves files to the OS trash/recycle bin instead of hard-deleting.
 trash              = "3"
 
 [profile.release]
