@@ -34,6 +34,14 @@ export default defineConfig({
         },
         assetsInlineLimit: 10_000,  // 10 kB threshold for asset inlining.
     },
+    css: {
+        // Blueprint 3's shipped CSS contains spec-invalid selectors (e.g. `::after.bp3-active`),
+        // which the default lightningcss minifier rejects with a hard error. errorRecovery downgrades
+        // these to warnings so the build succeeds (browsers already tolerate the selectors).
+        lightningcss: {
+            errorRecovery: true,
+        },
+    },
     define: {
         'window.PICTURAMA_DEV_MODE': JSON.stringify(process.env.PICTURAMA_DEV_MODE ?? ''),
     },
