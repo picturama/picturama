@@ -87,12 +87,22 @@ pub async fn run_import(app: AppHandle, db: DbHandle, photo_dirs: Vec<String>) {
     }
 
     match &result {
-        Ok(()) => log::info!(
-            "Import finished in {} ms (added {}, removed {})",
-            start.elapsed().as_millis(),
-            scanner.progress.added,
-            scanner.progress.removed,
-        ),
+        Ok(()) => {
+            log::info!(
+                "Import finished in {} ms (added {}, removed {})",
+                start.elapsed().as_millis(),
+                scanner.progress.added,
+                scanner.progress.removed,
+            );
+            // Show the "import finished" toast in the UI (localised + formatted there, matching the
+            // reference ImportController). Best-effort: only logged if the RPC fails.
+            let duration_ms = start.elapsed().as_millis() as u64;
+            if let Err(e) =
+                foreground_client::show_import_finished_toast(&app, scanner.progress.total, duration_ms).await
+            {
+                log::warn!("Failed to show import-finished toast: {}", e);
+            }
+        }
         Err(ScanControl::Cancelled) => log::info!("Import cancelled after {} ms", start.elapsed().as_millis()),
         Err(ScanControl::Error(e)) => log::error!("Import failed: {}", e),
     }

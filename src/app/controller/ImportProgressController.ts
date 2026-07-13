@@ -1,10 +1,15 @@
+import dayjs from 'dayjs'
+
 import { Tag, PhotoSectionId, isLoadedPhotoSection } from 'common/CommonTypes'
 import { ImportProgress } from 'common/CommonTypes'
+import { msg } from 'common/i18n/i18n'
+import { formatNumber } from 'common/util/TextUtil'
 
 import { fetchSections, fetchTotalPhotoCount } from 'app/controller/PhotoController'
 import { setTags } from 'app/controller/PhotoTagController'
 import { setImportProgressAction } from 'app/state/actions'
 import store from 'app/state/store'
+import toaster from 'app/Toaster'
 
 import { observeStore } from 'app/util/ReduxUtil'
 
@@ -33,6 +38,17 @@ export default class ImportProgressController {
         if (updatedTags) {
             setTags(updatedTags)
         }
+    }
+
+    /** Shows the "import finished" toast. Called from Rust via the `showImportFinishedToast` RPC on a
+     *  successful scan (mirrors the reference `ImportController`). */
+    static showImportFinishedToast(photoCount: number, durationMs: number) {
+        toaster.show({
+            icon: 'tick',
+            message: msg('ImportController_importFinished', formatNumber(photoCount),
+                dayjs.duration(durationMs).humanize()),
+            intent: 'success'
+        })
     }
 
 }

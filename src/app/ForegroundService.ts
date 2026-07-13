@@ -42,6 +42,8 @@ async function executeForegroundAction(action: string, params: any): Promise<any
         store.dispatch(openSettingsAction())
     } else if (action === 'setImportProgress') {
         ImportProgressController.setImportProgress(params.progress, params.updatedTags)
+    } else if (action === 'showImportFinishedToast') {
+        ImportProgressController.showImportFinishedToast(params.photoCount, params.durationMs)
     } else if (action === 'renderPhoto') {
         // We send the image as binary string (not as node Buffer), because all data is converted to JSON which doesn't support Buffers
         return renderPhoto(params.photo, params.photoWork, params.maxSize, params.options)

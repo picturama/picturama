@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
@@ -18,6 +19,7 @@ import text_fr from './text_fr'
 import text_ru from './text_ru'
 import text_zh from './text_zh'
 
+dayjs.extend(duration)
 dayjs.extend(localizedFormat)
 dayjs.extend(relativeTime)
 
