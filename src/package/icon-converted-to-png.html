@@ -1,22 +1,30 @@
+<!DOCTYPE html>
 <script>
-const svgUrl = 'icon.svg'
-const svgWidth = 90
-const svgHeight = 103.9
+const svgSpecs = [
+    { url: 'icon.svg', width: 90, height: 103.9 },
+    { url: 'icon-macos.svg', width: 1024, height: 1024 },
+]
 const pngSize = 1024
 
-const svgImage = new Image()
-svgImage.addEventListener('load', () => {
-    const canvas = document.createElement('canvas')
-    canvas.width  = pngSize
-    canvas.height = pngSize
+for (const svgSpec of svgSpecs) {
+    const svgImage = new Image()
+    svgImage.addEventListener('load', () => {
+        const canvas = document.createElement('canvas')
+        canvas.width  = pngSize
+        canvas.height = pngSize
+    
+        const ctx = canvas.getContext('2d')
+        const scaledSvgWidth = Math.round(pngSize * svgSpec.width / svgSpec.height)
+        ctx.drawImage(svgImage, Math.round((pngSize - scaledSvgWidth) / 2), 0, scaledSvgWidth, pngSize)
+    
+        const pngImage = document.createElement('img')
+        pngImage.src = canvas.toDataURL('image/png')
+        document.body.appendChild(pngImage)
+    })
+    svgImage.addEventListener('error', event => {
+        console.error(`Rendering ${svgSpec.url} failed`, event.error, event)
+    })
+    svgImage.src = svgSpec.url
+}
 
-    const ctx = canvas.getContext('2d')
-    const scaledSvgWidth = Math.round(pngSize * svgWidth / svgHeight)
-    ctx.drawImage(svgImage, Math.round((pngSize - scaledSvgWidth) / 2), 0, scaledSvgWidth, pngSize)
-
-    const pngImage = document.createElement('img')
-    pngImage.src = canvas.toDataURL('image/png')
-    document.body.appendChild(pngImage)
-})
-svgImage.src = svgUrl
 </script>

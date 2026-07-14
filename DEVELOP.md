@@ -21,6 +21,8 @@ Directory structure
         +-- test-ui/          Code running in renderer electron process of UI Tester
         +-- typings/          TypeScript type definitions
     +-- src-tauri/            Code running on native side (Rust / Tauri)
+        +-- dmg/              Background of DMG (MacOS package)
+        +-- icons/            App icons (.icns for macOS, .ico for Windows, PNGs for Linux) 
         +-- src/
             +-- main.rs           Tauri builder, managed state, setup(), module declarations
             +-- commands/         Tauri command layer, split by domain (photos, tags, import, thumbnails, ...)
@@ -50,6 +52,10 @@ Prerequirements:
       - `xcode-select --install`
     - Windows: Visual Studio Build Tools
     - Linux: `libwebkit2gtk-4.1-dev libssl-dev libgtk-3-dev`
+  - Install `libheif` (native HEIC/HEIF decoding):
+    - Mac OS: `brew install libheif`
+    - Windows: `vcpkg install libheif` (and expose it to the linker, e.g. `VCPKG_ROOT` + the vcpkg toolchain)
+    - Linux (Debian/Ubuntu): `sudo apt install libheif-dev`
   - Install Tauri CLI: `cargo install tauri-cli --version "^2"`
 
 Fetch git submodules:
@@ -158,52 +164,39 @@ Add missing attributes to `src/common/i18n/text_*.ts`:
 Build distributable package
 ---------------------------
 
-Build whole project from scratch:
+### Prerequisites for a release build
+
+In addition to the build prerequisites above, each platform needs `libheif` (and its codec dependencies)
+available so it can be **bundled into the installer** — otherwise the app builds but crashes when decoding
+HEIC on a machine without a system `libheif`:
+
+  - **macOS:** `brew install libheif dylibbundler create-dmg`
+    - `libheif` the library for decoding HEIC we want to embed
+    — `dylibbundler` collects the dylibs for `Picturama.app` and rewrites the load paths
+    - `create-dmg` produces the reference `.dmg` layout
+  - **Windows:** `vcpkg install libheif`, then set the `VCPKG_ROOT` environment variable to your vcpkg
+    directory (the release script copies `libheif.dll` + the codec DLLs from there to beside `Picturama.exe`).
+  - **Linux:** `sudo apt install libheif-dev` (the AppImage bundler pulls the shared libs into the AppDir
+    automatically — no further setup).
+
+### Running release build
+
+Run on the platform you want to build for:
 
     npm run release
 
-Build distributable package only (use existing `dist` folder):
+This produces, in `src-tauri/target/release/bundle/`:
 
-    npm run package
+  - **macOS:**   `dmg/Picturama_<version>_<arch>.dmg` (and the `.app` under `macos/`)
+  - **Windows:** `nsis/Picturama_<version>_<arch>-setup.exe`
+  - **Linux:**   `appimage/Picturama_<version>_<arch>.AppImage`
 
-Only generate the package directory without really packaging it (This is useful for testing purposes):
+Faster, unsigned local test build (skips optimisation):
 
-    npm run package-dir
+    npm run release -- --debug
 
-**Hint:** In order check what is packed, add a `"asar": false` to the `build`-Object of `package.json`, then run
-`npm run package-dir` and check the folder `dist-package/mac/Picturama.app/Contents/Resources/app`
-
-Cross-build linux package on macOS or Windows:
-
-  1.  Run docker container:
-
-          docker run --rm -ti \
-          --env-file <(env | grep -iE 'DEBUG|NODE_|ELECTRON_|YARN_|NPM_|CI|  CIRCLETRAVIS_TAG|TRAVIS|TRAVIS_REPO_|TRAVIS_BUILD_|  TRAVIS_BRANCHTRAVIS_PULL_REQUEST_|APPVEYOR_|CSC_|GH_|GITHUB_|BT_|AWS_|  STRIP|BUILD_') \
-          --env ELECTRON_CACHE="/root/.cache/electron" \
-          --env ELECTRON_BUILDER_CACHE="/root/.cache/electron-builder" \
-          -v ${PWD}:/project \
-          -v ${PWD##*/}-node-modules:/project/node_modules \
-          -v ~/.cache/electron:/root/.cache/electron \
-          -v ~/.cache/electron-builder:/root/.cache/electron-builder \
-          electronuserland/builder
-
-  2.  Build `dist-package/Picturama-xyz.AppImage` for Linux (in docker container):
-
-          npm i && npm run package
-
-Cross-build windows package on macOS or Linux:
-
-  - Log in to [AppYeyor](https://www.appveyor.com/)
-  - Create a project for Picturama:
-    - Type: "Git"
-    - In Settings -> General set "Custom configuration .yml file name" to `https://raw.githubusercontent.com/picturama/picturama/master/appveyor.yml`
-  - Click "New build" on the project details screen.
-
-For more details see:
-
-  - https://www.electron.build/multi-platform-build
-  - https://github.com/appveyor/ci/issues/1089#issuecomment-264549196
-
+Bundling configuration lives in `src-tauri/tauri.conf.json` and `src-tauri/tauri.windows.conf.json` and the orchestrator
+`src/script/release.mjs`. For platform details see: https://v2.tauri.app/distribute/
 
 
 I18N

@@ -4,6 +4,7 @@
 /dist-test/
 /dot-picturama*/
 /node_modules/
+/src-tauri/libs/
 /*.patch
 picturama.yml
 

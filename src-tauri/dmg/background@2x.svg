@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1080" height="760" viewBox="0 0 1080 760" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#37474f" stroke="none" d="M 0 760 L 1080 760 L 1080 0 L 0 0 Z"/>
+    <text id="Picturama" xml:space="preserve" x="244" y="238" font-family="Helvetica Neue" font-size="130" fill="#f5f8fa">Picturama</text>
+    <linearGradient id="linearGradient1" x1="541.5" y1="369" x2="541.5" y2="510" gradientUnits="userSpaceOnUse">
+        <stop offset="1e-05" stop-color="#ff9e02" stop-opacity="1"/>
+        <stop offset="1" stop-color="#fa7118" stop-opacity="1"/>
+    </linearGradient>
+    <path fill="url(#linearGradient1)" stroke="none" d="M 600 439.5 L 547 510 L 547 467.700012 L 483 467.700012 L 483 411.299988 L 547 411.299988 L 547 369 Z"/>
+    <path fill="#7d8a90" fill-rule="evenodd" stroke="none" d="M 672 574 C 672 582.284302 678.715698 589 687 589 L 910 589 C 918.284302 589 925 582.284302 925 574 L 925 525 C 925 516.715698 918.284302 510 910 510 L 687 510 C 678.715698 510 672 516.715698 672 525 Z"/>
+    <path fill="#7d8a90" fill-rule="evenodd" stroke="none" d="M 151 574 C 151 582.284302 157.715729 589 166 589 L 389 589 C 397.284271 589 404 582.284302 404 574 L 404 525 C 404 516.715698 397.284271 510 389 510 L 166 510 C 157.715729 510 151 516.715698 151 525 Z"/>
+</svg>
