@@ -11,7 +11,7 @@ export function init(nextUiConfig: UiConfig) {
     uiConfig = nextUiConfig
 }
 
-export function getMasterPath(photo: Photo | { master_dir: string, master_filename: string }): string {
+export function getMasterPath(photo: Photo | { masterDir: string, masterFilename: string }): string {
     return `${photo.masterDir}/${photo.masterFilename}`
 }
 
