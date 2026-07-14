@@ -173,6 +173,8 @@ pub fn handle_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
                     tauri::WebviewUrl::App("test-ui.html".into())
                 )
                 .title("UI Tester")
+                .inner_size(1280.0, 900.0)
+                .min_inner_size(800.0, 600.0)
                 .build()
                 .unwrap();
             }
