@@ -54,7 +54,7 @@ serde_yaml         = "0.9"
 # Detects the OS UI locale to pick the app language.
 sys-locale         = "0.3"
 # The Tauri runtime: Native UI, IPC with frontend.
-tauri              = { version = "2", features = ["protocol-asset"] }
+tauri              = { version = "2", features = ["protocol-asset", "devtools"] }
 # Native file/folder pickers.
 tauri-plugin-dialog = "2"
 # Routes the `log` facade to Tauri's logging sink.

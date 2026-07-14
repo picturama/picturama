@@ -76,21 +76,16 @@ pub async fn window_get_state(app: AppHandle) -> Result<WindowStatePayload, Stri
 
 #[tauri::command]
 pub async fn toggle_dev_tools(app: AppHandle) -> Result<(), String> {
+    // DevTools are available in release builds too, via the `devtools` feature on
+    // the `tauri` crate (see Cargo.toml) — which makes `open_devtools()` etc.
+    // unconditionally available regardless of `debug_assertions`. Picturama loads
+    // no remote content (local UI only) and ships outside the Mac App Store, so
+    // enabling devtools in production is safe here.
     let window = get_main_window(&app)?;
-    #[cfg(debug_assertions)]
-    {
-        if window.is_devtools_open() {
-            window.close_devtools();
-        } else {
-            window.open_devtools();
-        }
-    }
-    #[cfg(not(debug_assertions))]
-    {
-        // DevTools are compiled out in release builds.
-        // This is intentional: shipping a devtools toggle in production is
-        // a security risk for any app that loads remote content.
-        let _ = window;
+    if window.is_devtools_open() {
+        window.close_devtools();
+    } else {
+        window.open_devtools();
     }
     Ok(())
 }
