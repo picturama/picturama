@@ -105,7 +105,7 @@ export function getGridLayoutWithoutStoreUpdate(sectionIds: PhotoSectionId[], se
                 // We have to compare sections, not section IDs in order to detect changes inside the section.
                 // See `createLayoutForLoadedSection`
 
-        let layout: GridSectionLayout | null = null
+        let layout: GridSectionLayout | null = null
         if (prevLayout && !prevLayoutIsDirty) {
             const prevLayoutIsPlaceholder = !prevLayout.boxes
             if (usePlaceholder == prevLayoutIsPlaceholder) {
@@ -282,8 +282,8 @@ export function getGridLayoutWithoutStoreUpdate(sectionIds: PhotoSectionId[], se
         || toSectionIndex !== prevGridLayout.toSectionIndex)
     {
         nextGridLayout = {
-            fromSectionIndex: fromSectionIndex || 0,
-            toSectionIndex: toSectionIndex || 0,
+            fromSectionIndex: fromSectionIndex || 0,
+            toSectionIndex: toSectionIndex || 0,
             sectionLayouts
         }
     } else {
@@ -509,7 +509,7 @@ export function createDummyLayoutBoxes(sectionBodyWidth: number, sectionBodyHeig
 function forgetAndFetchSections(sectionIds: PhotoSectionId[], sectionById: PhotoSectionById,
     viewportTop: number, viewportHeight: number, sectionLayouts: GridSectionLayout[])
 {
-    let sectionIdsToForget: { [index: string]: true } | null = null
+    let sectionIdsToForget: { [index: string]: true } | null = null
     let sectionIdsToLoad: PhotoSectionId[] | null = null
 
     const isScrollingDown = (viewportTop >= prevScrollTop)
@@ -583,7 +583,7 @@ export async function fetchSectionPhotos(sectionIds: PhotoSectionId[]): Promise<
 }
 
 
-type CreateThumbnailJob = { isCancelled: boolean, sectionId: PhotoSectionId, photo: Photo, profiler: Profiler | null }
+type CreateThumbnailJob = { isCancelled: boolean, sectionId: PhotoSectionId, photo: Photo, profiler: Profiler | null }
 
 const createThumbnailQueue = new SerialJobQueue(
     (newJob, existingJob) => (newJob.photo.id === existingJob.photo.id) ? newJob : null,

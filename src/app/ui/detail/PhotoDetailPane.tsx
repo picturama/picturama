@@ -30,10 +30,10 @@ interface StateProps {
     devicePixelRatio: number
     sectionId: PhotoSectionId
     photo: Photo
-    photoPrev: Photo | null
-    photoNext: Photo | null
-    photoWork: PhotoWork | null
-    selection: SelectionState | null
+    photoPrev: Photo | null
+    photoNext: Photo | null
+    photoWork: PhotoWork | null
+    selection: SelectionState | null
     tags: string[]
     isFirst: boolean
     isLast: boolean
@@ -147,7 +147,7 @@ const Connected = connect<StateProps, DispatchProps, OwnProps, AppState>(
             selection: state.library.selection,
             tags: getTagTitles(state),
             isFirst: currentPhoto.photoIndex === 0,
-            isLast: !section || currentPhoto.photoIndex === section.photoIds.length - 1,
+            isLast: !section || currentPhoto.photoIndex === section.photoIds.length - 1,
             showInfo: state.info.showInDetail,
             infoPhoto: getInfoPhoto(state),
             infoPhotoData: state.info.photoData,
