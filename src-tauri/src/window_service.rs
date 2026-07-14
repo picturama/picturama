@@ -1,5 +1,8 @@
 // Native window control commands called from the React frontend.
 
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+
 use tauri::{AppHandle, Emitter, Manager};
 
 // Event name kept in sync with ForegroundService.ts
@@ -103,6 +106,7 @@ pub async fn toggle_dev_tools(app: AppHandle) -> Result<(), String> {
 pub fn register_window_state_listener(app: &AppHandle) {
     let app = app.clone();
     if let Some(window) = app.get_webview_window("main") {
+        let last_fullscreen = Arc::new(AtomicBool::new(window.is_fullscreen().unwrap_or(false)));
         let app_clone = app.clone();
         window.on_window_event(move |event| {
             match event {
@@ -112,6 +116,20 @@ pub fn register_window_state_listener(app: &AppHandle) {
                     // push an updated state snapshot.
                     if let Some(w) = app_clone.get_webview_window("main") {
                         emit_window_state(&app_clone, &w);
+
+                        // Notify the frontend, but only when fullscreen actually flips, regardless of how fullscreen
+                        // was toggled (menu, F11, or the macOS green traffic-light button).
+                        let is_fullscreen = w.is_fullscreen().unwrap_or(false);
+                        if last_fullscreen.swap(is_fullscreen, Ordering::Relaxed) != is_fullscreen {
+                            let app_for_rpc = app_clone.clone();
+                            tauri::async_runtime::spawn(async move {
+                                if let Err(e) =
+                                    crate::foreground_client::on_full_screen_change(&app_for_rpc, is_fullscreen).await
+                                {
+                                    eprintln!("on_full_screen_change RPC failed: {}", e);
+                                }
+                            });
+                        }
                     }
                 }
                 _ => {}
