@@ -1,6 +1,9 @@
 import * as React from 'react'
+
+import { Size } from 'app/util/GeometryTypes'
+
 import SvgIcon, { SvgIconProps, SvgIconFactory } from './SvgIcon'
-import { Size } from 'common/util/GeometryTypes'
+
 
 export const customSizeSideIconSize: Size = { width: 92, height: 45 }
 

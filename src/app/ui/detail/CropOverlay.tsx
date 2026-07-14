@@ -2,10 +2,9 @@ import React from 'react'
 import { findDOMNode } from 'react-dom'
 import classnames from 'classnames'
 
-import { bindMany } from 'common/util/LangUtil'
-
 import DragDropController from 'app/util/DragDropController'
-import { Rect, Point, Corner, corners, Side, sides } from 'common/util/GeometryTypes'
+import { Rect, Point, Corner, corners, Side, sides } from 'app/util/GeometryTypes'
+import { bindMany } from 'app/util/LangUtil'
 
 import TiltControl from './TiltControl'
 

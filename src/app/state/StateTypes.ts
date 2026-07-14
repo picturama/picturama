@@ -1,4 +1,4 @@
-import { PhotoId, TagId, TagById, PhotoSectionId, PhotoSectionById, Settings, UiConfig, PhotoDetail, PhotoWork, ImportProgress, PhotoFilter, PhotoExportOptions, PhotoExportProgress, MetaData, ExifData, Photo} from 'common/CommonTypes'
+import { PhotoId, TagId, TagById, PhotoSectionId, PhotoSectionById, Settings, UiConfig, PhotoDetail, PhotoWork, ImportProgress, PhotoFilter, PhotoExportOptions, PhotoExportProgress, MetaData, ExifData, Photo} from 'app/CommonTypes'
 import { FetchState } from 'app/UITypes'
 
 

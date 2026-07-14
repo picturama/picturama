@@ -3,10 +3,9 @@ import classnames from 'classnames'
 import { MdRotateLeft, MdRotateRight } from 'react-icons/md'
 import { Button, ButtonGroup } from '@blueprintjs/core'
 
-import { msg } from 'common/i18n/i18n'
-import { bindMany } from 'common/util/LangUtil'
-
+import { msg } from 'app/i18n/i18n'
 import { SVG_ICON_CLASS } from 'app/ui/widget/icon/SvgIcon'
+import { bindMany } from 'app/util/LangUtil'
 
 
 export interface Props {

@@ -1,12 +1,11 @@
-import { PhotoWork, PhotoSectionId, Photo, PhotoFilter, PhotoId, EmptyTrashResult } from 'common/CommonTypes'
-import { getMasterPath, getThumbnailUrl } from 'common/util/DataUtil'
-import { rotate } from 'common/util/EffectsUtil'
-
 import BackgroundClient from 'app/BackgroundClient'
+import { PhotoWork, PhotoSectionId, Photo, PhotoFilter, PhotoId, EmptyTrashResult } from 'app/CommonTypes'
 import { showError } from 'app/ErrorPresenter'
 import store from 'app/state/store'
 import { fetchTotalPhotoCountAction, fetchSectionsAction, changePhotoWorkAction, changePhotosAction, emptyTrashAction } from 'app/state/actions'
 import { PhotoCollection } from 'app/state/StateTypes'
+import { getMasterPath, getThumbnailUrl } from 'app/util/DataUtil'
+import { rotate } from 'app/util/EffectsUtil'
 import { getPhotosOfCollection } from 'app/util/PhotoCollectionResolver'
 
 import { setTags } from './PhotoTagController'

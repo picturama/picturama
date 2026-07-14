@@ -1,9 +1,8 @@
-import { Photo, Tag } from 'common/CommonTypes'
-import { slug } from 'common/util/LangUtil'
-
+import BackgroundClient from 'app/BackgroundClient'
+import { Photo, Tag } from 'app/CommonTypes'
 import { fetchTagsAction, setPhotoTagsAction } from 'app/state/actions'
 import store from 'app/state/store'
-import BackgroundClient from 'app/BackgroundClient'
+import { slug } from 'app/util/LangUtil'
 
 import { updatePhotoWork } from './PhotoController'
 

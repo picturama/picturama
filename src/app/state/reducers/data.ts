@@ -1,15 +1,13 @@
 import { combineReducers } from 'redux'
 
-import { PhotoById, TagId, TagById, LoadedPhotoSection, isLoadedPhotoSection, PhotoSectionId, PhotoSectionById, Settings, UiConfig} from 'common/CommonTypes'
-import { cloneArrayWithItemRemoved } from 'common/util/LangUtil'
-
+import { PhotoById, TagId, TagById, LoadedPhotoSection, isLoadedPhotoSection, PhotoSectionId, PhotoSectionById, Settings, UiConfig} from 'app/CommonTypes'
 import { Action } from 'app/state/ActionType'
 import {
     INIT, SET_SETTINGS, FETCH_TOTAL_PHOTO_COUNT, FETCH_SECTIONS_REQUEST, FETCH_SECTIONS_SUCCESS, FETCH_SECTIONS_FAILURE,
     CHANGE_PHOTOS, EMPTY_TRASH,
     FETCH_TAGS, FORGET_SECTION_PHOTOS, FETCH_SECTION_PHOTOS
 } from 'app/state/actionTypes'
-import { DataState, TagsState, DevicesState, SectionsState } from 'app/state/StateTypes'
+import { DataState, TagsState, SectionsState } from 'app/state/StateTypes'
 import { FetchState } from 'app/UITypes'
 
 

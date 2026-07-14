@@ -4,7 +4,7 @@ import { createDefaultExportOptions } from 'app/state/reducers/export'
 import { ExportDialog, Props } from 'app/ui/export/ExportDialog'
 
 import { addSection, action, TestContext } from 'test-ui/core/UiTester'
-import { PhotoExportOptions } from 'common/CommonTypes'
+import { PhotoExportOptions } from 'app/CommonTypes'
 
 
 function createDefaultProps(context: TestContext): Props {

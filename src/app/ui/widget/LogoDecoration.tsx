@@ -2,9 +2,8 @@ import React from 'react'
 import { findDOMNode } from 'react-dom'
 import classnames from 'classnames'
 
-import { bindMany } from 'common/util/LangUtil'
-
 import Logo, { logoAspect } from 'app/ui/widget/icon/Logo'
+import { bindMany } from 'app/util/LangUtil'
 
 
 const offsetX = 0.25

@@ -1,4 +1,4 @@
-import { Size } from 'common/util/GeometryTypes'
+import { Size } from 'app/util/GeometryTypes'
 
 
 let scrollbarSize: Size | null = null

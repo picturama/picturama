@@ -1,13 +1,12 @@
 import { listen } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api/core'
 
-import { encodeIpcError } from 'common/util/IpcUtil'
-
 import { showExternalError } from 'app/ErrorPresenter'
 import ImportProgressController from 'app/controller/ImportProgressController'
 import { renderPhoto, renderImage } from 'app/renderer/PhotoRenderer'
 import { setFullScreenAction, openSettingsAction, openExportAction } from 'app/state/actions'
 import store from 'app/state/store'
+import { encodeIpcError } from 'app/util/IpcUtil'
 
 /** RPC request payload emitted by Rust (see src-tauri/src/foreground_client.rs) */
 interface ForegroundRpcRequest {

@@ -1,8 +1,8 @@
 import { mat4 } from 'gl-matrix'
 
-import { PhotoWork } from 'common/CommonTypes'
-import { isShallowEqual } from 'common/util/LangUtil'
-import { Size, zeroSize, Rect, zeroRect, Insets, zeroInsets } from 'common/util/GeometryTypes'
+import { PhotoWork } from 'app/CommonTypes'
+import { isShallowEqual } from 'app/util/LangUtil'
+import { Size, zeroSize, Rect, zeroRect, Insets, zeroInsets } from 'app/util/GeometryTypes'
 
 
 const globalMinZoom = 0.0000001

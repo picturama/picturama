@@ -1,5 +1,4 @@
-import { Photo, PhotoWork } from 'common/CommonTypes'
-
+import { Photo, PhotoWork } from 'app/CommonTypes'
 import { rotatePhotos, setPhotosFlagged, movePhotosToTrash, restorePhotosFromTrash, updatePhotoWork } from 'app/controller/PhotoController'
 import { openExportAction } from 'app/state/actions'
 import { PhotoCollection } from 'app/state/StateTypes'

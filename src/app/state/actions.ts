@@ -1,7 +1,6 @@
 import { action, createAsyncAction } from 'typesafe-actions'
 
-import { PhotoId, Photo, Tag, Device, PhotoDetail, PhotoWork, PhotoSection, PhotoSectionId, PhotoSet, PhotoFilter, Settings, UiConfig, PhotoExportOptions, PhotoExportProgress, ExifData, MetaData } from 'common/CommonTypes'
-import { ImportProgress } from 'common/CommonTypes'
+import { ImportProgress, PhotoId, Photo, Tag, PhotoDetail, PhotoWork, PhotoSection, PhotoSectionId, PhotoSet, PhotoFilter, Settings, UiConfig, PhotoExportOptions, PhotoExportProgress, ExifData, MetaData } from 'app/CommonTypes'
 
 import {
     INIT, SET_DEVICE_PIXEL_RATIO, SET_WEB_GL_SUPPORT, SET_FULL_SCREEN, SET_SHIFT_PRESSED,

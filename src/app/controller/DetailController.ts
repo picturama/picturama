@@ -1,15 +1,14 @@
-import { PhotoId, PhotoSectionId } from 'common/CommonTypes'
-import CancelablePromise, { isCancelError } from 'common/util/CancelablePromise'
-import { getMasterPath } from 'common/util/DataUtil'
-
 import BackgroundClient from 'app/BackgroundClient'
+import { PhotoId, PhotoSectionId } from 'app/CommonTypes'
 import { showError } from 'app/ErrorPresenter'
 import { setDetailPhotoAction, fetchDetailPhotoDataAction, closeDetailAction } from 'app/state/actions'
 import { getPhotoByIndex, getLoadedSectionById, getPhotoById } from 'app/state/selectors'
 import store from 'app/state/store'
 import { AppState } from 'app/state/StateTypes'
-import SerialUpdater from 'app/util/SerialUpdater'
 import { FetchState } from 'app/UITypes'
+import CancelablePromise, { isCancelError } from 'app/util/CancelablePromise'
+import { getMasterPath } from 'app/util/DataUtil'
+import SerialUpdater from 'app/util/SerialUpdater'
 
 
 export function setDetailPhotoById(sectionId: PhotoSectionId, photoId: PhotoId | null) {

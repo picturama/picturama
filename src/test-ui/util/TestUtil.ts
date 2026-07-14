@@ -1,4 +1,4 @@
-import { Photo, PhotoId, PhotoById, PhotoSectionId, LoadedPhotoSection } from 'common/CommonTypes'
+import { Photo, PhotoId, PhotoById, PhotoSectionId, LoadedPhotoSection } from 'app/CommonTypes'
 
 import { createTestPhotoId, testBigPhoto } from './MockData'
 

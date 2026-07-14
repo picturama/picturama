@@ -1,5 +1,3 @@
-import { getMasterPath } from 'common/util/DataUtil'
-
 import BackgroundClient from 'app/BackgroundClient'
 import { showError } from 'app/ErrorPresenter'
 import { setInfoPhotoDataAction, setInfoPhotoDataFailureAction } from 'app/state/actions'
@@ -7,6 +5,7 @@ import { getInfoPhoto } from 'app/state/selectors'
 import { AppState } from 'app/state/StateTypes'
 import store from 'app/state/store'
 import { FetchState } from 'app/UITypes'
+import { getMasterPath } from 'app/util/DataUtil'
 import { observeStore } from 'app/util/ReduxUtil'
 
 

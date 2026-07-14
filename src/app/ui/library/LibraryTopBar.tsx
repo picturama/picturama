@@ -2,16 +2,15 @@ import classNames from 'classnames'
 import React from 'react'
 import { Button, MaybeElement, Alert } from '@blueprintjs/core'
 
-import { EmptyTrashResult } from 'common/CommonTypes'
-import { msg } from 'common/i18n/i18n'
-import { bindMany } from 'common/util/LangUtil'
-
 import BackgroundClient from 'app/BackgroundClient'
+import { EmptyTrashResult } from 'app/CommonTypes'
 import { PhotoActionController } from 'app/controller/PhotoActionController'
 import { showError } from 'app/ErrorPresenter'
+import { msg } from 'app/i18n/i18n'
 import { PhotoCollection } from 'app/state/StateTypes'
 import PhotoActionButtons from 'app/ui/widget/PhotoActionButtons'
 import Toolbar from 'app/ui/widget/Toolbar'
+import { bindMany } from 'app/util/LangUtil'
 
 import './LibraryTopBar.less'
 

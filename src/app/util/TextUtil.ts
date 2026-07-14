@@ -1,4 +1,4 @@
-import { getLocale } from 'common/i18n/i18n'
+import { getLocale } from 'app/i18n/i18n'
 
 
 export function formatNumber(number: number, fractionDigits = 0): string {

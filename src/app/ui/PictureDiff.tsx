@@ -7,12 +7,11 @@ import { connect } from 'react-redux'
 import { Spinner } from '@blueprintjs/core'
 import { convertFileSrc } from '@tauri-apps/api/core'
 
-import { Photo, PhotoDetail, Version, ExifOrientation } from 'common/CommonTypes'
-import { getMasterPath } from 'common/util/DataUtil'
-
+import { Photo, PhotoDetail, Version, ExifOrientation } from 'app/CommonTypes'
 import { CommandGroupId, addCommandGroup, removeCommandGroup } from 'app/controller/HotkeyController'
 import { getPhotoById } from 'app/state/selectors'
 import { AppState } from 'app/state/StateTypes'
+import { getMasterPath } from 'app/util/DataUtil'
 
 
 let rotation = {}

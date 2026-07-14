@@ -2,8 +2,8 @@ import React from 'react'
 import classnames from 'classnames'
 import { Button } from '@blueprintjs/core'
 
-import { msg } from 'common/i18n/i18n'
-import { formatNumber } from 'common/util/TextUtil'
+import { msg } from 'app/i18n/i18n'
+import { formatNumber } from 'app/util/TextUtil'
 
 import './SelectionSummary.less'
 

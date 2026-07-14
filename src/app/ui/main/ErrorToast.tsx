@@ -2,8 +2,8 @@ import React from 'react'
 import { Button, IToastProps, Collapse } from '@blueprintjs/core'
 import { FaFrownOpen } from 'react-icons/fa'
 
-import { msg } from 'common/i18n/i18n'
-import { bindMany } from 'common/util/LangUtil'
+import { msg } from 'app/i18n/i18n'
+import { bindMany } from 'app/util/LangUtil'
 
 import './ErrorToast.less'
 

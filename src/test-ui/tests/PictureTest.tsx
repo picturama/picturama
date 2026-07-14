@@ -4,9 +4,9 @@ import { convertFileSrc } from '@tauri-apps/api/core'
 import { addSection, action } from 'test-ui/core/UiTester'
 import { mockLibrarySelectionController, testDarkPhoto, testLightPhoto } from 'test-ui/util/MockData'
 
-import { Photo, PhotoSectionId } from 'common/CommonTypes'
-import CancelablePromise from 'common/util/CancelablePromise'
-import { getMasterPath } from 'common/util/DataUtil'
+import { Photo, PhotoSectionId } from 'app/CommonTypes'
+import CancelablePromise from 'app/util/CancelablePromise'
+import { getMasterPath } from 'app/util/DataUtil'
 import ParameterTestDecorator from 'test-ui/util/ParameterTestDecorator'
 
 import { boxSpacing } from 'app/controller/LibraryController'

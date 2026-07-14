@@ -3,9 +3,9 @@ import React from 'react'
 import { MenuItem, Spinner } from '@blueprintjs/core'
 import { MultiSelect, IItemRendererProps } from "@blueprintjs/select"
 
-import { Photo, PhotoDetail } from 'common/CommonTypes'
-import { msg } from 'common/i18n/i18n'
-import { bindMany, slug } from 'common/util/LangUtil'
+import { Photo, PhotoDetail } from 'app/CommonTypes'
+import { msg } from 'app/i18n/i18n'
+import { bindMany, slug } from 'app/util/LangUtil'
 
 
 const StringMultiSelect = MultiSelect.ofType<string>()

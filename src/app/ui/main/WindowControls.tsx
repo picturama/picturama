@@ -3,10 +3,9 @@ import classnames from 'classnames'
 import { invoke } from '@tauri-apps/api/core'
 import { listen, UnlistenFn } from '@tauri-apps/api/event'
 
-import { bindMany } from 'common/util/LangUtil'
-
 import { showError } from 'app/ErrorPresenter'
 import SvgIcon from 'app/ui/widget/icon/SvgIcon'
+import { bindMany } from 'app/util/LangUtil'
 
 import './WindowControls.less'
 

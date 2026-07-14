@@ -3,7 +3,7 @@ import classnames from 'classnames'
 import { invoke } from '@tauri-apps/api/core'
 
 import { showError } from 'app/ErrorPresenter'
-import { bindMany } from 'common/util/LangUtil'
+import { bindMany } from 'app/util/LangUtil'
 
 import './Toolbar.less'
 

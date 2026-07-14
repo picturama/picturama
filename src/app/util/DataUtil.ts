@@ -1,8 +1,9 @@
 import { convertFileSrc } from '@tauri-apps/api/core'
 
-import config from 'common/config'
-import { PhotoId, Photo, ExifOrientation, PhotoWork, BinaryString, UiConfig } from 'common/CommonTypes'
+import { PhotoId, Photo, ExifOrientation, BinaryString, UiConfig, PhotoRenderFormat } from 'app/CommonTypes'
 
+
+const workExt: PhotoRenderFormat = 'webp'
 
 let uiConfig: UiConfig
 
@@ -15,7 +16,7 @@ export function getMasterPath(photo: Photo | { master_dir: string, master_filena
 }
 
 export function getThumbnailPath(photoId: PhotoId): string {
-    return `${uiConfig.thumbnailPath}/${shortId(photoId)}.${config.workExt}`
+    return `${uiConfig.thumbnailPath}/${shortId(photoId)}.${workExt}`
 }
 
 export function getThumbnailUrl(photoId: PhotoId): string {

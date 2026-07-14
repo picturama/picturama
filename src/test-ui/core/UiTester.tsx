@@ -2,7 +2,7 @@ import React from 'react'
 import classnames from 'classnames'
 import { ButtonGroup, Button } from '@blueprintjs/core'
 
-import { getLocale } from 'common/i18n/i18n'
+import { getLocale } from 'app/i18n/i18n'
 
 import './UiTester.less'
 

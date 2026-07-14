@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Photo, PhotoDetail } from 'common/CommonTypes'
+import { Photo, PhotoDetail } from 'app/CommonTypes'
 
 import PhotoInfo, { Props } from 'app/ui/info/PhotoInfo'
 

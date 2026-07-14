@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react'
 import { Button } from '@blueprintjs/core'
 import classnames from 'classnames'
 
-import { bindMany } from 'common/util/LangUtil'
+import { bindMany } from 'app/util/LangUtil'
 
 import './List.less'
 

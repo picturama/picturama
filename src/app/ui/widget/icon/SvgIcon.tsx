@@ -1,7 +1,7 @@
 import classNames from 'classnames'
 import React from 'react'
 
-import { Size, isSize } from 'common/util/GeometryTypes'
+import { Size, isSize } from 'app/util/GeometryTypes'
 
 import './SvgIcon.less'
 

@@ -1,7 +1,6 @@
-import { bindMany, isShallowEqual } from 'common/util/LangUtil'
-
 import store from 'app/state/store'
 import { AppState } from 'app/state/StateTypes'
+import { bindMany, isShallowEqual } from 'app/util/LangUtil'
 
 import { observeStore } from './ReduxUtil'
 

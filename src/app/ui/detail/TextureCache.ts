@@ -1,9 +1,8 @@
-import { isShallowEqual } from 'common/util/LangUtil'
-
 import BackgroundClient from 'app/BackgroundClient'
 import PhotoCanvas from 'app/renderer/PhotoCanvas'
 import { Texture } from 'app/renderer/WebGLCanvas'
-import Profiler from 'common/util/Profiler'
+import { isShallowEqual } from 'app/util/LangUtil'
+import Profiler from 'app/util/Profiler'
 
 
 export type TextureError = 'error-notExisting' | 'error-loading'

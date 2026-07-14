@@ -1,5 +1,5 @@
-import { PhotoId, Photo, PhotoSectionId, TagId, isLoadedPhotoSection, LoadedPhotoSection } from 'common/CommonTypes'
-import { isShallowEqual } from 'common/util/LangUtil'
+import { PhotoId, Photo, PhotoSectionId, TagId, isLoadedPhotoSection, LoadedPhotoSection } from 'app/CommonTypes'
+import { isShallowEqual } from 'app/util/LangUtil'
 
 import { AppState, DataState, PreselectionRange, SectionSelectionState, SelectionState } from './StateTypes'
 

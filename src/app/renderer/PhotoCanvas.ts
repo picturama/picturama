@@ -1,9 +1,9 @@
 import { mat4 } from 'gl-matrix'
 
-import CancelablePromise from 'common/util/CancelablePromise'
-import { zeroPoint, Size, Rect } from 'common/util/GeometryTypes'
-import { transformRect } from 'common/util/GeometryUtil'
-import Profiler from 'common/util/Profiler'
+import CancelablePromise from 'app/util/CancelablePromise'
+import { zeroPoint, Size, Rect } from 'app/util/GeometryTypes'
+import { transformRect } from 'app/util/GeometryUtil'
+import Profiler from 'app/util/Profiler'
 
 import WebGLCanvas, { GraphicBuffer, Texture } from './WebGLCanvas'
 import { TransformationShader } from './Shaders'

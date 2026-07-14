@@ -1,15 +1,15 @@
 import React from 'react'
 import { Button, Classes } from '@blueprintjs/core'
 
-import { msg } from 'common/i18n/i18n'
-import { bindMany } from 'common/util/LangUtil'
-import { formatNumber } from 'common/util/TextUtil'
 
 import { PhotoActionController } from 'app/controller/PhotoActionController'
+import { msg } from 'app/i18n/i18n'
 import { PhotoCollection } from 'app/state/StateTypes'
 import toaster from 'app/Toaster'
 import MdRestoreFromTrash from 'app/ui/widget/icon/MdRestoreFromTrash'
+import { bindMany } from 'app/util/LangUtil'
 import { getCollectionSize } from 'app/util/PhotoCollectionResolver'
+import { formatNumber } from 'app/util/TextUtil'
 
 import RotateButtonGroup from './RotateButtonGroup'
 

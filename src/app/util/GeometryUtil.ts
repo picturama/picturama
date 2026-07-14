@@ -1,6 +1,7 @@
 import { mat4, vec2 } from 'gl-matrix'
 
-import { Point, Size, Rect, Corner } from './GeometryTypes'
+import { Point, Size, Rect, Corner } from 'app/util/GeometryTypes'
+
 import { round } from './LangUtil'
 
 

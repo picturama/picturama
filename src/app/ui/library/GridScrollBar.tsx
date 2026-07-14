@@ -3,10 +3,9 @@ import { findDOMNode } from 'react-dom'
 import classnames from 'classnames'
 import dayjs from 'dayjs'
 
-import { PhotoSectionId, PhotoSectionById } from 'common/CommonTypes'
-import { bindMany } from 'common/util/LangUtil'
-
+import { PhotoSectionId, PhotoSectionById } from 'app/CommonTypes'
 import { GridLayout, GridSectionLayout } from 'app/UITypes'
+import { bindMany } from 'app/util/LangUtil'
 
 import './GridScrollBar.less'
 

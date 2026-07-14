@@ -1,4 +1,4 @@
-import { PhotoId, Photo, PhotoDetail, MetaData, ExifData } from 'common/CommonTypes'
+import { PhotoId, Photo, PhotoDetail, MetaData, ExifData } from 'app/CommonTypes'
 
 import { LibrarySelectionController } from 'app/controller/LibrarySelectionController'
 import { PhotoActionController } from 'app/controller/PhotoActionController'

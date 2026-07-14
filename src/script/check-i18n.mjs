@@ -1,10 +1,10 @@
 import { readFileSync, writeFileSync } from 'fs'
 
 
-// Keep in sync with src/common/i18n/i18n.ts
+// Keep in sync with src/app/i18n/i18n.ts
 const languages = [ 'cs', 'de', 'en', 'es', 'fr', 'ru', 'zh' ]
 
-const masterLines = readFileAsLines('src/common/i18n/text_en.ts')
+const masterLines = readFileAsLines('src/app/i18n/text_en.ts')
 
 const msgLineRegex = /^( *)([^ :]+): *(['"`].*?['"`]),? *$/
 
@@ -17,7 +17,7 @@ for (const language of languages) {
         continue
     }
 
-    const languageFile = `src/common/i18n/text_${language}.ts`
+    const languageFile = `src/app/i18n/text_${language}.ts`
     const lines = readFileAsLines(languageFile)
     const msgByKey = {}
     for (const line of lines) {
@@ -62,7 +62,7 @@ for (const language of languages) {
     stats.missing[language] = missingMsgCount
 }
 
-writeFileSync('src/common/i18n/i18n-stats.json', JSON.stringify(stats, null, 4))
+writeFileSync('src/app/i18n/i18n-stats.json', JSON.stringify(stats, null, 4))
 
 
 function readFileAsLines(path) {

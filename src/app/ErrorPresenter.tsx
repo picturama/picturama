@@ -1,8 +1,7 @@
 import copyToClipboard from 'copy-text-to-clipboard'
 
-import { getLocale, msg } from 'common/i18n/i18n'
-
 import toaster from 'app/Toaster'
+import { getLocale, msg } from 'app/i18n/i18n'
 import store from 'app/state/store'
 import { createErrorToastProps } from 'app/ui/main/ErrorToast'
 

@@ -1,6 +1,6 @@
 // Mirrors src-tauri/src/common_types.rs
 
-import { Rect } from 'common/util/GeometryTypes'
+import { Rect } from 'app/util/GeometryTypes'
 
 
 // ----- Database types -----

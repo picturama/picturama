@@ -1,15 +1,8 @@
 import { mat4 } from 'gl-matrix'
 import { convertFileSrc } from '@tauri-apps/api/core'
 
-import Profiler from 'common/util/Profiler'
-
 import BackgroundClient from 'app/BackgroundClient'
-
-
-const exifrOrientationOptions = {
-    translateValues: false,
-    pick: [ 'Orientation' ],
-}
+import Profiler from 'app/util/Profiler'
 
 
 const acceptedHeicExtensions = [ 'heic', 'heif' ]

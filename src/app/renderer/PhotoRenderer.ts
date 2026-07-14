@@ -1,12 +1,11 @@
-import { Photo, PhotoWork, PhotoRenderOptions, PhotoRenderFormat, BinaryString } from 'common/CommonTypes'
-import { CameraMetricsBuilder } from 'common/util/CameraMetrics'
-import { decodeImageDataUrlAsBinaryString, getMasterPath } from 'common/util/DataUtil'
-import { Size } from 'common/util/GeometryTypes'
-import { isShallowEqual } from 'common/util/LangUtil'
-import SerialJobQueue from 'common/util/SerialJobQueue'
-import Profiler from 'common/util/Profiler'
-
+import { Photo, PhotoWork, PhotoRenderOptions, PhotoRenderFormat, BinaryString } from 'app/CommonTypes'
 import { updatePhoto } from 'app/controller/PhotoController'
+import { CameraMetricsBuilder } from 'app/util/CameraMetrics'
+import { decodeImageDataUrlAsBinaryString, getMasterPath } from 'app/util/DataUtil'
+import { Size } from 'app/util/GeometryTypes'
+import { isShallowEqual } from 'app/util/LangUtil'
+import SerialJobQueue from 'app/util/SerialJobQueue'
+import Profiler from 'app/util/Profiler'
 
 import PhotoCanvas from './PhotoCanvas'
 

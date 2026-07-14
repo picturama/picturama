@@ -17,7 +17,7 @@ import {
     Settings,
     Tag,
     UiConfig,
-} from 'common/CommonTypes'
+} from 'app/CommonTypes'
 
 
 // Command names are converted from camelCase to snake_case because Tauri expects Rust-style command names.

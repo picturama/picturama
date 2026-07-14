@@ -1,8 +1,8 @@
+import { PhotoExportOptions } from 'app/CommonTypes'
+import { msg } from 'app/i18n/i18n'
 import { Action } from 'app/state/ActionType'
 import { OPEN_EXPORT, CLOSE_EXPORT, SET_EXPORT_OPTIONS, TOGGLE_SHOW_EXPORT_REMOVE_INFO_DESC, SET_EXPORT_PROGRESS } from 'app/state/actionTypes'
 import { ExportState, DataState } from 'app/state/StateTypes'
-import { PhotoExportOptions } from 'common/CommonTypes'
-import { msg } from 'common/i18n/i18n'
 
 
 export const exportReducer = (state: ExportState = null, dataState: DataState, action: Action): ExportState => {

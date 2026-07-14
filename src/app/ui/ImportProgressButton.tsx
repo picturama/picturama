@@ -2,10 +2,10 @@ import React from 'react'
 import classnames from 'classnames'
 import { Popover, Position, Button, Spinner, Icon } from '@blueprintjs/core'
 
-import { msg } from 'common/i18n/i18n'
-import { bindMany } from 'common/util/LangUtil'
-import { formatNumber } from 'common/util/TextUtil'
-import { ImportProgress } from 'common/CommonTypes'
+import { ImportProgress } from 'app/CommonTypes'
+import { msg } from 'app/i18n/i18n'
+import { bindMany } from 'app/util/LangUtil'
+import { formatNumber } from 'app/util/TextUtil'
 
 import './ImportProgressButton.less'
 

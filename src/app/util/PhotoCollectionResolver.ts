@@ -1,5 +1,4 @@
-import { isLoadedPhotoSection, Photo, PhotoSectionId, PhotoSet } from 'common/CommonTypes'
-
+import { isLoadedPhotoSection, Photo, PhotoSectionId, PhotoSet } from 'app/CommonTypes'
 import { fetchSectionPhotos } from 'app/controller/LibraryController'
 import { PhotoCollection, SectionSelectionState, SectionsState, SelectionState } from 'app/state/StateTypes'
 import store from 'app/state/store'

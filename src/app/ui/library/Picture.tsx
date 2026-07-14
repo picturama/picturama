@@ -4,16 +4,15 @@ import { findDOMNode } from 'react-dom'
 import { Button, Icon } from '@blueprintjs/core'
 import { FaCheckCircle, FaRegCircle } from 'react-icons/fa'
 
-import { msg } from 'common/i18n/i18n'
-import CancelablePromise, { isCancelError } from 'common/util/CancelablePromise'
-import { bindMany, getErrorCode } from 'common/util/LangUtil'
-import { PhotoId, Photo, PhotoSectionId } from 'common/CommonTypes'
-
+import { PhotoId, Photo, PhotoSectionId } from 'app/CommonTypes'
 import { LibrarySelectionController } from 'app/controller/LibrarySelectionController'
 import { formatCommandLabel } from 'app/controller/HotkeyController'
+import { msg } from 'app/i18n/i18n'
 import { selectionButtonSize, toolbarHeight } from 'app/style/variables'
 import { JustifiedLayoutBox } from 'app/UITypes'
 import RedCheckCircle from 'app/ui/widget/icon/RedCheckCircle'
+import CancelablePromise, { isCancelError } from 'app/util/CancelablePromise'
+import { bindMany, getErrorCode } from 'app/util/LangUtil'
 
 import './Picture.less'
 

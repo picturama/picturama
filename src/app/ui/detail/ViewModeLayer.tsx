@@ -3,12 +3,11 @@ import React from 'react'
 import { Button, ButtonGroup, MaybeElement, Slider } from '@blueprintjs/core'
 import { FaArrowLeft, FaArrowRight, FaChevronLeft, FaCrop } from 'react-icons/fa'
 
-import { msg } from 'common/i18n/i18n'
-import { CameraMetrics, RequestedPhotoPosition, limitPhotoPosition } from 'common/util/CameraMetrics'
-import { bindMany } from 'common/util/LangUtil'
-
-import Toolbar from 'app/ui/widget/Toolbar'
 import { Command, getCommandButtonProps, CommandGroupId, addCommandGroup, setCommandGroupEnabled, removeCommandGroup } from 'app/controller/HotkeyController'
+import { msg } from 'app/i18n/i18n'
+import Toolbar from 'app/ui/widget/Toolbar'
+import { CameraMetrics, RequestedPhotoPosition, limitPhotoPosition } from 'app/util/CameraMetrics'
+import { bindMany } from 'app/util/LangUtil'
 
 import ViewModeOverlay from './ViewModeOverlay'
 

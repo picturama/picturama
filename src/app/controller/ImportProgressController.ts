@@ -1,17 +1,14 @@
 import dayjs from 'dayjs'
 
-import { Tag, PhotoSectionId, isLoadedPhotoSection } from 'common/CommonTypes'
-import { ImportProgress } from 'common/CommonTypes'
-import { msg } from 'common/i18n/i18n'
-import { formatNumber } from 'common/util/TextUtil'
-
+import { ImportProgress, Tag, PhotoSectionId, isLoadedPhotoSection } from 'app/CommonTypes'
+import { msg } from 'app/i18n/i18n'
 import { fetchSections, fetchTotalPhotoCount } from 'app/controller/PhotoController'
 import { setTags } from 'app/controller/PhotoTagController'
 import { setImportProgressAction } from 'app/state/actions'
 import store from 'app/state/store'
 import toaster from 'app/Toaster'
-
 import { observeStore } from 'app/util/ReduxUtil'
+import { formatNumber } from 'app/util/TextUtil'
 
 
 /** The interval in which to update the library grid while running an import (in ms) */

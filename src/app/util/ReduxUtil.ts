@@ -1,6 +1,6 @@
 import { Store } from 'redux'
 
-import { isShallowEqual } from 'common/util/LangUtil'
+import { isShallowEqual } from 'app/util/LangUtil'
 
 
 /**

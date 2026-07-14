@@ -5,17 +5,16 @@ import { Button, Icon, NonIdealState, Popover, Position, Classes, Menu, MenuItem
 import dayjs from 'dayjs'
 import { FaTags } from 'react-icons/fa'
 
-import { Photo, ExifData, ExifSegment, allExifSegments } from 'common/CommonTypes'
-import { msg, hasMsg } from 'common/i18n/i18n'
-import { bindMany } from 'common/util/LangUtil'
-import { getMasterPath } from 'common/util/DataUtil'
-import { formatNumber } from 'common/util/TextUtil'
-
 import BackgroundClient from 'app/BackgroundClient'
+import { Photo, ExifData, ExifSegment, allExifSegments } from 'app/CommonTypes'
+import { msg, hasMsg } from 'app/i18n/i18n'
 import { InfoPhotoData } from 'app/state/StateTypes'
 import { FetchState } from 'app/UITypes'
 import MiniWorldMap from 'app/ui/widget/MiniWorldMap'
 import Toolbar from 'app/ui/widget/Toolbar'
+import { bindMany } from 'app/util/LangUtil'
+import { getMasterPath } from 'app/util/DataUtil'
+import { formatNumber } from 'app/util/TextUtil'
 
 import TagEditor from './TagEditor'
 

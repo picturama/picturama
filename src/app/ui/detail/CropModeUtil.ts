@@ -1,7 +1,7 @@
 import { vec2 } from 'gl-matrix'
 
-import { Rect, corners } from 'common/util/GeometryTypes'
-import { cornerPointOfRect, Vec2Like, directionOfPoints, nearestPointOnLine, squareDistanceOfPoints, movePoint, intersectLines } from 'common/util/GeometryUtil'
+import { Rect, corners } from 'app/util/GeometryTypes'
+import { cornerPointOfRect, Vec2Like, directionOfPoints, nearestPointOnLine, squareDistanceOfPoints, movePoint, intersectLines } from 'app/util/GeometryUtil'
 
 
 /**

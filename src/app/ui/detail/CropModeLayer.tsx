@@ -2,16 +2,16 @@ import React from 'react'
 import classnames from 'classnames'
 import { vec2 } from 'gl-matrix'
 
-import { PhotoWork } from 'common/CommonTypes'
-import { CameraMetrics, getInvertedProjectionMatrix, createProjectionMatrix } from 'common/util/CameraMetrics'
-import { Point, Size, Rect, Side, Corner, corners, Insets, zeroInsets } from 'common/util/GeometryTypes'
+import { PhotoWork } from 'app/CommonTypes'
+import { CameraMetrics, getInvertedProjectionMatrix, createProjectionMatrix } from 'app/util/CameraMetrics'
+import { Point, Size, Rect, Side, Corner, corners, Insets, zeroInsets } from 'app/util/GeometryTypes'
 import {
     transformRect, oppositeCorner, cornerPointOfRect, centerOfRect, intersectLineWithPolygon,
     rectFromCenterAndSize, isPointInPolygon, nearestPointOnPolygon, Vec2Like, rectFromCornerPointAndSize,
     rectFromPoints, directionOfPoints, movePoint, ceilVec2, floorVec2, roundVec2, boundsOfPoints,
     boundsOfRects, scaleRectToFitBorders
-} from 'common/util/GeometryUtil'
-import { bindMany, isShallowEqual } from 'common/util/LangUtil'
+} from 'app/util/GeometryUtil'
+import { bindMany, isShallowEqual } from 'app/util/LangUtil'
 
 import CropOverlay from './CropOverlay'
 import CropModeToolbar from './CropModeToolbar'

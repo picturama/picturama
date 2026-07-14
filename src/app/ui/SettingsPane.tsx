@@ -4,17 +4,16 @@ import { Button } from '@blueprintjs/core'
 import classnames from 'classnames'
 import { FaChevronLeft } from 'react-icons/fa'
 
-import { Settings } from 'common/CommonTypes'
-import { msg } from 'common/i18n/i18n'
-import { bindMany } from 'common/util/LangUtil'
-
 import BackgroundClient from 'app/BackgroundClient'
+import { Settings } from 'app/CommonTypes'
 import { showError } from 'app/ErrorPresenter'
+import { msg } from 'app/i18n/i18n'
 import Toolbar from 'app/ui/widget/Toolbar'
 import List from 'app/ui/widget/List'
 import LogoDecoration from 'app/ui/widget/LogoDecoration'
 import { setSettingsAction, closeSettingsAction } from 'app/state/actions'
 import { AppState } from 'app/state/StateTypes'
+import { bindMany } from 'app/util/LangUtil'
 
 import './SettingsPane.less'
 

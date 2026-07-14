@@ -1,5 +1,4 @@
-import { isLoadedPhotoSection, LoadedPhotoSection, PhotoId, PhotoSectionId } from 'common/CommonTypes'
-
+import { isLoadedPhotoSection, LoadedPhotoSection, PhotoId, PhotoSectionId } from 'app/CommonTypes'
 import { setLibraryActivePhotoAction, setLibraryHoverPhotoAction, setLibrarySelectionAction } from 'app/state/actions'
 import { getPreselectionRange } from 'app/state/selectors'
 import { PhotoLibraryPosition, SectionSelectionState, SelectionState } from 'app/state/StateTypes'

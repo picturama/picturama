@@ -1,4 +1,4 @@
-import { IpcErrorInfo } from 'common/CommonTypes'
+import { IpcErrorInfo } from 'app/CommonTypes'
 
 import { getErrorCode, addErrorCode } from './LangUtil'
 

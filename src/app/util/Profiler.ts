@@ -1,4 +1,4 @@
-import { logProfilesInstantly } from "../LogConstants"
+import { logProfilesInstantly } from 'app/LogConstants'
 
 
 /**

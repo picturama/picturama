@@ -1,9 +1,9 @@
 import React from 'react'
 import { convertFileSrc } from '@tauri-apps/api/core'
 
-import CancelablePromise from 'common/util/CancelablePromise'
-import { LoadedPhotoSection, Photo, PhotoSectionId } from 'common/CommonTypes'
-import { getMasterPath } from 'common/util/DataUtil'
+import CancelablePromise from 'app/util/CancelablePromise'
+import { LoadedPhotoSection, Photo, PhotoSectionId } from 'app/CommonTypes'
+import { getMasterPath } from 'app/util/DataUtil'
 
 import { defaultGridRowHeight } from 'app/UiConstants'
 import { GridSectionLayout } from 'app/UITypes'

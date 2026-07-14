@@ -1,7 +1,7 @@
 import { mat4 } from 'gl-matrix'
 
-import { transformRect } from 'common/util/GeometryUtil'
-import { PhotoWork } from 'common/CommonTypes'
+import { PhotoWork } from 'app/CommonTypes'
+import { transformRect } from 'app/util/GeometryUtil'
 
 
 export function rotate(photoWork: PhotoWork, turns: number, adjustCropRect: boolean) {

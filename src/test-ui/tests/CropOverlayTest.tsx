@@ -2,9 +2,9 @@ import React from 'react'
 import classnames from 'classnames'
 import { ResizeSensor, IResizeEntry } from '@blueprintjs/core'
 
-import { bindMany } from 'common/util/LangUtil'
-import { Point, Rect, Corner, Side } from 'common/util/GeometryTypes'
-import { cornerPointOfRect, rectFromPoints } from 'common/util/GeometryUtil'
+import { bindMany } from 'app/util/LangUtil'
+import { Point, Rect, Corner, Side } from 'app/util/GeometryTypes'
+import { cornerPointOfRect, rectFromPoints } from 'app/util/GeometryUtil'
 
 import CropOverlay, { Props as CropOverlayProps } from 'app/ui/detail/CropOverlay'
 

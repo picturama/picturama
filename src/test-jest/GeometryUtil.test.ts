@@ -1,4 +1,4 @@
-import { intersectLinesPlain, Vec2Like, intersectLineWithPolygon } from 'common/util/GeometryUtil'
+import { intersectLinesPlain, Vec2Like, intersectLineWithPolygon } from 'app/util/GeometryUtil'
 
 
 test('test intersectLines', () => {

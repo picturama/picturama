@@ -3,15 +3,14 @@ import classnames from 'classnames'
 import { Button, Classes, Popover, Position, Menu, MenuItem, MenuDivider } from '@blueprintjs/core'
 import { MdImageAspectRatio } from 'react-icons/md'
 
-import { msg } from 'common/i18n/i18n'
-import { rotate } from 'common/util/EffectsUtil'
-import { bindMany } from 'common/util/LangUtil'
-import { PhotoWork } from 'common/CommonTypes'
-
+import { PhotoWork } from 'app/CommonTypes'
+import { msg } from 'app/i18n/i18n'
 import { red } from 'app/style/variables'
 import RotateButtonGroup from 'app/ui/widget/RotateButtonGroup'
 import { SVG_ICON_CLASS } from 'app/ui/widget/icon/SvgIcon'
 import Toolbar from 'app/ui/widget/Toolbar'
+import { rotate } from 'app/util/EffectsUtil'
+import { bindMany } from 'app/util/LangUtil'
 
 import { aspectRatioTypes, AspectRatioType } from './DetailTypes'
 

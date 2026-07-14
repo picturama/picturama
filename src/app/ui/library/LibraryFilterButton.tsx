@@ -3,10 +3,9 @@ import { connect } from 'react-redux'
 import { Popover, Button, IconName, Position, Menu, MenuItem, MenuDivider } from '@blueprintjs/core'
 import classnames from 'classnames'
 
-import { msg } from 'common/i18n/i18n'
-import { TagId, TagById, Device, PhotoFilter } from 'common/CommonTypes'
-
+import { TagId, TagById, PhotoFilter } from 'app/CommonTypes'
 import { setLibraryFilter } from 'app/controller/PhotoController'
+import { msg } from 'app/i18n/i18n'
 import { AppState } from 'app/state/StateTypes'
 
 import './LibraryFilterButton.less'
