@@ -16,13 +16,12 @@ use std::collections::HashMap;
 // ---------------------------------------------------------------------------
 
 pub struct I18n {
-    pub locale: String,
     texts: HashMap<String, String>,
 }
 
 impl I18n {
-    pub fn new(locale: String, texts: HashMap<String, String>) -> Self {
-        Self { locale, texts }
+    pub fn new(texts: HashMap<String, String>) -> Self {
+        Self { texts }
     }
 
     /// Look up a translation key and return the translated string.
@@ -35,25 +34,25 @@ impl I18n {
             .unwrap_or_else(|| format!("[{}]", key))
     }
 
-    /// Look up a translation key and substitute positional placeholders.
-    /// `{0}` is replaced by `args[0]`, `{1}` by `args[1]`, etc. — identical
-    /// to the TypeScript `msg(key, ...args)` behaviour.
-    pub fn msg_args(&self, key: &str, args: &[&str]) -> String {
-        let template = self
-            .texts
-            .get(key)
-            .cloned()
-            .unwrap_or_else(|| format!("[{}]", key));
-
-        if args.is_empty() {
-            return template;
-        }
-
-        // Replace {0}, {1}, ... with the corresponding argument
-        let mut result = template;
-        for (i, arg) in args.iter().enumerate() {
-            result = result.replace(&format!("{{{}}}", i), arg);
-        }
-        result
-    }
+    // /// Look up a translation key and substitute positional placeholders.
+    // /// `{0}` is replaced by `args[0]`, `{1}` by `args[1]`, etc. — identical
+    // /// to the TypeScript `msg(key, ...args)` behaviour.
+    // pub fn msg_args(&self, key: &str, args: &[&str]) -> String {
+    //     let template = self
+    //         .texts
+    //         .get(key)
+    //         .cloned()
+    //         .unwrap_or_else(|| format!("[{}]", key));
+    //
+    //     if args.is_empty() {
+    //         return template;
+    //     }
+    //
+    //     // Replace {0}, {1}, ... with the corresponding argument
+    //     let mut result = template;
+    //     for (i, arg) in args.iter().enumerate() {
+    //         result = result.replace(&format!("{{{}}}", i), arg);
+    //     }
+    //     result
+    // }
 }

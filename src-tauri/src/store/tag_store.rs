@@ -182,23 +182,6 @@ pub fn apply_photo_tags(
     Ok(tags_changed)
 }
 
-pub fn delete_tags_of_photos(conn: &rusqlite::Connection, photo_ids: &[PhotoId]) -> Result<bool, String> {
-    if photo_ids.is_empty() {
-        return Ok(false);
-    }
-    let ids_csv = photo_ids.iter().map(|id| id.to_string()).collect::<Vec<_>>().join(",");
-    let deleted = conn
-        .execute(
-            &format!("DELETE FROM photos_tags WHERE photo_id IN ({})", ids_csv),
-            [],
-        )
-        .map_err(|e| e.to_string())?;
-    if deleted > 0 {
-        mark_tags_deleted();
-    }
-    Ok(deleted > 0)
-}
-
 /// port of common/util/LangUtil.ts slug()
 pub fn slug(text: &str) -> String {
     // Lowercase, then replace any run of non-alphanumeric characters with a

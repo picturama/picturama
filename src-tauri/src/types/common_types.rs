@@ -231,14 +231,6 @@ pub struct PhotoExportOptions {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct PhotoExportProgress {
-    pub processed: u32,
-    pub total: u32,
-}
-
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct EmptyTrashResult {
     pub photo_ids: Vec<PhotoId>,
     pub updated_tags: Option<Vec<Tag>>,

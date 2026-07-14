@@ -11,10 +11,10 @@ use crate::store::settings_store;
 use crate::types::common_types::{Settings, UiConfig, WindowStyle};
 
 #[tauri::command]
-pub async fn on_before_render_ui(app: AppHandle, locale: String, locale_texts: HashMap<String, String>)
+pub async fn on_before_render_ui(app: AppHandle, locale_texts: HashMap<String, String>)
     -> Result<(), String>
 {
-    let i18n = I18n::new(locale, locale_texts);
+    let i18n = I18n::new(locale_texts);
 
     match menu::build(&app, &i18n) {
         Ok(native_menu) => {

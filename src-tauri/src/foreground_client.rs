@@ -142,25 +142,6 @@ pub async fn render_photo(
         .ok_or_else(|| "renderPhoto: expected string result".to_string())
 }
 
-/// Ask the UI to render an arbitrary image file.
-pub async fn render_image(
-    app: &AppHandle,
-    image_path: &str,
-    max_size: Option<crate::types::geometry_types::Size>,
-    options: &crate::types::common_types::PhotoRenderOptions,
-) -> Result<String, String> {
-    let params = serde_json::json!({
-        "imagePath": image_path,
-        "maxSize": max_size,
-        "options": options,
-    });
-    let value = call_foreground(app, "renderImage", params).await?;
-    value
-        .as_str()
-        .map(|s| s.to_string())
-        .ok_or_else(|| "renderImage: expected string result".to_string())
-}
-
 /// Show an error originating in the Rust process in the UI.
 pub fn show_error(app: &AppHandle, msg: &str, error: Option<&str>) {
     let params = serde_json::json!({
