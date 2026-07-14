@@ -29,7 +29,10 @@
     "security": {
         "assetProtocol": {
             "enable": true,
-            "scope": ["$HOME/**", "$RESOURCE/**"]
+            "scope": {
+                "allow": ["$HOME/**", "$RESOURCE/**"],
+                "requireLiteralLeadingDot": false
+            }
         },
         "csp": null
     }
