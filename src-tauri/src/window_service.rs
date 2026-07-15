@@ -81,7 +81,7 @@ pub async fn toggle_dev_tools(app: AppHandle) -> Result<(), String> {
     // unconditionally available regardless of `debug_assertions`. Picturama loads
     // no remote content (local UI only) and ships outside the Mac App Store, so
     // enabling devtools in production is safe here.
-    let window = get_main_window(&app)?;
+    let window = get_active_window(&app)?;
     if window.is_devtools_open() {
         window.close_devtools();
     } else {
@@ -140,6 +140,18 @@ pub fn register_window_state_listener(app: &AppHandle) {
 fn get_main_window(app: &AppHandle) -> Result<tauri::WebviewWindow, String> {
     app.get_webview_window("main")
         .ok_or_else(|| "Main window not found".to_string())
+}
+
+/// The currently focused window, falling back to the main window. Used by actions that should act on
+/// whichever window the user is looking at (e.g. devtools, reload) rather than always the main window.
+/// (`get_focused_window` is behind Tauri's `unstable` feature, so we scan the webview windows for the
+/// focused one ourselves.)
+pub(crate) fn get_active_window(app: &AppHandle) -> Result<tauri::WebviewWindow, String> {
+    app.webview_windows()
+        .into_values()
+        .find(|w| w.is_focused().unwrap_or(false))
+        .or_else(|| app.get_webview_window("main"))
+        .ok_or_else(|| "No active window found".to_string())
 }
 
 fn emit_window_state(app: &AppHandle, window: &tauri::WebviewWindow) {

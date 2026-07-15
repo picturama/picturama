@@ -183,7 +183,7 @@ pub fn handle_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
         "view_reload" => {
             let app = app.clone();
             tauri::async_runtime::spawn(async move {
-                if let Some(window) = app.get_webview_window("main") {
+                if let Ok(window) = window_service::get_active_window(&app) {
                     let _ = window.eval("location.reload()");
                 }
             });
