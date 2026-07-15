@@ -73,7 +73,7 @@ export async function getPhotosOfCollection(photos: PhotoCollection): Promise<Ph
 }
 
 function isPhoto(photos: PhotoCollection): photos is Photo {
-    return !!photos['master_dir']
+    return !!photos['masterDir']
 }
 
 function isSelectionState(photos: PhotoCollection): photos is SelectionState {
