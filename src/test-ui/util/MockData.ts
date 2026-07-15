@@ -6,8 +6,11 @@ import { PhotoActionController } from 'app/controller/PhotoActionController'
 import { action } from 'test-ui/core/UiTester'
 
 
-// Relative to folder `dist`
-export const testPhotosDir = '../submodules/test-data/photos'
+// Absolute path to the test-data photos, injected by Vite (see `define` in vite.config.ts).
+// An absolute path is required so the UI Tester can build `asset://` URLs the Tauri asset
+// protocol accepts (it resolves against no base and rejects paths outside its allowed scope).
+declare const __PICTURAMA_TEST_PHOTOS_DIR__: string
+export const testPhotosDir = __PICTURAMA_TEST_PHOTOS_DIR__
 const testPhotos800Dir = `${testPhotosDir}/800`
 
 

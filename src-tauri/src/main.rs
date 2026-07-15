@@ -120,6 +120,23 @@ fn main() {
             app.manage(db);
 
             window_service::register_window_state_listener(app.handle());
+
+            // In dev builds the UI Tester (test-ui.html) has no backend, so it shows the real
+            // photos from `submodules/test-data` as fake thumbnails via the asset protocol. That
+            // directory lives inside the source checkout (outside `$HOME`/`$RESOURCE`), so extend
+            // the asset-protocol scope to allow it. Not compiled into release builds.
+            #[cfg(debug_assertions)]
+            {
+                let test_data_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .parent() // picturama/src-tauri → picturama/
+                    .map(|dir| dir.join("submodules/test-data"));
+                if let Some(dir) = test_data_dir {
+                    if let Err(e) = app.asset_protocol_scope().allow_directory(&dir, true) {
+                        log::warn!("Could not allow test-data dir {:?} in asset scope: {}", dir, e);
+                    }
+                }
+            }
+
             Ok(())
         })
         .build(tauri::generate_context!())
