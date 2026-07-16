@@ -35,7 +35,15 @@ html, body, #root {
 }
 
 .UiTester-localeSwitch {
+    display: flex;
+    width: 100%;
     margin-bottom: 10px;
+
+    .bp3-button {
+        flex: 1 1 100%;
+        min-width: 0;    // Default is: 30px
+        padding: 5px 0;  // Default is: 5px 10px
+    }
 }
 
 .UiTester-sectionTitle {
