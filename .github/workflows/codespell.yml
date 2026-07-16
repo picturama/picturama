@@ -12,6 +12,6 @@ jobs:
     - uses: codespell-project/actions-codespell@master
       with:
         check_filenames: true
-        skip: '*.jpg,*.png,./.git,./yarn.lock,./src/app/style/fonts/*,./src/common/i18n/text_cs.ts,./src/common/i18n/text_de.ts,./src/common/i18n/text_es.ts,./src/common/i18n/text_fr.ts,./src/common/i18n/text_zh.ts'
+        skip: '*.jpg,*.png,./.git,./yarn.lock,./src/app/style/fonts/*,./src/app/i18n/text_*'
           # For glob options see: https://docs.python.org/3/library/fnmatch.html
         #ignore_words_list: ""

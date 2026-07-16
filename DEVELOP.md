@@ -2,22 +2,19 @@ How to develop Picturama
 ========================
 
 
-
 Directory structure
 -------------------
 
     +-- dist/                 Build artifacts of the app (filled by `webpack`)
-    +-- dist-package/         Build artifacts when creating distributable packages (filled by `electron-builder`)
     +-- doc/                  Resources used by documentation
     +-- migrations/           DB migration scripts
     +-- src/
         +-- app/              Code running in web view of main UI (TypeScript / React)
-        +-- background/       The obsolete code which was running in main electron process (TODO: Remove after rust migration is finished)
-        +-- common/           Shared code (TODO: Move to src/app)
+        +-- image/            Source images
         +-- package/          Resources needed for creating distributable packages (used by `electron-builder`)
+        +-- script/           Helper scripts
         +-- static/           Static files to be copied directly to `dist`
         +-- test-jest/        Unit tests
-        +-- test-jest-background/ Unit tests of the obsolete code which was running in main electron process (TODO: Port to Rust)
         +-- test-ui/          Code running in renderer electron process of UI Tester
         +-- typings/          TypeScript type definitions
     +-- src-tauri/            Code running on native side (Rust / Tauri)
@@ -33,9 +30,7 @@ Directory structure
         +-- Cargo.toml
         +-- tauri.conf.json
     +-- submodules/           Third-party projects fetched as git submodules
-        +-- node-libraw/      Own fork of node-libraw
-        +-- test-data/        Data used for testing
-
+        +-- test-data*/       Data used for testing
 
 
 Build from sources
@@ -73,41 +68,9 @@ Clean project:
 
 Development hotkeys:
 
-  - Toggle developer tools: `Shift`+`Ctrl`+`I` (On Mac: `Cmd`+`Shift`+`I`)
-  - Toggle UI tester:       `Shift`+`Ctrl`+`T` (On Mac: `Cmd`+`Shift`+`T`)
-  - Reload UI:              `Shift`+`Ctrl`+`R` (On Mac: `Cmd`+`Shift`+`R`)
-
-
-
-Developing main process code
-----------------------------
-
-If you change code that runs in the main process, you have to restart Picturama each time in order to see your changes.
-Here's how you can use a watch build in order to reduce turnaround time:
-
-1. Run watch build (in extra console):
-
-        npm run watch
-
-2. Change your code.
-
-3. Restart Picturama without building (since building is done by the watch):
-
-        npm run start-no-build
-
-
-
-Debug main process
-------------------
-
-Main process debugging is already pre-configured in `.vscode/launch.json`.
-
-So debugging is easy:
-
-1. Open project in [VS Code](https://code.visualstudio.com/)
-
-2. Start debugging in the Debug View
-
+  - Toggle developer tools: `Ctrl`+`Shift`+`I` (On Mac: `Alt`+`Cmd`+`I`)
+  - Toggle UI tester:       `Ctrl`+`Shift`+`T` (On Mac: `Alt`+`Cmd`+`T`)
+  - Reload UI:              `Ctrl`+`Shift`+`R` (On Mac: `Cmd`+`Shift`+`R`)
 
 
 Unit tests
@@ -121,44 +84,9 @@ Run unit tests in watch mode:
 
     npm run test:watch
 
-Run a single test in watch mode (example runs test `simple import`):
+Run a single test in watch mode (replace `my test`):
 
-    npx jest -t 'simple import' --watch
-
-Clean test cache:
-
-    npm run test:clean
-
-
-
-UI Tester
----------
-
-1. Run watch build:
-
-        npm run watch
-
-2. Run Picturama (in extra console):
-
-        npm run start-no-build
-
-3. Open the UI Tester: `Shift`+`Ctrl`+`T` (On Mac: `Alt`+`Cmd`+`T`)
-
-4. Change some React code and save
-
-5. Wait for the watch build to build the changes
-
-6. Reload UI Tester: `Shift`+`Ctrl`+`R` (On Mac: `Cmd`+`Shift`+`R`)
-
-
-
-Add missing attributes to localization files
---------------------------------------------
-
-Add missing attributes to `src/common/i18n/text_*.ts`:
-
-    npm run i18n
-
+    npx jest -t 'my test' --watch
 
 
 Build distributable package
@@ -183,7 +111,7 @@ HEIC on a machine without a system `libheif`:
 
 Run on the platform you want to build for:
 
-    npm run release
+    npm run clean && npm run release
 
 This produces, in `src-tauri/target/release/bundle/`:
 
@@ -206,10 +134,13 @@ The following files provide I18N:
 
   - `.github/workflows/codespell.yml` - The `text_*.ts` have to be excluded from codespell checks, since it only checks
     the English language.
-  - `package.json` - Defines languages available in mac package (see key `electronLanguages`)
-  - `src/common/i18n/i18n.ts` - Defines available languages and provides the I18N logic
-  - `src/common/i18n/text_*.ts` - Holds the I18N messages for each language
+  - `src/app/i18n/i18n.ts` - Defines available languages and provides the I18N logic
+  - `src/app/i18n/text_*.ts` - Holds the I18N messages for each language
+  - `src/script/check-i18n.mjs` - Adds missing attributes (called by `npm run i18n` - see below)
 
+Add missing attributes to localization files:
+
+    npm run i18n
 
 
 Icons
@@ -221,6 +152,34 @@ Used icon libs:
   - [Font Awesome](https://fontawesome.com/icons) - using `react-icons/fa`
   - [Material Design](https://material.io/tools/icons/) - using `react-icons/md`
 
+
+Code style
+----------
+
+Generally I think it's important to keep in mind why a codebase should follow a certain code style. In my opinion the
+answer is: to make the code easier to read. Therefore I prefer rules arguing with readability over strict rules only
+allowing one strict format.
+
+  - Indent with 4 spaces
+  - String quotes: In TypeScript use single quotes for strings. But the others may be used if it makes the code more readable (e.g. by avoiding escaping).
+  - No EOL spaces: The code should not contain EOL white space. But if there already is EOL white space, this can be fixed if the code is changed the next time (since it doesn't really affect readability - small diffs are more important here).
+  - Trailing commas are optional. I add trailing commas if I think it's likely that the list gets more attributes in the future (which then can be added with a smaller diff).
+  - Break lines after 120 characters: All code should be readable without horizontal scrolling.
+      - For parameter lists I add the normal indentation (4 spaces) for each new line and I put the `{` of the method body
+        unindented, so the parameter list and the function body are visually separated
+        (the same applies for if statements and similar):
+
+        ```TypeScript
+        class MyClass {
+
+            doStuff(param1: number, param2: string,
+                param3: boolean): string
+            {
+                return ...
+            }
+
+        }
+        ```
 
 
 CSS naming conventions
