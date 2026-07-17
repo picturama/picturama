@@ -1,6 +1,6 @@
 import React from 'react'
 import classnames from 'classnames'
-import { ResizeSensor, IResizeEntry, Spinner, NonIdealState, Classes, Button } from '@blueprintjs/core'
+import { ResizeSensor, IResizeEntry, Spinner, NonIdealState, Classes, Button, Intent } from '@blueprintjs/core'
 import { FaRegCircle } from 'react-icons/fa'
 
 import { PhotoWork, PhotoSectionId, Photo } from 'app/CommonTypes'
@@ -225,16 +225,7 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
                         inSelectionMode={!!props.selection}
                         isTopBarRight={!props.isShowingInfo}
                         topBarRightItem={
-                            props.selection ? (
-                                <Button
-                                    className='PhotoDetailBody-toggleSelected'
-                                    intent='primary'
-                                    active={isSelected}
-                                    icon={isSelected ? <RedCheckCircle size={16}/> : <FaRegCircle style={{ fontSize: 16 }}/>}
-                                    text={msg(isSelected ? 'PhotoDetailBody_selected' : 'PhotoDetailBody_select')}
-                                    onClick={this.onTogglePhotoSelected}
-                                />
-                            ) : (
+                            <>
                                 <PhotoActionButtons
                                     selectedPhotos={props.photo}
                                     isShowingTrash={!!props.photo.trashed}
@@ -242,9 +233,16 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
                                     photoActionController={props.photoActionController}
                                     toggleShowInfo={props.toggleShowInfo}
                                 />
-                            )
+                                <Button
+                                    className='PhotoDetailBody-toggleSelected'
+                                    intent={props.selection ? Intent.PRIMARY : Intent.NONE}
+                                    active={isSelected}
+                                    icon={isSelected ? <RedCheckCircle size={16}/> : <FaRegCircle style={{ fontSize: 16 }}/>}
+                                    text={msg(isSelected ? 'PhotoDetailBody_selected' : 'PhotoDetailBody_select')}
+                                    onClick={this.onTogglePhotoSelected}
+                                />
+                            </>
                         }
-                        showEditButton={!props.selection}
                         isActive={props.isActive}
                         isFirst={props.isFirst}
                         isLast={props.isLast}

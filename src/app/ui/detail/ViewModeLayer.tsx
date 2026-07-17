@@ -18,7 +18,6 @@ export interface Props {
     inSelectionMode: boolean
     isTopBarRight: boolean
     topBarRightItem?: MaybeElement
-    showEditButton: boolean
     isActive: boolean
     isFirst: boolean
     isLast: boolean
@@ -47,7 +46,7 @@ export default class ViewModeLayer extends React.Component<Props> {
             prevPhoto: { combo: 'left', enabled: () => !this.props.isFirst, label: msg('PhotoDetailPane_prevPhoto'), onAction: props.setPreviousDetailPhoto },
             nextPhoto: { combo: 'right', enabled: () => !this.props.isLast, label: msg('PhotoDetailPane_nextPhoto'), onAction: props.setNextDetailPhoto },
             toggleSelected: { combo: 'space', enabled: () => !!this.props.inSelectionMode, onAction: props.togglePhotoSelected },
-            edit: { combo: 'enter', enabled: () => this.props.showEditButton, label: msg('PhotoDetailPane_edit'), onAction: props.enterCropMode },
+            edit: { combo: 'enter', label: msg('PhotoDetailPane_edit'), onAction: props.enterCropMode },
         }
     }
 
@@ -128,11 +127,9 @@ export default class ViewModeLayer extends React.Component<Props> {
                         />
                         <div className='PhotoDetailPane-zoomValue'>{zoomSliderLabel}</div>
                     </div>
-                    {props.showEditButton &&
-                        <Button minimal={true} {...getCommandButtonProps(commands.edit)}>
-                            <FaCrop/>
-                        </Button>
-                    }
+                    <Button minimal={true} {...getCommandButtonProps(commands.edit)}>
+                        <FaCrop/>
+                    </Button>
                     {props.topBarRightItem}
                 </Toolbar>
                 <ViewModeOverlay
