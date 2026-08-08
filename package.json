@@ -108,7 +108,7 @@
     "redux-thunk": "^2.3.0",
     "source-map-support": "^0.5.19",
     "sourcemapped-stacktrace": "^1.1.11",
-    "sqlite3": "^5.0.0",
+    "sqlite3": "^5.0.3",
     "sqlite3-helper": "2.0.1",
     "typesafe-actions": "^5.1.0"
   },
