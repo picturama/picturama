@@ -5,6 +5,7 @@ use std::env;
 use tauri::{AppHandle, Manager, State};
 
 use crate::app_config_builder::AppConfig;
+use crate::asset_scope;
 use crate::i18n::I18n;
 use crate::menu;
 use crate::store::settings_store;
@@ -50,9 +51,15 @@ pub async fn fetch_settings(app_config: State<'_, AppConfig>) -> Result<Settings
 
 #[tauri::command]
 pub async fn store_settings(
+    app: AppHandle,
     settings: Settings,
     app_config: State<'_, AppConfig>,
 ) -> Result<(), String> {
     let settings_path = app_config.picturama_home_dir.join("settings.json");
-    settings_store::store_settings(&settings_path, &settings)
+    settings_store::store_settings(&settings_path, &settings)?;
+
+    // Photos in a newly added directory must be displayable without a restart.
+    asset_scope::allow_photo_dirs(&app, &settings.photo_dirs);
+
+    Ok(())
 }

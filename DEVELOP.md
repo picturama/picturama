@@ -153,6 +153,50 @@ Used icon libs:
   - [Material Design](https://material.io/tools/icons/) - using `react-icons/md`
 
 
+Security
+--------
+
+In a Tauri app the web view is the untrusted side and the command layer is the boundary. Our
+`src-tauri/capabilities/default.json` grants only `core:default` and `core:window:*` — no fs and no shell
+plugin — so the frontend can reach the file system only through the commands we write ourselves and through
+the asset protocol. Photo content is not an injection vector: the frontend contains no
+`dangerouslySetInnerHTML`, no `innerHTML` and no `eval`, and it makes no network requests at all, so EXIF and
+XMP strings read from untrusted photos stay inert text. What the two settings below defend against is a
+compromised npm dependency shipping code into the web view.
+
+### Content-Security-Policy
+
+Defined in `src-tauri/tauri.conf.json` under `app.security.csp`:
+
+  - `default-src 'self'` — the baseline. `script-src`, `object-src` and `frame-src` are deliberately absent:
+    they fall back to `default-src`, and the app loads no external scripts, plugins or frames.
+  - `img-src 'self' asset: http://asset.localhost blob: data:`
+      - `asset:` and `http://asset.localhost` are the asset protocol — the first form is used on macOS and
+        Linux, the second on Windows. We bundle for all three, so both are needed.
+      - `blob:` — RAW previews are extracted by Rust and handed to the browser as a blob URL
+        (`src/app/renderer/WebGLCanvas.ts`).
+      - `data:` — Blueprint 3's stylesheet uses `url("data:image/svg+xml,…")` background images.
+  - `style-src 'self' 'unsafe-inline'` — required by the `style` attribute on `<html>` in `index.html` and by
+    React's inline styles (the photo grid is positioned that way by `justified-layout`).
+  - `connect-src 'self' ipc: http://ipc.localhost` — Tauri's IPC transport, with the same platform split as
+    the asset protocol. Without it every `invoke()` is blocked.
+  - `base-uri 'self'` and `form-action 'none'` — spelled out because, unlike the directives above, these two
+    have no fallback to `default-src`.
+
+### Asset protocol scope
+
+The static scope in `tauri.conf.json` allows `$RESOURCE/**` and nothing else.
+
+Everything the UI actually loads through `convertFileSrc` is granted at runtime, in `src-tauri/src/asset_scope.rs`:
+the thumbnail cache and the configured photo directories on startup, and the photo directories again whenever the
+settings are saved, so a newly added directory works without a restart.
+
+Note that grants are never taken back: Tauri's scope API can add allowed patterns but not remove them, so a
+directory removed from the settings stays readable for the rest of the session. Only the next start rebuilds the
+scope from the then-current `settings.json`. That is acceptable — what stays granted is a directory the user had
+configured themselves, not the whole home directory.
+
+
 Code style
 ----------
 

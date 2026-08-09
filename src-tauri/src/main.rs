@@ -3,6 +3,7 @@
 use tauri::Manager;
 
 mod app_config_builder;
+mod asset_scope;
 mod commands;
 mod foreground_client;
 mod i18n;
@@ -115,6 +116,10 @@ fn main() {
             // RAW no longer uses a rendered-derivative cache, so clean up a `non-raw` directory left by
             // older versions.
             remove_legacy_non_raw_dir(&app_config.picturama_home_dir);
+
+            // The static asset-protocol scope covers only `$RESOURCE`, so grant the directories the UI
+            // actually loads from: the thumbnail cache and the configured photo directories.
+            asset_scope::allow_configured_dirs(app.handle(), &app_config);
 
             app.manage(app_config);
             app.manage(db);

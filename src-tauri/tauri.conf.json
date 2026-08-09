@@ -30,11 +30,11 @@
         "assetProtocol": {
             "enable": true,
             "scope": {
-                "allow": ["$HOME/**", "$RESOURCE/**"],
+                "allow": ["$RESOURCE/**"],
                 "requireLiteralLeadingDot": false
             }
         },
-        "csp": null
+        "csp": "default-src 'self'; img-src 'self' asset: http://asset.localhost blob: data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ipc: http://ipc.localhost; base-uri 'self'; form-action 'none'"
     }
   },
   "bundle": {
