@@ -17,6 +17,7 @@ import { aspectRatioTypes, AspectRatioType } from './DetailTypes'
 
 export interface Props {
     className?: any
+    isActive: boolean
     aspectRatioType: AspectRatioType
     isAspectRatioLandscape: boolean
     photoWork: PhotoWork | null
@@ -107,7 +108,7 @@ export default class CropModeToolbar extends React.Component<Props> {
                         }
                     />
                 </Popover>
-                <RotateButtonGroup disabled={!props.photoWork} onRotate={this.onRotate}/>
+                <RotateButtonGroup isActive={props.isActive} disabled={!props.photoWork} onRotate={this.onRotate}/>
                 <Button disabled={!hasGeometryOperations} onClick={this.onReset}>
                     <span className={Classes.BUTTON_TEXT}>{msg('CropModeToolbar_reset')}</span>
                 </Button>

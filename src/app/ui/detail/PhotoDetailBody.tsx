@@ -5,6 +5,7 @@ import { FaRegCircle } from 'react-icons/fa'
 
 import { PhotoWork, PhotoSectionId, Photo } from 'app/CommonTypes'
 import { msg } from 'app/i18n/i18n'
+import { addCommandGroup, Command, CommandGroupId, getCommandButtonProps, removeCommandGroup, setCommandGroupEnabled } from 'app/controller/HotkeyController'
 import { LibrarySelectionController } from 'app/controller/LibrarySelectionController'
 import { PhotoActionController } from 'app/controller/PhotoActionController'
 import { isPhotoSelected } from 'app/state/selectors'
@@ -69,27 +70,9 @@ interface State {
     cameraMetrics: CameraMetrics | null
 }
 
-export default class PhotoDetailBody extends React.Component<Props, State> {
+type CommandKeys = 'toggleSelected'
 
-    constructor(props: Props) {
-        super(props)
-        bindMany(this, 'onLoadingStateChange', 'onResize', 'onTextureChange', 'onTogglePhotoSelected', 
-            'setPhotoPosition', 'enterCropMode', 'onPhotoWorkEdited', 'onCropDone')
-        const cameraMetricsBuilder = new CameraMetricsBuilder()
-        this.state = {
-            prevMode: null,
-            prevImagePath: null,
-            prevPhotoWork: null,
-            loadingState: null,
-            bodySize: zeroSize,
-            textureSize: null,
-            boundsRect: null,
-            photoPosition: 'contain',
-            editedPhotoWork: null,
-            cameraMetricsBuilder,
-            cameraMetrics: null,
-        }
-    }
+export default class PhotoDetailBody extends React.Component<Props, State> {
 
     static getDerivedStateFromProps(nextProps: Props, prevState: State): Partial<State> | null {
         const { cameraMetricsBuilder } = prevState
@@ -141,6 +124,48 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
         }
 
         return nextState
+    }
+
+    private commands: { [K in CommandKeys]: Command }
+    private commandGroupId: CommandGroupId = -1
+
+    constructor(props: Props) {
+        super(props)
+        bindMany(this, 'onLoadingStateChange', 'onResize', 'onTextureChange', 'onTogglePhotoSelected', 
+            'setPhotoPosition', 'enterCropMode', 'onPhotoWorkEdited', 'onCropDone')
+        const cameraMetricsBuilder = new CameraMetricsBuilder()
+        this.state = {
+            prevMode: null,
+            prevImagePath: null,
+            prevPhotoWork: null,
+            loadingState: null,
+            bodySize: zeroSize,
+            textureSize: null,
+            boundsRect: null,
+            photoPosition: 'contain',
+            editedPhotoWork: null,
+            cameraMetricsBuilder,
+            cameraMetrics: null,
+        }
+
+        this.commands = {
+            toggleSelected: { combo: 'space', enabled: () => this.props.mode === 'view', label: msg('PhotoDetailBody_select'), onAction: this.onTogglePhotoSelected },
+        }
+    }
+
+    componentDidMount() {
+        this.commandGroupId = addCommandGroup(this.commands)
+    }
+
+    componentDidUpdate(prevProps: Props) {
+        const { props } = this
+        if (props.isActive !== prevProps.isActive) {
+            setCommandGroupEnabled(this.commandGroupId, props.isActive)
+        }
+    }
+
+    componentWillUnmount() {
+        removeCommandGroup(this.commandGroupId)
     }
 
     private onLoadingStateChange(loadingState: PhotoLayerLoadingState) {
@@ -200,7 +225,7 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
     }
 
     render() {
-        const { props, state } = this
+        const { props, state, commands } = this
         const isSelected = isPhotoSelected(props.sectionId, props.photo.id, props.selection)
         return (
             <div className={classnames(props.className, 'PhotoDetailBody')}>
@@ -222,11 +247,11 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
                     <ViewModeLayer
                         topBarClassName={props.topBarClassName}
                         bodyClassName={props.bodyClassName}
-                        inSelectionMode={!!props.selection}
                         isTopBarRight={!props.isShowingInfo}
                         topBarRightItem={
                             <>
                                 <PhotoActionButtons
+                                    isActive={props.isActive}
                                     selectedPhotos={props.photo}
                                     isShowingTrash={!!props.photo.trashed}
                                     isShowingInfo={props.isShowingInfo}
@@ -239,7 +264,7 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
                                     active={isSelected}
                                     icon={isSelected ? <RedCheckCircle size={16}/> : <FaRegCircle style={{ fontSize: 16 }}/>}
                                     text={msg(isSelected ? 'PhotoDetailBody_selected' : 'PhotoDetailBody_select')}
-                                    onClick={this.onTogglePhotoSelected}
+                                    {...getCommandButtonProps(commands.toggleSelected)}
                                 />
                             </>
                         }
@@ -250,7 +275,6 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
                         setPreviousDetailPhoto={props.setPreviousDetailPhoto}
                         setNextDetailPhoto={props.setNextDetailPhoto}
                         setPhotoPosition={this.setPhotoPosition}
-                        togglePhotoSelected={this.onTogglePhotoSelected}
                         enterCropMode={this.enterCropMode}
                         closeDetail={props.closeDetail}
                     />
@@ -259,6 +283,7 @@ export default class PhotoDetailBody extends React.Component<Props, State> {
                     <CropModeLayer
                         topBarClassName={props.topBarClassName}
                         bodyClassName={props.bodyClassName}
+                        isActive={props.isActive}
                         photoWork={state.editedPhotoWork || props.photoWork}
                         cameraMetrics={state.cameraMetrics}
                         onPhotoWorkEdited={this.onPhotoWorkEdited}

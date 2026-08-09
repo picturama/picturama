@@ -168,6 +168,7 @@ export class Library extends React.Component<Props> {
             >
                 <LibraryTopBar
                     className="Library-topBar"
+                    isActive={props.isActive}
                     leftItem={props.topBarLeftItem}
                     selectedPhotos={props.selection || props.activePhoto}
                     isShowingTrash={props.libraryFilterType === 'trash'}

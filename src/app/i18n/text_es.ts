@@ -7,6 +7,7 @@ export default {
     common_error_photoNotExisting_desc: `Esta foto ya no se encuentra donde estaba ubicada en el último escaneo. Quizás fue movida, borrada o se encuentra en un disco que no está conectado`,
 
     key_space: 'Barra Espaciadora',
+    key_backspace: 'Retroceso',
 
     App_error_noWebGL_title: `WebGL deshabilitado`,
     App_error_noWebGL_desc: `Picturama necesita una tarjeta gráfica con aceleración 3D para poder funcionar. Por favor revisa en la configuración de tu sistema si es posible activar la aceleración 3D y reinicia Picturama.`,

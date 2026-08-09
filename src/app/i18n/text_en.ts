@@ -7,6 +7,7 @@ export default {
     common_error_photoNotExisting_desc: 'This photo is no longer where it was on the last scan. Maybe it has been moved, deleted or it is on a disk that is no longer connected.',
 
     key_space: 'Space',
+    key_backspace: 'Backspace',
 
     App_error_noWebGL_title: 'No WebGL',
     App_error_noWebGL_desc: 'Picturama needs a graphic card with 3D acceleration in order to function. Please have a look in the system settings whether you can activate 3D acceleration and restart Picturama.',

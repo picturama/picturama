@@ -7,6 +7,7 @@ export default {
     common_error_photoNotExisting_desc: `Cette photo n'est plus à l'endroit où elle se trouvait lors du dernier scan. Elle a peut-être été déplacée, supprimée ou se trouve sur un disque qui n'est plus connecté`,
 
     key_space: `Espace`,
+    key_backspace: `Retour arrière`,
 
     App_error_noWebGL_title: 'WebGL non supporté.',
     App_error_noWebGL_desc: `Pour fonctionner, Picturama a besoin d'une carte graphique avec accélération 3D. Veuillez vérifier dans les paramètres du système si vous pouvez activer l'accélération 3D et redémarrer Picturama.`,

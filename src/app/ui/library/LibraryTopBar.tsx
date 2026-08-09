@@ -17,6 +17,7 @@ import './LibraryTopBar.less'
 
 interface Props {
     className?: any
+    isActive: boolean
     leftItem?: MaybeElement
     selectedPhotos: PhotoCollection | null
     isShowingTrash: boolean
@@ -78,6 +79,7 @@ export default class LibraryTopBar extends React.Component<Props, State> {
                     />
                 }
                 <PhotoActionButtons
+                    isActive={props.isActive}
                     selectedPhotos={props.selectedPhotos}
                     isShowingTrash={props.isShowingTrash}
                     isShowingInfo={props.isShowingInfo}

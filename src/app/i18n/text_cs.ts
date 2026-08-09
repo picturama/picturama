@@ -7,6 +7,7 @@ export default {
     common_error_photoNotExisting_desc: 'Tato fotografie již není tam, kde byla při posledním vyhledání. Možná byla přesunuta, odstraněna nebo se nachází na disku, který již není připojen.',
 
     key_space: 'Mezera',
+    key_backspace: 'Backspace',
 
     App_error_noWebGL_title: 'Žádné WebGL',
     App_error_noWebGL_desc: 'Picturama vyžaduje grafickou kartu s 3D akcelerací. Podívejte se prosím do systémových nastavení, zda je možné aktivovat 3D akceleraci a restartujte Picturama.',

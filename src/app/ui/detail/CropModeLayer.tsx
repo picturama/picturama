@@ -25,6 +25,7 @@ const minCropRectSize = 32
 export interface Props {
     topBarClassName: string
     bodyClassName: string
+    isActive: boolean
     photoWork: PhotoWork
     cameraMetrics: CameraMetrics
     onPhotoWorkEdited(photoWork: PhotoWork, boundsRect?: Rect | null): void
@@ -324,6 +325,7 @@ export default class CropModeLayer extends React.Component<Props, State> {
             <>
                 <CropModeToolbar
                     className={classnames(props.topBarClassName, 'CropModeLayer-toolbar')}
+                    isActive={props.isActive}
                     aspectRatioType={state.aspectRatioType}
                     isAspectRatioLandscape={state.isAspectRatioLandscape}
                     photoWork={props.photoWork}
