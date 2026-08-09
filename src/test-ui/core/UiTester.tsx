@@ -29,13 +29,13 @@ interface Test {
 interface Section {
     title: string
     tests: Test[]
-    arenaStyle?: any
+    arenaStyle?: React.CSSProperties
     renderDecorator?: (testView: JSX.Element) => JSX.Element
 }
 
 
 interface SectionBuilder {
-    setArenaStyle(style: any): this
+    setArenaStyle(style: React.CSSProperties): this
     setDecorator(renderDecorator: (testView: JSX.Element) => JSX.Element): this
     add(title: string, renderTest: (context: TestContext) => JSX.Element): this
 }
@@ -52,7 +52,7 @@ export function addSection(sectionTitle: string): SectionBuilder {
     sections.push(section)
 
     const sectionBuilder: SectionBuilder = {
-        setArenaStyle(style: any) {
+        setArenaStyle(style: React.CSSProperties) {
             section.arenaStyle = style
             return sectionBuilder
         },
@@ -152,7 +152,7 @@ export default class UiTester extends React.Component<Props, State> {
         const locale = getLocale()
 
         let testView: JSX.Element | null = null
-        let arenaStyle: any = undefined
+        let arenaStyle: React.CSSProperties | undefined = undefined
         if (state.currentSection && state.currentTest) {
             testView = state.currentTest.renderTest({
                 forceUpdate: this.forceUpdate.bind(this),
