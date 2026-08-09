@@ -38,7 +38,7 @@ fn allow_directory(app: &AppHandle, dir: &Path) {
 }
 
 fn grant(app: &AppHandle, dir: &Path) {
-    // Tauri's `allow_directory` will dedupe duplicate diretory rules, so we don't have to do deduping
+    // Tauri's `allow_directory` will dedupe duplicate directory rules, so we don't have to do deduping
     if let Err(e) = app.asset_protocol_scope().allow_directory(dir, true) {
         log::warn!("Could not allow {:?} in the asset scope: {}", dir, e);
     }
