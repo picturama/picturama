@@ -131,6 +131,8 @@ export default {
 
     PhotoDetailPane_prevPhoto: 'Photo précédente',
     PhotoDetailPane_nextPhoto: 'Photo suivante',
+    PhotoDetailPane_prevSection: 'Section précédente : {0}',
+    PhotoDetailPane_nextSection: 'Section suivante : {0}',
     PhotoDetailPane_edit: 'Éditer',
 
     PhotoInfo_title: 'Info',

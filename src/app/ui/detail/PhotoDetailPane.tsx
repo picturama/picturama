@@ -136,6 +136,11 @@ const Connected = connect<StateProps, DispatchProps, OwnProps, AppState>(
         const currentPhoto = state.detail!.currentPhoto
         const sectionId = currentPhoto.sectionId
         const section = getLoadedSectionById(state, sectionId)
+        // Paging continues into the adjacent section, so it only ends at the very first and very last photo
+        const sectionIds = state.data.sections.ids
+        const sectionIndex = sectionIds.indexOf(sectionId)
+        const isFirstSection = sectionIndex <= 0
+        const isLastSection = sectionIndex === -1 || sectionIndex === sectionIds.length - 1
         return {
             ...props,
             devicePixelRatio: state.navigation.devicePixelRatio,
@@ -146,8 +151,8 @@ const Connected = connect<StateProps, DispatchProps, OwnProps, AppState>(
             photoWork: currentPhoto.photoWork,
             selection: state.library.selection,
             tags: getTagTitles(state),
-            isFirst: currentPhoto.photoIndex === 0,
-            isLast: !section || currentPhoto.photoIndex === section.photoIds.length - 1,
+            isFirst: isFirstSection && currentPhoto.photoIndex === 0,
+            isLast: isLastSection && (!section || currentPhoto.photoIndex === section.photoIds.length - 1),
             showInfo: state.info.showInDetail,
             infoPhoto: getInfoPhoto(state),
             infoPhotoData: state.info.photoData,

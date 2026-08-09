@@ -131,6 +131,8 @@ export default {
 
     PhotoDetailPane_prevPhoto: '上一张照片',
     PhotoDetailPane_nextPhoto: '下一张照片',
+    PhotoDetailPane_prevSection: '上一个分组：{0}',
+    PhotoDetailPane_nextSection: '下一个分组：{0}',
     PhotoDetailPane_edit: '编辑',
 
     PhotoInfo_title: '信息',

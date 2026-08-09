@@ -131,6 +131,8 @@ export default {
 
     PhotoDetailPane_prevPhoto: 'Předchozí fotografie',
     PhotoDetailPane_nextPhoto: 'Následující fotografie',
+    PhotoDetailPane_prevSection: 'Předchozí sekce: {0}',
+    PhotoDetailPane_nextSection: 'Následující sekce: {0}',
     PhotoDetailPane_edit: 'Editovat',
 
     PhotoInfo_title: 'Informace',
