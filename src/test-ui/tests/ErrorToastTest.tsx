@@ -7,8 +7,12 @@ import { addSection, action } from 'test-ui/core/UiTester'
 
 
 const defaultProps: Props = {
-    report: new Error('test').stack!,
-    onCopyReport: action('onCopyReport'),
+    errorInfo: {
+        technicalMsg: 'Test Error',
+        processName: 'test',
+        error: new Error('test'),
+    },
+    onReportCopied: action('onReportCopied'),
     onDismiss: action('onDismiss'),
 }
 

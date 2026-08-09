@@ -17,6 +17,7 @@ import LibraryFilterButton from 'app/ui/library/LibraryFilterButton'
 import SelectionSummary from 'app/ui/library/SelectionSummary'
 import ImportProgressButton from 'app/ui/ImportProgressButton'
 import SettingsPane from 'app/ui/SettingsPane'
+import ErrorBoundary from 'app/ui/widget/ErrorBoundary'
 import { openSettingsAction } from 'app/state/actions'
 import { AppState, MainViewState } from 'app/state/StateTypes'
 
@@ -123,28 +124,30 @@ class App extends React.Component<Props> {
         }
 
         return (
-            <div className={classNames('App', { hasNativeTrafficLightButtons: props.hasNativeTrafficLightButtons, hasWindowsButtons: props.showWindowsButtons })}>
-                <Library
-                    className='App-container'
-                    topBarLeftItem={libraryTopBarLeftItem}
-                    bottomBarLeftItem={props.importProgress &&
-                        <ImportProgressButton
-                            progress={props.importProgress}
-                            toggleImportPaused={props.toggleImportPaused}
-                            cancelImport={props.cancelImport}
+            <ErrorBoundary className='bp3-dark'>
+                <div className={classNames('App', { hasNativeTrafficLightButtons: props.hasNativeTrafficLightButtons, hasWindowsButtons: props.showWindowsButtons })}>
+                    <Library
+                        className='App-container'
+                        topBarLeftItem={libraryTopBarLeftItem}
+                        bottomBarLeftItem={props.importProgress &&
+                            <ImportProgressButton
+                                progress={props.importProgress}
+                                toggleImportPaused={props.toggleImportPaused}
+                                cancelImport={props.cancelImport}
+                            />
+                        }
+                        isActive={!mainView && !modalView}
+                    />
+                    {mainView}
+                    {modalView}
+                    {props.showWindowsButtons &&
+                        <WindowControls
+                            className='App-windowControls'
                         />
                     }
-                    isActive={!mainView && !modalView}
-                />
-                {mainView}
-                {modalView}
-                {props.showWindowsButtons &&
-                    <WindowControls
-                        className='App-windowControls'
-                    />
-                }
-            </div>
-        );
+                </div>
+            </ErrorBoundary>
+        )
     }
 }
 

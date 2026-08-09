@@ -3,6 +3,10 @@ export default {
     common_cancel: 'Abbrechen',
     common_backToLibrary: 'Zurück zur Bibliothek',
     common_ratio: '{0} von {1}',
+    common_hideReport: 'Report ausblenden',
+    common_showReport: 'Report anzeigen',
+    common_reloadUi: `Oberfläche neu laden`,
+    common_error: 'Oh nein! Da ging was schief.',
     common_error_photoNotExisting: 'Foto ist nicht mehr da',
     common_error_photoNotExisting_desc: 'Dieses Foto nicht mehr da wo es beim letzten Scan war. Evtl. wurde es verschoben, gelöscht oder es befindet sich auf einem Datenträger, der nun nicht mehr angeschlossen ist.',
 
@@ -22,10 +26,7 @@ export default {
 
     ErrorController_copied: 'Report wurde in die Zwischenablage kopiert.',
 
-    ErrorToast_title: 'Oh nein! Da ging was schief.',
-    ErrorToast_hideReport: 'Report ausblenden',
-    ErrorToast_showReport: 'Report anzeigen',
-    ErrorToast_copy: 'Kopieren',
+    ErrorReport_copy: 'Kopieren',
 
     ExportDialog_title_one: 'Foto exportieren',
     ExportDialog_title_more: '{0} Fotos exportieren',
@@ -105,7 +106,6 @@ export default {
     MainMenu_developer: `Entwickler`,
     MainMenu_toggleDevTools: `Entwickler-Tools anzeigen`,
     MainMenu_toggleUiTester: `UI-Tester anzeigen`,
-    MainMenu_reloadUi: `Oberfläche neu laden`,
 
     Picture_showDetails: 'Foto ansehen',
     Picture_select: 'Auswählen',

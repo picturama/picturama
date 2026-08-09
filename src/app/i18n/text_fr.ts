@@ -3,6 +3,10 @@ export default {
     common_cancel: 'Annuler',
     common_backToLibrary: 'Retour a la librairie.',
     common_ratio: '{0} de {1}',
+    common_hideReport: 'Masquer le rapport',
+    common_showReport: 'Afficher le rapport',
+    common_reloadUi: `Recharger l'interface`,
+    common_error: 'Oh non ! Quelque chose a mal tourné.',
     common_error_photoNotExisting: `Cette photo n'existe pas.`,
     common_error_photoNotExisting_desc: `Cette photo n'est plus à l'endroit où elle se trouvait lors du dernier scan. Elle a peut-être été déplacée, supprimée ou se trouve sur un disque qui n'est plus connecté`,
 
@@ -22,10 +26,7 @@ export default {
 
     ErrorController_copied: 'Copie du rapport dans le presse-papiers.',
 
-    ErrorToast_title: 'Oh non ! Quelque chose a mal tourné.',
-    ErrorToast_hideReport: 'Masquer le rapport',
-    ErrorToast_showReport: 'Afficher le rapport',
-    ErrorToast_copy: 'Copie',
+    ErrorReport_copy: 'Copie',
 
     ExportDialog_title_one: 'Exporter une photo',
     ExportDialog_title_more: 'Exporter {0} photos',
@@ -105,7 +106,6 @@ export default {
     MainMenu_developer: `Développeur`,
     MainMenu_toggleDevTools: `Activer les outils de développement`,
     MainMenu_toggleUiTester: `Activer l'interface de test`,
-    MainMenu_reloadUi: `Recharger l'interface`,
 
     Picture_showDetails: `Voir la photo`,
     Picture_select: `Sélectionner`,

@@ -3,6 +3,10 @@ export default {
     common_cancel: 'Cancel',
     common_backToLibrary: 'Back to library',
     common_ratio: '{0} of {1}',
+    common_hideReport: 'Hide report',
+    common_showReport: 'Show report',
+    common_reloadUi: 'Reload user interface',
+    common_error: 'Oh no! Something went wrong.',
     common_error_photoNotExisting: 'Photo is no longer there',
     common_error_photoNotExisting_desc: 'This photo is no longer where it was on the last scan. Maybe it has been moved, deleted or it is on a disk that is no longer connected.',
 
@@ -22,10 +26,7 @@ export default {
 
     ErrorController_copied: 'Copied report to clipboard.',
 
-    ErrorToast_title: 'Oh no! Something went wrong.',
-    ErrorToast_hideReport: 'Hide report',
-    ErrorToast_showReport: 'Show report',
-    ErrorToast_copy: 'Copy',
+    ErrorReport_copy: 'Copy',
 
     ExportDialog_title_one: 'Export photo',
     ExportDialog_title_more: 'Export {0} photos',
@@ -105,7 +106,6 @@ export default {
     MainMenu_developer: 'Developer',
     MainMenu_toggleDevTools: 'Toggle development tools',
     MainMenu_toggleUiTester: 'Toggle UI Tester',
-    MainMenu_reloadUi: 'Reload UI',
 
     Picture_showDetails: 'View photo',
     Picture_select: 'Select',

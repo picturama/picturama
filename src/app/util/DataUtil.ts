@@ -5,10 +5,18 @@ import { PhotoId, Photo, ExifOrientation, BinaryString, UiConfig, PhotoRenderFor
 
 const workExt: PhotoRenderFormat = 'webp'
 
-let uiConfig: UiConfig
+let uiConfig: UiConfig | undefined
 
 export function init(nextUiConfig: UiConfig) {
     uiConfig = nextUiConfig
+}
+
+export function getVersion(): string | undefined {
+    return uiConfig?.version
+}
+
+export function getPlatform(): string | undefined {
+    return uiConfig?.platform
 }
 
 export function getMasterPath(photo: Photo | { masterDir: string, masterFilename: string }): string {
@@ -16,7 +24,7 @@ export function getMasterPath(photo: Photo | { masterDir: string, masterFilename
 }
 
 export function getThumbnailPath(photoId: PhotoId): string {
-    return `${uiConfig.thumbnailPath}/${shortId(photoId)}.${workExt}`
+    return `${uiConfig!.thumbnailPath}/${shortId(photoId)}.${workExt}`
 }
 
 export function getThumbnailUrl(photoId: PhotoId): string {

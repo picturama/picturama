@@ -96,7 +96,7 @@ pub fn build(app: &AppHandle, i18n: &I18n) -> tauri::Result<Menu<tauri::Wry>> {
                 .build(app)?,
         )
         .item(
-            &MenuItemBuilder::with_id("view_reload", i18n.msg("MainMenu_reloadUi"))
+            &MenuItemBuilder::with_id("view_reload", i18n.msg("common_reloadUi"))
                 .accelerator("CmdOrCtrl+Shift+R")
                 .build(app)?,
         )

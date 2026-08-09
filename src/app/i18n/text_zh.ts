@@ -3,6 +3,10 @@ export default {
     common_cancel: '取消',
     common_backToLibrary: '返回图片馆',
     common_ratio: '{0}的{1}',
+    common_hideReport: '隐藏报告',
+    common_showReport: '显示报告',
+    common_reloadUi: '加载UI',
+    common_error: '哦，不！出了点问题',
     common_error_photoNotExisting: '照片不存在',
     common_error_photoNotExisting_desc: '这张照片已经不在上次扫描时的位置了,也许它已经被移动、删除或它在一个不再连接的磁盘上',
 
@@ -22,10 +26,7 @@ export default {
 
     ErrorController_copied: '将报告复制到剪贴板',
 
-    ErrorToast_title: '哦，不！出了点问题',
-    ErrorToast_hideReport: '隐藏报告',
-    ErrorToast_showReport: '显示报告',
-    ErrorToast_copy: '复制',
+    ErrorReport_copy: '复制',
 
     ExportDialog_title_one: '导出照片',
     ExportDialog_title_more: '导出{0}张照片',
@@ -105,7 +106,6 @@ export default {
     MainMenu_developer: '开发者',
     MainMenu_toggleDevTools: '切换开发工具',
     MainMenu_toggleUiTester: '切换UI界面',
-    MainMenu_reloadUi: '加载UI',
 
     Picture_showDetails: `浏览图片`,
     Picture_select: `选中`,

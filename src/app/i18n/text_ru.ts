@@ -3,6 +3,10 @@ export default {
     common_cancel: 'Отмена',
     common_backToLibrary: 'Обратно в библиотеку',
     common_ratio: '{0} от {1}',
+    common_hideReport: 'Скрыть отчет',
+    common_showReport: 'Показать отчет',
+    common_reloadUi: 'Перезагрузить интерфейс',
+    common_error: 'О нет! Что-то пошло не так.',
     common_error_photoNotExisting: 'Фото больше нет',
     common_error_photoNotExisting_desc: 'Эта фотография больше не находится там, где она была при последнем сканировании. Возможно, фото было перемещено, удалено или находится на диске, который больше не подключен.',
 
@@ -22,10 +26,7 @@ export default {
 
     ErrorController_copied: 'Отчет скопирован в буфер обмена.',
 
-    ErrorToast_title: 'О нет! Что-то пошло не так.',
-    ErrorToast_hideReport: 'Скрыть отчет',
-    ErrorToast_showReport: 'Показать отчет',
-    ErrorToast_copy: 'Копировать',
+    ErrorReport_copy: 'Копировать',
 
     ExportDialog_title_one: 'Экспорт фото',
     ExportDialog_title_more: 'Экспорт {0} фото',
@@ -105,7 +106,6 @@ export default {
     MainMenu_developer: 'Разработчик',
     MainMenu_toggleDevTools: 'Переключить на средства разработки',
     MainMenu_toggleUiTester: 'Переключить на тестирование пользовательского интерфейса',
-    MainMenu_reloadUi: 'Перезагрузить пользовательский интерфейс',
 
     Picture_showDetails: 'Посмотреть фото',
     Picture_select: 'Выбрать',

@@ -3,6 +3,10 @@ export default {
     common_cancel: 'Storno',
     common_backToLibrary: 'Zpět do knihovny',
     common_ratio: '{0} z {1}',
+    common_hideReport: 'Skrýt report',
+    common_showReport: 'Zobrazit report',
+    common_reloadUi: 'Znovu nahrát UI',
+    common_error: 'Ale ne! Něco se pokazilo.',
     common_error_photoNotExisting: 'Fotografie už neexistuje',
     common_error_photoNotExisting_desc: 'Tato fotografie již není tam, kde byla při posledním vyhledání. Možná byla přesunuta, odstraněna nebo se nachází na disku, který již není připojen.',
 
@@ -22,10 +26,7 @@ export default {
 
     ErrorController_copied: 'Report byl zkopírován do schránky.',
 
-    ErrorToast_title: 'Ale ne! Něco se pokazilo.',
-    ErrorToast_hideReport: 'Skrýt report',
-    ErrorToast_showReport: 'Zobrazit report',
-    ErrorToast_copy: 'Kopírovat',
+    ErrorReport_copy: 'Kopírovat',
 
     ExportDialog_title_one: 'Exportovat fotografii',
     ExportDialog_title_more: 'Exportovat {0} fotografií',
@@ -105,7 +106,6 @@ export default {
     MainMenu_developer: 'Vývojář',
     MainMenu_toggleDevTools: 'Zapnout nástroje pro vývojáře',
     MainMenu_toggleUiTester: 'Zapnout UI testera',
-    MainMenu_reloadUi: 'Znovu nahrát UI',
 
     Picture_showDetails: 'Zobrazit fotku',
     Picture_select: 'Vybrat',

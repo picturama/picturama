@@ -3,6 +3,10 @@ export default {
     common_cancel: 'Cancelar',
     common_backToLibrary: 'Volver a la biblioteca',
     common_ratio: '{0} de {1}',
+    common_hideReport: 'Ocultar informe',
+    common_showReport: 'Mostrar informe',
+    common_reloadUi: `Recargar UI`,
+    common_error: '¡Oh no! Algo ha ido mal.',
     common_error_photoNotExisting: `Foto no encontrada`,
     common_error_photoNotExisting_desc: `Esta foto ya no se encuentra donde estaba ubicada en el último escaneo. Quizás fue movida, borrada o se encuentra en un disco que no está conectado`,
 
@@ -22,10 +26,7 @@ export default {
 
     ErrorController_copied: 'Informe copiado al portapapeles.',
 
-    ErrorToast_title: '¡Oh no! Algo ha ido mal.',
-    ErrorToast_hideReport: 'Ocultar informe',
-    ErrorToast_showReport: 'Mostrar informe',
-    ErrorToast_copy: 'Copiar',
+    ErrorReport_copy: 'Copiar',
 
     ExportDialog_title_one: `Exportar foto`,
     ExportDialog_title_more: `Exportar {0} fotos`,
@@ -105,7 +106,6 @@ export default {
     MainMenu_developer: `Desarrollador`,
     MainMenu_toggleDevTools: `Mostrar herramientas de desarrollador`,
     MainMenu_toggleUiTester: `Mostrar probador de UI`,
-    MainMenu_reloadUi: `Recargar UI`,
 
     Picture_showDetails: 'Ver foto',
     Picture_select: 'Seleccionar',
