@@ -509,10 +509,12 @@ fn remove_subdirectories(paths: Vec<String>) -> Vec<String> {
     let mut i = result.len();
     while i > 0 {
         i -= 1;
+        // Compare whole path components, not characters: `/photos2` is a sibling of `/photos`, not a
+        // subdirectory of it, and dropping it would silently exclude it from the import.
         let is_subdirectory = result
             .iter()
             .enumerate()
-            .any(|(j, other)| j != i && result[i].starts_with(other.as_str()));
+            .any(|(j, other)| j != i && Path::new(&result[i]).starts_with(Path::new(other)));
         if is_subdirectory {
             result.remove(i);
         }
@@ -740,6 +742,18 @@ mod tests {
         assert!(kept.contains(&"/photos".to_string()));
         assert!(kept.contains(&"/other".to_string()));
         assert!(!kept.contains(&"/photos/2024".to_string()));
+    }
+
+    #[test]
+    fn keeps_siblings_sharing_a_name_prefix() {
+        // `/photos2` is not below `/photos`, however much of the string they share.
+        let input = vec![
+            "/photos".to_string(),
+            "/photos2".to_string(),
+            "/photos-raw".to_string(),
+        ];
+        let kept = remove_subdirectories(input);
+        assert_eq!(kept.len(), 3);
     }
 
     #[test]
