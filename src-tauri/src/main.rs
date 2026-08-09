@@ -11,6 +11,7 @@ mod image;
 mod import_scanner;
 mod menu;
 mod types;
+mod user_dirs;
 mod window_service;
 mod store {
     pub mod db;
@@ -118,9 +119,23 @@ fn main() {
             remove_legacy_non_raw_dir(&app_config.picturama_home_dir);
 
             // The static asset-protocol scope covers only `$RESOURCE`, so grant the directories the UI
-            // actually loads from: the thumbnail cache and the configured photo directories.
-            asset_scope::allow_configured_dirs(app.handle(), &app_config);
+            // actually loads from: the thumbnail cache and the photo dirs configured on disk. The stored
+            // photo dirs also seed the set of user-chosen directories the commands validate against.
+            let settings_path = app_config.picturama_home_dir.join("settings.json");
+            let photo_dirs = match store::settings_store::fetch_settings(&settings_path) {
+                Ok(settings) => settings.photo_dirs,
+                Err(e) => {
+                    log::warn!("Could not read settings on startup: {}", e);
+                    Vec::new()
+                }
+            };
+            let user_dirs = user_dirs::UserDirs::default();
+            user_dirs.add_photo_dirs(&photo_dirs);
 
+            asset_scope::allow_thumbnail_cache(app.handle(), &app_config.picturama_home_dir);
+            asset_scope::allow_photo_dirs(app.handle(), &photo_dirs);
+
+            app.manage(user_dirs);
             app.manage(app_config);
             app.manage(db);
 

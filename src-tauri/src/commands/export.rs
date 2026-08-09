@@ -6,20 +6,31 @@
 
 use std::path::Path;
 
-use tauri::AppHandle;
+use tauri::{AppHandle, State};
 
 use crate::foreground_client;
 use crate::store::photo_work_store;
 use crate::types::common_types::{Photo, PhotoExportOptions, PhotoRenderFormat, PhotoRenderOptions};
 use crate::types::geometry_types::Size;
+use crate::user_dirs::UserDirs;
 
 #[tauri::command]
 pub async fn export_photo(
     app: AppHandle,
+    user_dirs: State<'_, UserDirs>,
     photo: Photo,
     photo_index: u32,
     options: PhotoExportOptions,
 ) -> Result<(), String> {
+    // Both parts of the target path come from the web view, so both are checked: the directory must be the
+    // one the user picked in the native dialog, and the file name must not be able to climb out of it.
+    if !user_dirs.contains_export_dir(&options.folder_path) {
+        return Err("Export folder was not selected by the user".to_string());
+    }
+    if !is_plain_file_name(&options.file_name_prefix) {
+        return Err("Invalid export file name prefix".to_string());
+    }
+
     let master_path = format!("{}/{}", photo.master_dir, photo.master_filename);
 
     let max_size = compute_max_size(&photo, &options)?;
@@ -32,6 +43,13 @@ pub async fn export_photo(
     let binary = foreground_client::render_photo(&app, &photo, &photo_work, max_size, &render_options).await?;
 
     tokio::task::block_in_place(|| write_export(&photo, photo_index, &options, &master_path, &binary))
+}
+
+/// Whether a string may be pasted into an export file name. The prefix is free text from the export dialog,
+/// so it is only rejected when it could leave the export directory. The `like-original` style needs no such
+/// check: `file_stem()` already reduces the master file name to a single component.
+fn is_plain_file_name(name: &str) -> bool {
+    !name.contains('/') && !name.contains('\\') && !name.contains('\0')
 }
 
 /// Writes the rendered image to a collision-free path, re-embeds EXIF when requested, and copies the

@@ -187,14 +187,33 @@ Defined in `src-tauri/tauri.conf.json` under `app.security.csp`:
 
 The static scope in `tauri.conf.json` allows `$RESOURCE/**` and nothing else.
 
-Everything the UI actually loads through `convertFileSrc` is granted at runtime, in `src-tauri/src/asset_scope.rs`:
-the thumbnail cache and the configured photo directories on startup, and the photo directories again whenever the
-settings are saved, so a newly added directory works without a restart.
+Everything the UI actually loads through `convertFileSrc` is granted at runtime, in `src-tauri/src/asset_scope.rs`.
 
 Note that grants are never taken back: Tauri's scope API can add allowed patterns but not remove them, so a
 directory removed from the settings stays readable for the rest of the session. Only the next start rebuilds the
 scope from the then-current `settings.json`. That is acceptable — what stays granted is a directory the user had
 configured themselves, not the whole home directory.
+
+### Only the user picks directories
+
+The web view can invoke any command with any argument, so a path in a command argument means nothing on its own —
+`storeSettings({ photoDirs: ['/'] })` would otherwise hand out the whole file system, and `exportPhoto` would write
+wherever it liked.
+
+`src-tauri/src/user_dirs.rs` therefore keeps the set of directories the user actually chose: seeded from
+`settings.json` at startup, extended by the two native folder dialogs in `src-tauri/src/commands/fs.rs`. Everything
+else is checked against that set:
+
+  - `store_settings` refuses a `photoDirs` entry that is not in it. This is what stops a poisoned `settings.json`
+    from granting a directory on the *next* start.
+  - `export_photo` refuses a `folderPath` that is not in it, and refuses a `fileNamePrefix` containing a path
+    separator — the prefix is free text from the export dialog and is pasted into the target file name.
+  - `store_photo_work` refuses a `photoDir` that is not inside one of them. This one checks "inside" rather
+    than "is", because it receives a photo's own directory, which is normally a subdirectory of a configured
+    photo directory.
+
+The rule for new code: a command that takes a directory from the frontend and writes to it must check it against
+`UserDirs` first.
 
 
 Code style
