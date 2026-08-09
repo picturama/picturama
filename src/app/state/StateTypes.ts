@@ -120,17 +120,33 @@ export interface InfoState {
     readonly photoData?: InfoPhotoData
 }
 
-export interface InfoPhotoData {
-    fetchState: FetchState
-    sectionId: PhotoSectionId
+export enum InfoPhotoDataState { Loaded, Loading, MasterIsMissing, Error }
+export interface LoadedInfoPhotoDataWithoutSection {
+    state: InfoPhotoDataState.Loaded
     photoId: PhotoId
-    /** Is `null` while loading */
-    photoDetail: PhotoDetail | null
-    masterFileSize: number | null
-    metaData: MetaData | null
+    photoDetail: PhotoDetail
+    masterFileSize: number
+    metaData: MetaData
     exifData: ExifData | null
 }
 
+export type InfoPhotoDataWithoutSection =
+    LoadedInfoPhotoDataWithoutSection |
+    {
+        state: InfoPhotoDataState.MasterIsMissing
+        photoId: PhotoId
+        photoDetail: PhotoDetail
+    } |
+    {
+        state: InfoPhotoDataState.Loading | InfoPhotoDataState.Error
+        photoId: PhotoId
+    }
+export type LoadedInfoPhotoData = LoadedInfoPhotoDataWithoutSection & {
+    sectionId: PhotoSectionId
+}
+export type InfoPhotoData = InfoPhotoDataWithoutSection & {
+    sectionId: PhotoSectionId
+}
 
 export type ImportState = {
     readonly progress: ImportProgress

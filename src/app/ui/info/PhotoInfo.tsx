@@ -8,8 +8,7 @@ import { FaTags } from 'react-icons/fa'
 import BackgroundClient from 'app/BackgroundClient'
 import { Photo, ExifData, ExifSegment, allExifSegments } from 'app/CommonTypes'
 import { msg, hasMsg } from 'app/i18n/i18n'
-import { InfoPhotoData } from 'app/state/StateTypes'
-import { FetchState } from 'app/UITypes'
+import { InfoPhotoData, InfoPhotoDataState } from 'app/state/StateTypes'
 import MiniWorldMap from 'app/ui/widget/MiniWorldMap'
 import Toolbar from 'app/ui/widget/Toolbar'
 import { bindMany } from 'app/util/LangUtil'
@@ -85,7 +84,8 @@ export default class PhotoInfo extends React.Component<Props, State> {
     }
 
     private getCoordinates(): { lat: number, lon: number } | null {
-        const exifData = this.props.photoData?.exifData
+        const { photoData } = this.props
+        const exifData = (photoData?.state === InfoPhotoDataState.Loaded) && photoData.exifData
         if (exifData && exifData.gps && typeof exifData.gps.latitude === 'number' && typeof exifData.gps.longitude === 'number') {
             return { lat: exifData.gps.latitude, lon: exifData.gps.longitude }
         } else {
@@ -115,14 +115,23 @@ export default class PhotoInfo extends React.Component<Props, State> {
         if (!props.isActive) {
             body = null
         } else if (photo && photoData) {
-            const { metaData } = photoData
+            const metaData = (photoData.state === InfoPhotoDataState.Loaded) ? photoData.metaData : null
             const dayjsCreated = dayjs(photo.createdAt)
             const coordinates = this.getCoordinates()
 
             body = (
                 <>
+                    {(photoData.state === InfoPhotoDataState.MasterIsMissing) &&
+                        <div className='PhotoInfo-infoRow'>
+                            <Icon className='PhotoInfo-infoIcon' icon='delete' size={infoIconSize} />
+                            <div className='PhotoInfo-infoBody'>
+                                <h1>{msg('common_error_photoNotExisting')}</h1>
+                                <div className='PhotoInfo-minorInfo'>{msg('common_error_photoNotExisting_desc')}</div>
+                            </div>
+                        </div>
+                    }
                     <div className="PhotoInfo-infoRow">
-                        <Icon className="PhotoInfo-infoIcon" icon="calendar" iconSize={infoIconSize} />
+                        <Icon className="PhotoInfo-infoIcon" icon="calendar" size={infoIconSize} />
                         <div className="PhotoInfo-infoBody">
                             <h1>{dayjsCreated.format('LL')}</h1>
                             <div className="PhotoInfo-minorInfo">
@@ -131,7 +140,7 @@ export default class PhotoInfo extends React.Component<Props, State> {
                         </div>
                     </div>
                     <div className="PhotoInfo-infoRow">
-                        <Icon className="PhotoInfo-infoIcon" icon="media" iconSize={infoIconSize} />
+                        <Icon className="PhotoInfo-infoIcon" icon="media" size={infoIconSize} />
                         <div className="PhotoInfo-infoBody">
                             <h1 className="PhotoInfo-infoTitle hasColumns">
                                 <div className="PhotoInfo-shrinkable" title={getMasterPath(photo)}>
@@ -159,7 +168,7 @@ export default class PhotoInfo extends React.Component<Props, State> {
                     </div>
                     {metaData && (metaData.camera || metaData.aperture || metaData.exposureTime || metaData.focalLength || metaData.iso) &&
                         <div className="PhotoInfo-infoRow">
-                            <Icon className="PhotoInfo-infoIcon" icon="camera" iconSize={infoIconSize} />
+                            <Icon className="PhotoInfo-infoIcon" icon="camera" size={infoIconSize} />
                             <div className="PhotoInfo-infoBody">
                                 {metaData.camera &&
                                     <h1>{metaData.camera}</h1>
@@ -181,19 +190,21 @@ export default class PhotoInfo extends React.Component<Props, State> {
                             </div>
                         </div>
                     }
-                    <div className="PhotoInfo-infoRow">
-                        <FaTags className="PhotoInfo-infoIcon" style={{ fontSize: infoIconSize }} />
-                        <TagEditor
-                            className="PhotoInfo-tagEditor PhotoInfo-infoBody"
-                            photo={props.photo}
-                            photoDetail={photoData.photoDetail}
-                            tags={props.tags}
-                            setPhotoTags={props.setPhotoTags}
-                        />
-                    </div>
+                    {(photoData.state === InfoPhotoDataState.Loaded || photoData.state === InfoPhotoDataState.Loading) &&
+                        <div className="PhotoInfo-infoRow">
+                            <FaTags className="PhotoInfo-infoIcon" style={{ fontSize: infoIconSize }} />
+                            <TagEditor
+                                className="PhotoInfo-tagEditor PhotoInfo-infoBody"
+                                photo={props.photo}
+                                photoDetail={photoData.state === InfoPhotoDataState.Loaded ? photoData.photoDetail : null}
+                                tags={props.tags}
+                                setPhotoTags={props.setPhotoTags}
+                            />
+                        </div>
+                    }
                     {coordinates &&
                         <div className='PhotoInfo-infoRow'>
-                            <Icon className='PhotoInfo-infoIcon' icon='map-marker' iconSize={infoIconSize} />
+                            <Icon className='PhotoInfo-infoIcon' icon='map-marker' size={infoIconSize} />
                             <div className='PhotoInfo-infoBody'>
                                 <h1 className="PhotoInfo-infoTitle hasColumns">
                                     <div>{formatLatLon(coordinates)}</div>
@@ -211,9 +222,9 @@ export default class PhotoInfo extends React.Component<Props, State> {
                             </div>
                         </div>
                     }
-                    {photoData.exifData &&
+                    {(photoData.state === InfoPhotoDataState.Loaded) && photoData.exifData &&
                         <div className='PhotoInfo-infoRow'>
-                            <Icon className='PhotoInfo-infoIcon' icon='th' iconSize={infoIconSize} />
+                            <Icon className='PhotoInfo-infoIcon' icon='th' size={infoIconSize} />
                             <div className='PhotoInfo-infoBody'>
                                 <h1 className="PhotoInfo-infoTitle hasColumns">
                                     <div>{msg('PhotoInfo_exifData')}</div>
@@ -225,7 +236,7 @@ export default class PhotoInfo extends React.Component<Props, State> {
                             </div>
                         </div>
                     }
-                    {photoData.exifData && state.showExif &&
+                    {(photoData.state === InfoPhotoDataState.Loaded) && photoData.exifData && state.showExif &&
                         this.renderExifData(photoData.exifData)
                     }
                 </>
@@ -320,19 +331,24 @@ function formatImageMegaPixel(width, height): string {
 }
 
 function renderPhotoSize(photoData: InfoPhotoData): string | JSX.Element {
-    const bytes = photoData.masterFileSize
-    if (photoData.fetchState === FetchState.FETCHING) {
-        return '...'
-    } else if (bytes === null) {
-        return (
-            <Icon icon='warning-sign' htmlTitle={msg('PhotoInfo_error_fetchPhotoSize')}/>
-        )
-    } else if (bytes < 1000) {
-        return `${bytes} byte`
-    } else if (bytes < 1000000) {
-        return `${formatNumber(bytes / 1000, 1)} kB`
-    } else {
-        return `${formatNumber(bytes / 1000000, 1)} MB`
+    switch (photoData.state) {
+        case InfoPhotoDataState.Loading:
+            return '...'
+        case InfoPhotoDataState.MasterIsMissing:
+            return '-'
+        case InfoPhotoDataState.Error:
+            return (
+                <Icon icon='warning-sign' htmlTitle={msg('PhotoInfo_error_fetchPhotoSize')}/>
+            )
+        default:
+            const bytes = photoData.masterFileSize
+            if (bytes < 1000) {
+                return `${bytes} byte`
+            } else if (bytes < 1000000) {
+                return `${formatNumber(bytes / 1000, 1)} kB`
+            } else {
+                return `${formatNumber(bytes / 1000000, 1)} MB`
+            }
     }
 }
 

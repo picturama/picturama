@@ -1,8 +1,7 @@
 
 import { Action } from 'app/state/ActionType'
-import { SET_SHOW_INFO, SET_INFO_PHOTO_DATA, SET_INFO_PHOTO_DATA_FAILURE, SET_PHOTO_TAGS } from 'app/state/actionTypes'
-import { InfoState, LibraryState } from 'app/state/StateTypes'
-import { FetchState } from 'app/UITypes'
+import { SET_SHOW_INFO, SET_INFO_PHOTO_DATA, SET_PHOTO_TAGS } from 'app/state/actionTypes'
+import { InfoPhotoDataState, InfoState, LibraryState } from 'app/state/StateTypes'
 
 
 const initialInfoState: InfoState = {
@@ -29,32 +28,15 @@ export const info = (state: InfoState = initialInfoState, libraryState: LibraryS
                 return {
                     ...state,
                     photoData: {
-                        fetchState: FetchState.IDLE,
                         sectionId: state.photoData.sectionId,
-                        photoId: action.payload.photoId,
-                        photoDetail: action.payload.photoDetail,
-                        masterFileSize: action.payload.masterFileSize,
-                        metaData: action.payload.metaData,
-                        exifData: action.payload.exifData,
-                    }
-                }
-            } else {
-                return state
-            }
-        case SET_INFO_PHOTO_DATA_FAILURE:
-            if (action.payload.photoId === state.photoData?.photoId) {
-                return {
-                    ...state,
-                    photoData: {
-                        ...state.photoData,
-                        fetchState: FetchState.FAILURE,
+                        ...action.payload
                     }
                 }
             } else {
                 return state
             }
         case SET_PHOTO_TAGS:
-            if (state && state.photoData?.photoId === action.payload.photoId && state.photoData?.photoDetail) {
+            if (state && state.photoData?.photoId === action.payload.photoId && state.photoData?.state === InfoPhotoDataState.Loaded) {
                 return {
                     ...state,
                     photoData: {
@@ -73,13 +55,9 @@ export const info = (state: InfoState = initialInfoState, libraryState: LibraryS
                     ...state,
                     photoData: activePhoto ?
                         {
-                            fetchState: FetchState.FETCHING,
+                            state: InfoPhotoDataState.Loading,
                             sectionId: activePhoto.sectionId,
                             photoId: activePhoto.photoId,
-                            photoDetail: null,
-                            masterFileSize: null,
-                            metaData: null,
-                            exifData: null,
                         } :
                         undefined
                 }

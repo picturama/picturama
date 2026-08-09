@@ -1,10 +1,11 @@
 import React from 'react'
 
+import { PhotoSectionId } from 'app/CommonTypes'
+import { InfoPhotoDataState } from 'app/state/StateTypes'
 import { PhotoDetailPane, Props } from 'app/ui/detail/PhotoDetailPane'
 
 import {addSection, action, TestContext} from 'test-ui/core/UiTester'
 import { mockLibrarySelectionController, mockPhotoActionController, testBigPhoto, testBigPhotoMetData } from 'test-ui/util/MockData'
-import { FetchState } from 'app/UITypes'
 
 
 function createDefaultProps(context: TestContext): Props {
@@ -12,7 +13,7 @@ function createDefaultProps(context: TestContext): Props {
         style: { width: '100%', height: '100%', overflow: 'hidden' },
         isActive: true,
         devicePixelRatio: window.devicePixelRatio,
-        sectionId: 'dummy',
+        sectionId: 'dummy' as PhotoSectionId,
         photo: testBigPhoto,
         photoPrev: null,
         photoNext: null,
@@ -40,11 +41,10 @@ function createDefaultProps(context: TestContext): Props {
         props.showInfo = true
         props.infoPhoto = props.photo
         props.infoPhotoData = {
-            fetchState: FetchState.IDLE,
+            state: InfoPhotoDataState.Loaded,
             sectionId: props.sectionId,
             photoId: props.photo.id,
             photoDetail: {
-                versions: [],
                 tags: []
             },
             masterFileSize: 3380326,

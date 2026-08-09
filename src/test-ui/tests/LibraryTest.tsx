@@ -8,8 +8,8 @@ import { getMasterPath } from 'app/util/DataUtil'
 import { addErrorCode } from 'app/util/LangUtil'
 
 import { defaultGridRowHeight } from 'app/UiConstants'
-import { FetchState } from 'app/UITypes'
 import { getGridLayoutWithoutStoreUpdate } from 'app/controller/LibraryController'
+import { InfoPhotoDataState } from 'app/state/StateTypes'
 import { Library, Props } from 'app/ui/library/Library'
 import { LibraryFilterButton } from 'app/ui/library/LibraryFilterButton'
 import SelectionSummary from 'app/ui/library/SelectionSummary'
@@ -210,11 +210,10 @@ addSection('Library')
                 showInfo={true}
                 infoPhoto={defaultSection.photoData[infoPhotoId]}
                 infoPhotoData={{
-                    fetchState: FetchState.IDLE,
+                    state: InfoPhotoDataState.Loaded,
                     sectionId: defaultSectionId,
                     photoId: infoPhotoId,
                     photoDetail: {
-                        versions: [],
                         tags: []
                     },
                     masterFileSize: 3380326,

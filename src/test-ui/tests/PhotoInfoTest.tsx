@@ -1,26 +1,24 @@
 import React from 'react'
 
-import { Photo, PhotoDetail } from 'app/CommonTypes'
+import { Photo, PhotoDetail, PhotoSectionId } from 'app/CommonTypes'
 
 import PhotoInfo, { Props } from 'app/ui/info/PhotoInfo'
 
 import { addSection, action, TestContext } from 'test-ui/core/UiTester'
 import { testBigPhoto, testBigPhotoMetData, testExifData } from 'test-ui/util/MockData'
-import { FetchState } from 'app/UITypes'
-import { InfoPhotoData } from 'app/state/StateTypes'
+import { InfoPhotoDataState, LoadedInfoPhotoData } from 'app/state/StateTypes'
 
 
 const baseUrl = 'dist'
 const defaultTags = [ 'Holiday', 'Family', 'Cool stuff' ]
 
 let sharedPhotoDetail: PhotoDetail = {
-    versions: [],
     tags: [ defaultTags[0], defaultTags[2] ]
 }
 
-const defaultPhotoData: InfoPhotoData = {
-    fetchState: FetchState.IDLE,
-    sectionId: 'test-section',
+const defaultPhotoData: LoadedInfoPhotoData = {
+    state: InfoPhotoDataState.Loaded,
+    sectionId: 'test-section' as PhotoSectionId,
     photoId: testBigPhoto.id,
     photoDetail: sharedPhotoDetail,
     masterFileSize: 3380326,
@@ -41,7 +39,6 @@ function createDefaultProps(context: TestContext): Props {
         tags: defaultTags,
         setPhotoTags: (photo: Photo, tags: string[]) => {
             sharedPhotoDetail = {
-                versions: sharedPhotoDetail.versions,
                 tags
             }
             context.forceUpdate()
@@ -74,16 +71,40 @@ addSection('PhotoInfo')
             {...createDefaultProps(context)}
             photoData={{
                 ...defaultPhotoData,
-                photoDetail: { versions: [], tags: [] }
+                photoDetail: {
+                    tags: []
+                }
             }}
         />
     ))
-    .add('loading tags', context => (
+    .add('loading info', context => (
         <PhotoInfo
             {...createDefaultProps(context)}
             photoData={{
-                ...defaultPhotoData,
-                photoDetail: null
+                state: InfoPhotoDataState.Loading,
+                photoId: defaultPhotoData.photoId,
+                sectionId: defaultPhotoData.sectionId,
+            }}
+        />
+    ))
+    .add('photo missing', context => (
+        <PhotoInfo
+            {...createDefaultProps(context)}
+            photoData={{
+                state: InfoPhotoDataState.MasterIsMissing,
+                photoId: defaultPhotoData.photoId,
+                sectionId: defaultPhotoData.sectionId,
+                photoDetail: defaultPhotoData.photoDetail,
+            }}
+        />
+    ))
+    .add('fetching info failed', context => (
+        <PhotoInfo
+            {...createDefaultProps(context)}
+            photoData={{
+                state: InfoPhotoDataState.Error,
+                photoId: defaultPhotoData.photoId,
+                sectionId: defaultPhotoData.sectionId,
             }}
         />
     ))

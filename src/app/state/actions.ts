@@ -9,12 +9,12 @@ import {
     CLOSE_DETAIL, SET_LIBRARY_ACTIVE_PHOTO, SET_LIBRARY_HOVER_PHOTO, SET_LIBRARY_SELECTION, FETCH_TOTAL_PHOTO_COUNT,
     FETCH_SECTIONS_REQUEST, FETCH_SECTIONS_SUCCESS, FETCH_SECTIONS_FAILURE,
     FETCH_SECTION_PHOTOS, FORGET_SECTION_PHOTOS,
-    CHANGE_PHOTOWORK, CHANGE_PHOTOS, EMPTY_TRASH, SET_SHOW_INFO, SET_INFO_PHOTO_DATA, SET_INFO_PHOTO_DATA_FAILURE,
+    CHANGE_PHOTOWORK, CHANGE_PHOTOS, EMPTY_TRASH, SET_SHOW_INFO, SET_INFO_PHOTO_DATA,
     SET_IMPORT_PROGRESS, FETCH_TAGS, SET_PHOTO_TAGS,
     OPEN_EXPORT, CLOSE_EXPORT, SET_EXPORT_OPTIONS,
     TOGGLE_SHOW_EXPORT_REMOVE_INFO_DESC, SET_EXPORT_PROGRESS
 } from './actionTypes'
-import { PhotoCollection, PhotoLibraryPosition, SelectionState } from './StateTypes'
+import { InfoPhotoDataWithoutSection, PhotoCollection, PhotoLibraryPosition, SelectionState } from './StateTypes'
 
 
 export const initAction = (uiConfig: UiConfig, settings: Settings) => action(INIT, { uiConfig, settings })
@@ -45,8 +45,7 @@ export const changePhotosAction = (photos: Photo[], update: Partial<Photo>) => a
 export const emptyTrashAction = (trashedPhotoIds: PhotoId[]) => action(EMPTY_TRASH, { trashedPhotoIds })
 
 export const setShowInfoAction = (view: 'library' | 'detail', showInfo: boolean) => action(SET_SHOW_INFO, { view, showInfo })
-export const setInfoPhotoDataAction = (payload: { photoId: PhotoId, photoDetail: PhotoDetail, masterFileSize: number, metaData: MetaData, exifData: ExifData | null }) => action(SET_INFO_PHOTO_DATA, payload)
-export const setInfoPhotoDataFailureAction = (photoId: PhotoId) => action(SET_INFO_PHOTO_DATA_FAILURE, { photoId })
+export const setInfoPhotoDataAction = (payload: InfoPhotoDataWithoutSection) => action(SET_INFO_PHOTO_DATA, payload)
 
 export const setImportProgressAction = (progress: ImportProgress | null) => action(SET_IMPORT_PROGRESS, progress)
 
