@@ -33,6 +33,11 @@
         flex: 1 0 auto;
         white-space: nowrap;
     }
+    .App.hasNativeTrafficLightButtons &.isTopBar.isRight {
+        .bp3-button:last-child {
+            border-top-right-radius: 12px;  // Counter the big border radius of a macOS window, so the button is not cut
+        }
+    }
 }
 
 .Toolbar-spacer {

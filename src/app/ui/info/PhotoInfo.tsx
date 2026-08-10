@@ -254,7 +254,7 @@ export default class PhotoInfo extends React.Component<Props, State> {
     
         return (
             <div className={classNames(props.className, 'PhotoInfo bp3-dark')} style={props.style}>
-                <Toolbar className="PhotoInfo-topBar" isTopBar>
+                <Toolbar className="PhotoInfo-topBar" isTopBar isRight>
                     <span className="PhotoInfo-title">{msg('PhotoInfo_title')}</span>
                     <Toolbar.Spacer isTopBar/>
                     <Button icon="cross" minimal={true} onClick={props.closeInfo} />
