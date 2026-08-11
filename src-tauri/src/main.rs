@@ -25,7 +25,7 @@ mod store {
 }
 
 fn main() {
-    tauri::Builder::default()
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(
@@ -51,6 +51,8 @@ fn main() {
             window_service::window_close,
             window_service::window_get_state,
             window_service::toggle_dev_tools,
+            window_service::toggle_ui_tester,
+            window_service::reload_ui,
             // Menu
             menu::set_export_menu_enabled,
             // Lifecycle
@@ -94,7 +96,14 @@ fn main() {
             commands::tags::store_photo_tags,
             // Export
             commands::export::export_photo,
-        ])
+        ]);
+
+    // A macOS app always has a menu bar, so there the native menu stays (it is built in
+    // `on_before_render_ui`, once the translations are known). On Windows and Linux there is no
+    // menu at all — the UI offers those actions itself and via the hotkeys of
+    // `GlobalCommandController.ts`.
+    #[cfg(target_os = "macos")]
+    let builder = builder
         .menu(|app| {
             // Create empty menu on startup until the real menu is created later (after I18N initialisation)
             // That " " label avoids weird macOS behavior while staying invisible enough.
@@ -104,7 +113,9 @@ fn main() {
                 &[&Submenu::with_items(app, " ", true, &[])?], // basically empty
             )?)
         })
-        .on_menu_event(menu::handle_event)
+        .on_menu_event(menu::handle_event);
+
+    builder
         .setup(|app| {
             let app_config = app_config_builder::build_app_config(app.handle())
                 .map_err(|e| e.to_string())?;
@@ -141,6 +152,18 @@ fn main() {
             app.manage(user_dirs);
             app.manage(app_config);
             app.manage(db);
+
+            // The UI draws its own title bar, so on Windows and Linux the native decorations are dropped — otherwise the
+            // window would have two title bars. macOS keeps them: there the title bar is a transparent overlay
+            // (`titleBarStyle` in tauri.conf.json) the UI just leaves room for. This runs while the window is still
+            // hidden, so the change is never visible, and before the geometry is restored, so the
+            // stored size lands on the final client area.
+            #[cfg(not(target_os = "macos"))]
+            if let Some(window) = app.get_webview_window("main") {
+                if let Err(e) = window.set_decorations(false) {
+                    log::warn!("Could not remove the window decorations: {}", e);
+                }
+            }
 
             window_service::register_window_state_listener(app.handle());
 

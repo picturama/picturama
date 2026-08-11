@@ -15,10 +15,14 @@ use std::collections::HashMap;
 // I18n state (stored via app.manage())
 // ---------------------------------------------------------------------------
 
+// Only the macOS menu translates strings in Rust so far — everything else is translated in the
+// frontend. The state is still filled on all platforms so `msg` works wherever it is needed next.
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
 pub struct I18n {
     texts: HashMap<String, String>,
 }
 
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
 impl I18n {
     pub fn new(texts: HashMap<String, String>) -> Self {
         Self { texts }

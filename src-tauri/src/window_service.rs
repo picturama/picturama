@@ -95,6 +95,46 @@ pub async fn toggle_dev_tools(app: AppHandle) -> Result<(), String> {
 }
 
 // ---------------------------------------------------------------------------
+// UI Tester / reload
+// ---------------------------------------------------------------------------
+
+/// Opens the UI Tester window (`test-ui.html`), or brings it to the front if it is already open.
+/// Reachable from the macOS menu and, on the other platforms, from the hotkeys in
+/// `GlobalCommandController.ts`.
+#[tauri::command]
+pub async fn toggle_ui_tester(app: AppHandle) -> Result<(), String> {
+    show_ui_tester(&app)
+}
+
+pub(crate) fn show_ui_tester(app: &AppHandle) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("ui-tester") {
+        // Window already exists → bring it to front
+        let _ = window.show();
+        let _ = window.unminimize();
+        let _ = window.set_focus();
+    } else {
+        tauri::WebviewWindowBuilder::new(
+            app,
+            "ui-tester",
+            tauri::WebviewUrl::App("test-ui.html".into()),
+        )
+        .title("UI Tester")
+        .inner_size(1280.0, 900.0)
+        .min_inner_size(800.0, 600.0)
+        .build()
+        .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+/// Reloads the web view of the active window (the counterpart of the browser's reload).
+#[tauri::command]
+pub async fn reload_ui(app: AppHandle) -> Result<(), String> {
+    let window = get_active_window(&app)?;
+    window.eval("location.reload()").map_err(|e| e.to_string())
+}
+
+// ---------------------------------------------------------------------------
 // Window-state event listener (called once at startup from main.rs)
 //
 // Tauri fires on_window_event for maximize / unmaximize / enter/exit

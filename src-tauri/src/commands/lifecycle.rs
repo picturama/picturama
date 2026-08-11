@@ -6,6 +6,7 @@ use tauri::{AppHandle, Manager, State};
 
 use crate::app_config_builder::AppConfig;
 use crate::i18n::I18n;
+#[cfg(target_os = "macos")]
 use crate::menu;
 use crate::store::settings_store;
 use crate::types::common_types::{Settings, UiConfig, WindowStyle};
@@ -17,6 +18,8 @@ pub async fn on_before_render_ui(app: AppHandle, locale_texts: HashMap<String, S
 {
     let i18n = I18n::new(locale_texts);
 
+    // Only macOS has a native menu — see the comment in main.rs.
+    #[cfg(target_os = "macos")]
     match menu::build(&app, &i18n) {
         Ok(native_menu) => {
             let _ = app.set_menu(native_menu);

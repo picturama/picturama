@@ -1,21 +1,27 @@
 // Builds the native application menu using localised strings from I18n.
 //
-// `build()` is called from setup() in main.rs (not from Builder::menu())
-// because the translations must be fetched from the frontend first — which
-// requires the WebView to be running — and only then can the menu be built
-// and applied to the window.
+// The menu only exists on macOS, where an app always has a menu bar.
+// Windows and Linux have none — there the UI itself offers those actions (see the comment in main.rs), which leaves
+// `ExportMenuItem` empty and makes `set_export_menu_enabled` a no-op.
+//
+// `build()` is called from on_before_render_ui (not from Builder::menu()) because the translations must be fetched from the
+// frontend first — which requires the WebView to be running — and only then can the menu be built and applied to the window.
 
 use std::sync::Mutex;
 
+use tauri::{State, Wry, menu::MenuItem};
+
+#[cfg(target_os = "macos")]
 use tauri::{
-    AppHandle, Manager, State, Wry,
+    AppHandle, Manager,
     menu::{
-        AboutMetadataBuilder, Menu, MenuBuilder, MenuItem, MenuItemBuilder,
-        PredefinedMenuItem, SubmenuBuilder,
+        AboutMetadataBuilder, Menu, MenuBuilder, MenuItemBuilder, PredefinedMenuItem, SubmenuBuilder,
     },
 };
 
+#[cfg(target_os = "macos")]
 use crate::i18n::I18n;
+#[cfg(target_os = "macos")]
 use crate::window_service;
 
 /// Holds a handle to the File → Export menu item so its enabled state can be toggled from a command
@@ -25,9 +31,10 @@ pub struct ExportMenuItem(pub Mutex<Option<MenuItem<Wry>>>);
 
 /// Build and apply the application menu to the main window.
 /// Must be called after I18n is loaded (i.e. inside setup()).
+#[cfg(target_os = "macos")]
 pub fn build(app: &AppHandle, i18n: &I18n) -> tauri::Result<Menu<tauri::Wry>> {
     // -----------------------------------------------------------------------
-    // File menu (on macOS this is the app menu)
+    // File menu (the app menu on macOS)
     // -----------------------------------------------------------------------
     // Built as a named binding (not inline) so a handle can be kept in managed state to toggle its
     // enabled state from `set_export_menu_enabled`. Starts disabled: nothing is selected at startup.
@@ -36,35 +43,28 @@ pub fn build(app: &AppHandle, i18n: &I18n) -> tauri::Result<Menu<tauri::Wry>> {
         .enabled(false)
         .build(app)?;
 
-    let file_menu = {
-        let mut b = SubmenuBuilder::new(app, i18n.msg("MainMenu_file"));
-
-        #[cfg(target_os = "macos")]
-        {
-            b = b
-                .item(&PredefinedMenuItem::about(
-                    app,
-                    Some(&i18n.msg("MainMenu_about")),
-                    Some(
-                        AboutMetadataBuilder::new()
-                            .name(Some("Picturama"))
-                            .version(Some(env!("CARGO_PKG_VERSION")))
-                            .authors(Some(vec!["The Picturama contributors".to_string()]))
-                            .license(Some("MIT"))
-                            .website(Some("https://picturama.github.io"))
-                            .build(),
-                    ),
-                )?)
-                .separator()
-                .item(&PredefinedMenuItem::services(app, Some(&i18n.msg("MainMenu_services")))?)
-                .separator()
-                .item(&PredefinedMenuItem::hide(app, Some(&i18n.msg("MainMenu_hide")))?)
-                .item(&PredefinedMenuItem::hide_others(app, Some(&i18n.msg("MainMenu_hideOthers")))?)
-                .item(&PredefinedMenuItem::show_all(app, Some(&i18n.msg("MainMenu_showAll")))?)
-                .separator();
-        }
-
-        b.item(
+    let file_menu = SubmenuBuilder::new(app, i18n.msg("MainMenu_file"))
+        .item(&PredefinedMenuItem::about(
+            app,
+            Some(&i18n.msg("MainMenu_about")),
+            Some(
+                AboutMetadataBuilder::new()
+                    .name(Some("Picturama"))
+                    .version(Some(env!("CARGO_PKG_VERSION")))
+                    .authors(Some(vec!["The Picturama contributors".to_string()]))
+                    .license(Some("MIT"))
+                    .website(Some("https://picturama.github.io"))
+                    .build(),
+            ),
+        )?)
+        .separator()
+        .item(&PredefinedMenuItem::services(app, Some(&i18n.msg("MainMenu_services")))?)
+        .separator()
+        .item(&PredefinedMenuItem::hide(app, Some(&i18n.msg("MainMenu_hide")))?)
+        .item(&PredefinedMenuItem::hide_others(app, Some(&i18n.msg("MainMenu_hideOthers")))?)
+        .item(&PredefinedMenuItem::show_all(app, Some(&i18n.msg("MainMenu_showAll")))?)
+        .separator()
+        .item(
             &MenuItemBuilder::with_id("file_scan", i18n.msg("MainMenu_scan"))
                 .accelerator("CmdOrCtrl+R")
                 .build(app)?,
@@ -78,8 +78,7 @@ pub fn build(app: &AppHandle, i18n: &I18n) -> tauri::Result<Menu<tauri::Wry>> {
         )
         .separator()
         .item(&PredefinedMenuItem::quit(app, Some(&i18n.msg("MainMenu_quit")))?)
-        .build()?
-    };
+        .build()?;
 
     // -----------------------------------------------------------------------
     // View menu
@@ -128,6 +127,7 @@ pub fn set_export_menu_enabled(enabled: bool, export_item: State<'_, ExportMenuI
 }
 
 /// Handle menu events.
+#[cfg(target_os = "macos")]
 pub fn handle_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
     match event.id().as_ref() {
         "file_scan" => {
@@ -159,33 +159,15 @@ pub fn handle_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
         }
 
         "view_show_ui_tester" => {
-            let app = app.clone();
-            if let Some(window) = app.get_webview_window("ui-tester") {
-                // Window already exists → bring it to front
-                let _ = window.show();
-                let _ = window.unminimize();
-                let _ = window.set_focus();
-            } else {
-                // Create it            
-                tauri::WebviewWindowBuilder::new(
-                    &app,
-                    "ui-tester",
-                    tauri::WebviewUrl::App("test-ui.html".into())
-                )
-                .title("UI Tester")
-                .inner_size(1280.0, 900.0)
-                .min_inner_size(800.0, 600.0)
-                .build()
-                .unwrap();
+            if let Err(e) = window_service::show_ui_tester(app) {
+                eprintln!("view_show_ui_tester: could not open the UI Tester: {}", e);
             }
         }
 
         "view_reload" => {
             let app = app.clone();
             tauri::async_runtime::spawn(async move {
-                if let Ok(window) = window_service::get_active_window(&app) {
-                    let _ = window.eval("location.reload()");
-                }
+                let _ = window_service::reload_ui(app).await;
             });
         }
 

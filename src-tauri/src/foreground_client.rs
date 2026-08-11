@@ -179,13 +179,17 @@ pub async fn on_full_screen_change(app: &AppHandle, is_full_screen: bool) -> Res
     Ok(())
 }
 
-/// Tell UI to open the settings dialog.
+/// Tell UI to open the settings dialog. Only the macOS menu needs this — on the other platforms the
+/// UI opens the dialog itself (the cog button in the top bar).
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
 pub async fn show_settings(app: &AppHandle) -> Result<(), String> {
     call_foreground(app, "showSettings", serde_json::Value::Null).await?;
     Ok(())
 }
 
-/// Tell UI to open the export dialog for the current selection.
+/// Tell UI to open the export dialog for the current selection. Only the macOS menu needs this — on
+/// the other platforms the export is started from the UI's photo actions.
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
 pub async fn trigger_export(app: &AppHandle) -> Result<(), String> {
     call_foreground(app, "showExport", serde_json::Value::Null).await?;
     Ok(())
