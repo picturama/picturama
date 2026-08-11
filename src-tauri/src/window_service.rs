@@ -1,9 +1,13 @@
 // Native window control commands called from the React frontend.
 
+use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
-use tauri::{AppHandle, Emitter, Manager};
+use tauri::{AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize};
+
+use crate::app_config_builder::AppConfig;
+use crate::store::window_state_store::{self, MonitorArea, WindowState};
 
 // Event name kept in sync with ForegroundService.ts
 const EVT_WINDOW_STATE: &str = "window-state-changed";
@@ -127,10 +131,119 @@ pub fn register_window_state_listener(app: &AppHandle) {
                         }
                     }
                 }
+                tauri::WindowEvent::CloseRequested { .. } => {
+                    // Closing the window destroys it, so the geometry has to be read now — the
+                    // later RunEvent::Exit would find nothing.
+                    save_window_state(&app_clone);
+                }
                 _ => {}
             }
         });
     }
+}
+
+// ---------------------------------------------------------------------------
+// Window geometry persistence (main window only — the UI Tester is transient)
+// ---------------------------------------------------------------------------
+
+/// Applies the stored geometry to the main window and shows it. The window is configured
+/// `"visible": false` in tauri.conf.json so that happens before the first paint — otherwise the
+/// window would flash at the default position and jump.
+///
+/// Call this once from `setup()`, after `register_window_state_listener`.
+pub fn restore_window_state(app: &AppHandle, picturama_home_dir: &Path) {
+    if let Some(window) = app.get_webview_window("main") {
+        let stored = window_state_store::fetch_window_state(
+            &window_state_store::window_state_path(picturama_home_dir));
+
+        if let Some(state) = &stored {
+            if let Err(e) = window.set_size(PhysicalSize::new(state.width, state.height)) {
+                log::warn!("Could not restore window size: {}", e);
+            }
+            // The position is only reused while it still lands on a screen: a display that was
+            // unplugged or rearranged would otherwise put the window out of the user's reach. An
+            // empty monitor list means the platform told us nothing (the window is still hidden at
+            // this point) — then the stored position is used unchecked rather than dropped.
+            let monitors = monitor_areas(&window);
+            if monitors.is_empty() || window_state_store::is_visible_on_monitors(state, &monitors) {
+                if let Err(e) = window.set_position(PhysicalPosition::new(state.x, state.y)) {
+                    log::warn!("Could not restore window position: {}", e);
+                }
+            } else {
+                log::info!("Stored window position {},{} is off-screen — using the default",
+                    state.x, state.y);
+            }
+        }
+
+        if stored.map_or(false, |state| state.maximized) {
+            if let Err(e) = window.maximize() {
+                log::warn!("Could not restore maximized window: {}", e);
+            }
+        }
+
+        let _ = window.show();
+        let _ = window.set_focus();
+    }
+}
+
+/// Reads the main window's geometry and writes it to disk. Called both when the window closes and
+/// when the app exits, because not every platform's quit path passes through both — whichever runs
+/// while the window still exists wins, the other one finds no window and does nothing.
+pub fn save_window_state(app: &AppHandle) {
+    let (Some(window), Some(app_config)) =
+        (app.get_webview_window("main"), app.try_state::<AppConfig>()) else { return };
+    let path = window_state_store::window_state_path(&app_config.picturama_home_dir);
+
+    let is_maximized  = window.is_maximized().unwrap_or(false);
+    let is_fullscreen = window.is_fullscreen().unwrap_or(false);
+    let is_minimized  = window.is_minimized().unwrap_or(false);
+    // Fullscreen itself is not restored, so a window quit in fullscreen comes back windowed.
+    let maximized = is_maximized && !is_fullscreen;
+
+    let state = if !is_maximized && !is_fullscreen && !is_minimized {
+        read_geometry(&window, maximized)
+    } else {
+        // In those states the window reports the maximized / fullscreen / iconified rect, not the
+        // geometry it should return to. The stored file still holds that geometry (it was written
+        // while the window was in a normal state), so keep it and update only the flag.
+        match window_state_store::fetch_window_state(&path) {
+            Some(stored) => Some(WindowState { maximized, ..stored }),
+            // Nothing stored yet. A maximized window's rect is at least on the right screen; a
+            // minimized one's is a platform placeholder, so that one is dropped instead.
+            None if !is_minimized => read_geometry(&window, maximized),
+            None => None,
+        }
+    };
+
+    let Some(state) = state else { return };
+    if let Err(e) = window_state_store::store_window_state(&path, &state) {
+        log::warn!("Could not store window state: {}", e);
+    }
+}
+
+/// The window's current outer position and inner size — the pair `set_position` / `set_size` take
+/// back. `None` when the platform won't report them or reports a degenerate size.
+fn read_geometry(window: &tauri::WebviewWindow, maximized: bool) -> Option<WindowState> {
+    let position = window.outer_position().ok()?;
+    let size = window.inner_size().ok()?;
+    if size.width == 0 || size.height == 0 {
+        return None;
+    }
+    Some(WindowState { x: position.x, y: position.y, width: size.width, height: size.height, maximized })
+}
+
+/// The work areas of all monitors, in physical pixels — the coordinate space the stored geometry
+/// uses.
+fn monitor_areas(window: &tauri::WebviewWindow) -> Vec<MonitorArea> {
+    window
+        .available_monitors()
+        .unwrap_or_default()
+        .iter()
+        .map(|monitor| {
+            let area = monitor.work_area();
+            (area.position.x, area.position.y, area.size.width, area.size.height)
+        })
+        .collect()
 }
 
 // ---------------------------------------------------------------------------

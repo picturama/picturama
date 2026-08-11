@@ -21,6 +21,7 @@ mod store {
     pub mod settings_store;
     pub mod tag_store;
     pub mod thumbnail_store;
+    pub mod window_state_store;
 }
 
 fn main() {
@@ -135,11 +136,17 @@ fn main() {
             asset_scope::allow_thumbnail_cache(app.handle(), &app_config.picturama_home_dir);
             asset_scope::allow_photo_dirs(app.handle(), &photo_dirs);
 
+            let picturama_home_dir = app_config.picturama_home_dir.clone();
+
             app.manage(user_dirs);
             app.manage(app_config);
             app.manage(db);
 
             window_service::register_window_state_listener(app.handle());
+
+            // Restores position/size of the last session and shows the window (it starts hidden, so
+            // the restored geometry is in place before the first paint).
+            window_service::restore_window_state(app.handle(), &picturama_home_dir);
 
             // In dev builds the UI Tester (test-ui.html) has no backend, so it shows the real
             // photos from `submodules/test-data` as fake thumbnails via the asset protocol. That
@@ -161,7 +168,14 @@ fn main() {
         })
         .build(tauri::generate_context!())
         .expect("error while building Tauri application")
-        .run(|_app, _event| {});
+        .run(|app, event| {
+            // Quitting the app (macOS Cmd+Q, the Quit menu item) does not necessarily close the
+            // window first, so persist the tracked geometry here as well. `save_window_state` is a
+            // no-op when the file already holds it.
+            if matches!(event, tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit) {
+                window_service::save_window_state(app);
+            }
+        });
 }
 
 /// Removes a legacy `non-raw` directory (the old RAW rendered-derivative cache). RAW is now displayed on
