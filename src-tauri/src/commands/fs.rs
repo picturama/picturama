@@ -28,10 +28,20 @@ pub async fn show_item_in_folder(full_path: String) -> Result<(), String> {
         .map_err(|e| e.to_string())?;
 
     #[cfg(target_os = "windows")]
-    std::process::Command::new("explorer")
-        .args(["/select,", &full_path])
-        .spawn()
-        .map_err(|e| e.to_string())?;
+    {
+        use std::os::windows::process::CommandExt;
+
+        // The frontend joins `masterDir` and `masterFilename` with a forward slash, but Explorer only
+        // understands backslashes.
+        let windows_path = full_path.replace('/', "\\");
+        // Explorer parses its own raw command line: `/select,` and the path have to arrive as a single
+        // token, and a path containing spaces has to be quoted. Passing them via `args` would produce
+        // two tokens (and quote them the wrong way round), so build the command line by hand.
+        std::process::Command::new("explorer")
+            .raw_arg(format!("/select,\"{}\"", windows_path))
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
 
     #[cfg(target_os = "linux")]
     std::process::Command::new("xdg-open")
