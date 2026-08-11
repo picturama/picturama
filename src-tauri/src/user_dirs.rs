@@ -53,6 +53,8 @@ impl UserDirs {
 fn normalise(dir: &str) -> PathBuf {
     let path = Path::new(dir);
     path.canonicalize().unwrap_or_else(|_| path.to_path_buf())
+        // These paths are only ever compared, never opened, so the Windows `\\?\` prefix that `canonicalize` adds
+        // does no harm here.
 }
 
 #[cfg(test)]
