@@ -38,18 +38,21 @@ Build from sources
 
 Prerequirements:
 
-  - Install node
+  - Install node: https://nodejs.org/en/download
   - Install Rust: https://rustup.rs
   - Install Tauri system dependencies (platform-specific):
     - See: https://tauri.app/start/prerequisites/
     - Mac OS:
       - Install Xcode and start it once. You can close Xcode after the "required components" have been installed.
       - `xcode-select --install`
-    - Windows: Visual Studio Build Tools
+    - Windows: Visual Studio Build Tools (including "Desktop Development with C++")
     - Linux: `libwebkit2gtk-4.1-dev libssl-dev libgtk-3-dev`
   - Install `libheif` (native HEIC/HEIF decoding):
     - Mac OS: `brew install libheif`
-    - Windows: `vcpkg install libheif` (and expose it to the linker, e.g. `VCPKG_ROOT` + the vcpkg toolchain)
+    - Windows: `vcpkg install libheif`, then set `VCPKG_ROOT` to your vcpkg directory and add
+      `%VCPKG_ROOT%\installed\x64-windows\bin` to `PATH` (so the dev build finds `heif.dll` and the codec DLLs at
+      runtime). We link libheif dynamically; `src-tauri/.cargo/config.toml` sets `VCPKGRS_DYNAMIC=1` so `libheif-sys`
+      looks in the `x64-windows` triplet rather than its default `x64-windows-static-md`.
     - Linux (Debian/Ubuntu): `sudo apt install libheif-dev`
   - Install Tauri CLI: `cargo install tauri-cli --version "^2"`
 
@@ -87,44 +90,6 @@ Run unit tests in watch mode:
 Run a single test in watch mode (replace `my test`):
 
     npx jest -t 'my test' --watch
-
-
-Build distributable package
----------------------------
-
-### Prerequisites for a release build
-
-In addition to the build prerequisites above, each platform needs `libheif` (and its codec dependencies)
-available so it can be **bundled into the installer** — otherwise the app builds but crashes when decoding
-HEIC on a machine without a system `libheif`:
-
-  - **macOS:** `brew install libheif dylibbundler create-dmg`
-    - `libheif` the library for decoding HEIC we want to embed
-    — `dylibbundler` collects the dylibs for `Picturama.app` and rewrites the load paths
-    - `create-dmg` produces the reference `.dmg` layout
-  - **Windows:** `vcpkg install libheif`, then set the `VCPKG_ROOT` environment variable to your vcpkg
-    directory (the release script copies `libheif.dll` + the codec DLLs from there to beside `Picturama.exe`).
-  - **Linux:** `sudo apt install libheif-dev` (the AppImage bundler pulls the shared libs into the AppDir
-    automatically — no further setup).
-
-### Running release build
-
-Run on the platform you want to build for:
-
-    npm run clean && npm run release
-
-This produces, in `src-tauri/target/release/bundle/`:
-
-  - **macOS:**   `dmg/Picturama_<version>_<arch>.dmg` (and the `.app` under `macos/`)
-  - **Windows:** `nsis/Picturama_<version>_<arch>-setup.exe`
-  - **Linux:**   `appimage/Picturama_<version>_<arch>.AppImage`
-
-Faster, unsigned local test build (skips optimisation):
-
-    npm run release -- --debug
-
-Bundling configuration lives in `src-tauri/tauri.conf.json` and `src-tauri/tauri.windows.conf.json` and the orchestrator
-`src/script/release.mjs`. For platform details see: https://v2.tauri.app/distribute/
 
 
 I18N

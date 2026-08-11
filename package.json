@@ -7,14 +7,13 @@
   "private": true,
   "scripts": {
     "start": "cargo tauri dev",
-    "clean": "rm -rf dist && cd src-tauri && cargo clean",
+    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\" && cd src-tauri && cargo clean",
     "dev": "vite",
     "build": "vite build",
     "i18n": "node src/script/check-i18n.mjs",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
-    "release": "node src/script/release.mjs",
     "tauri:test": "cd src-tauri && cargo test --bin Picturama",
     "test": "jest",
     "test:watch": "jest --watch"

@@ -17,6 +17,12 @@ export default defineConfig({
     server: {
         port: 3030,
         strictPort: true,
+        watch: {
+            // Never watch the Rust side: `cargo tauri dev` rewrites executables under `src-tauri/target`
+            // while they are open, which makes the Windows file watcher fail with EBUSY and kills the
+            // dev server. Rust changes are watched by the Tauri CLI itself.
+            ignored: ['**/src-tauri/**'],
+        },
     },
     build: {
         // Tauri uses Chromium / WebKit which support modern JS – no need to target legacy browsers.
