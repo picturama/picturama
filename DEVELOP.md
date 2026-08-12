@@ -1,25 +1,36 @@
 How to develop Picturama
 ========================
 
+Picturama is a local photo organizer: a Tauri 2 desktop app with a React/Redux web view (`src/app`) and a
+Rust native side (`src-tauri/src`). Nothing is uploaded anywhere — the app makes no network requests at all.
+
 
 Directory structure
 -------------------
 
-    +-- dist/                 Build artifacts of the app (filled by `webpack`)
+    +-- dist/                 Build artifacts of the web view (filled by `vite`)
     +-- doc/                  Resources used by documentation
     +-- migrations/           DB migration scripts
     +-- src/
         +-- app/              Code running in web view of main UI (TypeScript / React)
-        +-- image/            Source images
-        +-- package/          Resources needed for creating distributable packages (used by `electron-builder`)
+            +-- entry.tsx           App entry point
+            +-- BackgroundClient.ts IPC adapter (calls Tauri commands via `invoke()`)
+            +-- ForegroundService.ts Receives RPC calls FROM Rust (renderPhoto, ...)
+            +-- controller/         Imperative glue: calls BackgroundClient, dispatches into the store
+            +-- state/              Redux store, actions, selectors
+            +-- ui/                 React components (declarative, read from selectors)
+            +-- renderer/           WebGL rendering (the only place that can render a photo)
+            +-- i18n/               Localisation
+        +-- image/            Source images (app icon sources)
         +-- script/           Helper scripts
         +-- static/           Static files to be copied directly to `dist`
-        +-- test-jest/        Unit tests
-        +-- test-ui/          Code running in renderer electron process of UI Tester
+        +-- test-jest/        Unit tests (TypeScript)
+        +-- test-ui/          Code running in the web view of the UI Tester
         +-- typings/          TypeScript type definitions
     +-- src-tauri/            Code running on native side (Rust / Tauri)
         +-- dmg/              Background of DMG (MacOS package)
-        +-- icons/            App icons (.icns for macOS, .ico for Windows, PNGs for Linux) 
+        +-- icons/            App icons (.icns for macOS, .ico for Windows, PNGs for Linux)
+        +-- capabilities/     Tauri permissions granted to the web view
         +-- src/
             +-- main.rs           Tauri builder, managed state, setup(), module declarations
             +-- commands/         Tauri command layer, split by domain (photos, tags, import, thumbnails, ...)
@@ -49,9 +60,9 @@ Prerequirements:
     - Linux: `libwebkit2gtk-4.1-dev libssl-dev libgtk-3-dev`
   - Install `libheif` (native HEIC/HEIF decoding):
     - Mac OS: `brew install libheif`
-    - Windows: `vcpkg install libheif`, then set `VCPKG_ROOT` to your vcpkg directory and add
-      `%VCPKG_ROOT%\installed\x64-windows\bin` to `PATH` (so the dev build finds `heif.dll` and the codec DLLs at
-      runtime). We link libheif dynamically; `src-tauri/.cargo/config.toml` sets `VCPKGRS_DYNAMIC=1` so `libheif-sys`
+    - Windows: `vcpkg install libheif[core]`, then set `VCPKG_ROOT` to your vcpkg directory and add
+      `%VCPKG_ROOT%\installed\x64-windows\bin` to `PATH`, so the dev build finds `heif.dll` and the codec DLLs at
+      runtime. We link libheif dynamically: `src-tauri/.cargo/config.toml` sets `VCPKGRS_DYNAMIC=1` so `libheif-sys`
       looks in the `x64-windows` triplet rather than its default `x64-windows-static-md`.
     - Linux (Debian/Ubuntu): `sudo apt install libheif-dev`
   - Install Tauri CLI: `cargo install tauri-cli --version "^2"`
@@ -79,17 +90,79 @@ Development hotkeys:
 Unit tests
 ----------
 
-Run unit tests:
+Tests are split by language and run separately.
 
-    npm run test
+TypeScript (Jest, only `src/test-jest/`):
 
-Run unit tests in watch mode:
+    npm run test                    # run all tests
+    npm run test:watch              # watch mode
+    npx jest -t 'my test' --watch   # a single test in watch mode (replace `my test`)
 
-    npm run test:watch
+Rust:
 
-Run a single test in watch mode (replace `my test`):
+    npm run tauri:test                                  # cargo test --bin Picturama
+    cd src-tauri && cargo test --bin Picturama heif     # single test / name filter
 
-    npx jest -t 'my test' --watch
+Rust tests live inline as `#[cfg(test)] mod tests` in the source files, not in a separate tree — that is
+where most of the real test coverage is. Several of them read real photos from `submodules/test-data/`, so
+`git submodule update --init --recursive` is a prerequisite. On Windows they additionally need the vcpkg bin
+directory on `PATH` to find `heif.dll`.
+
+
+Architecture
+------------
+
+### The IPC boundary runs in both directions
+
+**Frontend → Rust** is ordinary Tauri: `src/app/BackgroundClient.ts` wraps `invoke()` and converts method
+names from camelCase to snake_case, so `fetchTotalPhotoCount()` reaches `fetch_total_photo_count` in
+`src-tauri/src/commands/`. Every command must also be listed in `generate_handler!` in `main.rs`.
+
+```typescript
+// BackgroundClient.ts wraps all calls:
+import { invoke } from '@tauri-apps/api/core'
+invoke('fetch_sections', { filter, sectionIdsToKeepLoaded })
+```
+
+**Rust → Frontend** is a hand-rolled RPC in `src-tauri/src/foreground_client.rs`. It is used for
+`renderPhoto`, `renderImage`, `setImportProgress`, `onPhotoTrashed` and similar actions that need a result
+back from the web view:
+
+```
+Rust: foreground_client::call_foreground(&app, "renderPhoto", params).await
+  → emits "execute-foreground-action" event with { callId, action, params }
+  → ForegroundService.ts handles it, calls invoke("foreground_action_done", { callId, result })
+  → Rust resolves the oneshot channel, returns the BinaryString result
+```
+
+The reason this exists: **image rendering only works in the web view**, in WebGL (`src/app/renderer/`). So
+when Rust needs a rendered photo — thumbnail generation (`commands/thumbnails.rs`) and export
+(`commands/export.rs`) — it calls *back* into the frontend and waits for the pixels. Rust drives, the web
+view renders.
+
+### Frontend layering
+
+`src/app/controller/` holds the imperative glue: controllers call `BackgroundClient` and dispatch into the
+Redux store (`src/app/state/`). React components under `src/app/ui/` stay declarative and read from
+selectors. New cross-cutting behaviour belongs in a controller, not in a component.
+
+### Dev and release differ in where they read and write
+
+`src-tauri/src/app_config_builder.rs` is the single place that decides. In debug builds the home directory
+is `dot-picturama/` inside the repo and the app dir is the project root; in release builds they are
+`~/.picturama` and the bundled resource dir. Code that needs either must go through `AppConfig` rather than
+computing paths itself.
+
+### Persistence
+
+All paths are under `<picturama_home_dir>` (see above). Originals are never modified — that is a product
+guarantee, not an implementation detail.
+
+  - **Database** — `db.sqlite3`. Migrations are compatible with `sqlite3-helper` (same `migrations` table,
+    same `-- Down` split convention).
+  - **Settings** — `settings.json`
+  - **PhotoWork (non-destructive edits)** — `picturama.yml` sidecar per photo directory.
+  - **Thumbnails** — `thumbnails/<shortId>.webp`
 
 
 I18N
@@ -188,8 +261,10 @@ Generally I think it's important to keep in mind why a codebase should follow a 
 answer is: to make the code easier to read. Therefore I prefer rules arguing with readability over strict rules only
 allowing one strict format.
 
+  - Use english in all code files.
   - Indent with 4 spaces
   - String quotes: In TypeScript use single quotes for strings. But the others may be used if it makes the code more readable (e.g. by avoiding escaping).
+  - In JavaScript/TypeScript: Avoid semicolons after statements.
   - No EOL spaces: The code should not contain EOL white space. But if there already is EOL white space, this can be fixed if the code is changed the next time (since it doesn't really affect readability - small diffs are more important here).
   - Trailing commas are optional. I add trailing commas if I think it's likely that the list gets more attributes in the future (which then can be added with a smaller diff).
   - Break lines after 120 characters: All code should be readable without horizontal scrolling.
