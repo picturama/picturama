@@ -17,7 +17,7 @@ the AppImage with `--appimage-extract-and-run`. And make sure the file is execut
 - Scan local files - Keep your privacy, don't upload your personal photos to a cloud service
 - Non-Destructive - The original images won't be touched (unless you purge the trash)
 - Read various photo formats: JPG, PNG, TIF, WebP, HEIC / HEIF
-- Read raw formats of [a whole bunch of cameras](https://www.libraw.org/supported-cameras) (only on Mac and Linux, see [Issue #25](https://github.com/picturama/picturama/issues/25))
+- Read raw formats: RAF (Fujifilm), CR2 (Canon), ARW (Sony), DNG — shown through the JPEG preview the camera embedded
 - Browse photos by dates
 - View photo in detail (zoomable)
 - View EXIF information
