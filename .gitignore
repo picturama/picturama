@@ -1,7 +1,4 @@
-/.awcache/
 /dist/
-/dist-package/
-/dist-test/
 /dot-picturama*/
 /node_modules/
 /src-tauri/libs/
