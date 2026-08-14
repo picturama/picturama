@@ -16,6 +16,7 @@ import {
     PhotoWork,
     Settings,
     Tag,
+    Licenses,
     UiConfig,
 } from 'app/CommonTypes'
 
@@ -69,6 +70,10 @@ const BackgroundClient = {
 
     storeSettings(settings: Settings): Promise<void> {
         return invokeCommand('storeSettings', { settings })
+    },
+
+    fetchLicenses(): Promise<Licenses> {
+        return invokeCommand('fetchLicenses')
     },
 
     fileExists(path: string): Promise<boolean> {

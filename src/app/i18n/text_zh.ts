@@ -6,6 +6,7 @@ export default {
     common_hideReport: '隐藏报告',
     common_showReport: '显示报告',
     common_reloadUi: '加载UI',
+    common_licenses: '许可',
     common_error: '哦，不！出了点问题',
     common_error_photoNotExisting: '照片不存在',
     common_error_photoNotExisting_desc: '这张照片已经不在上次扫描时的位置了,也许它已经被移动、删除或它在一个不再连接的磁盘上',
@@ -164,6 +165,9 @@ export default {
     Settings_photoDirs: '要扫描图像的文件夹：',
     Settings_addPhotoDir: '添加照片文件夹',
     Settings_startScan: '扫描图像',
+
+    LicenseDialog_intro: 'Picturama 是自由的开源软件。',
+    LicenseDialog_libraries: 'Picturama 使用了以下由他人编写的库：',
 
     TagEditor_addTag: '添加标签...',
     TagEditor_error_tagExists: '请输入一个新标签',

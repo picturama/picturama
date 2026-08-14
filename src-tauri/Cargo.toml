@@ -17,6 +17,9 @@ tauri-build = { version = "2", features = [] }
 chrono             = "0.4"
 # Resolves platform standard directories (home dir) to locate `~/.picturama` in release builds.
 dirs               = "5"
+# Unpacks the gzipped third-party license notice. No new code in the binary: Tauri already pulls flate2 in,
+# this only names it so `commands/lifecycle.rs` may use it too.
+flate2             = "1"
 # Pure-Rust JPEG segment read/write. Used only by the photo export `withMetadata` option to copy the
 # master JPEG's EXIF into the export.
 img-parts          = "0.4"

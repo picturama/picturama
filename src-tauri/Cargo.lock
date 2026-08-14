@@ -2803,6 +2803,7 @@ version = "2.0.0"
 dependencies = [
  "chrono",
  "dirs 5.0.1",
+ "flate2",
  "imagesize",
  "img-parts",
  "indexmap 2.14.0",

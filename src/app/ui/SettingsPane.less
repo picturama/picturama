@@ -1,29 +1,24 @@
 @import "../style/variables.less";
 
 @contentWidth: 800px;
-@buttonBarHeight: 80px;
 
 .SettingsPane {
-    position: relative;
+    display: flex;
+    flex-direction: column;
     background-color: @blue-grey-100;
     overflow: hidden;
 }
 .SettingsPane-topBar,
-.SettingsPane-body,
-.SettingsPane-buttonBar {
-    position: absolute;
-    left: 0;
-    right: 0;
+.SettingsPane-footer {
+    flex: 0 0 auto;
 }
 .SettingsPane-body {
+    flex: 1 1 100%;
     top: @toolbarHeight;
-    bottom: @buttonBarHeight;
+    overflow: auto;
 }
-.SettingsPane-buttonBar {
-    bottom: 0;
+.SettingsPane-footer {
     max-width: @contentWidth;
-    height: @buttonBarHeight;
-    line-height: @buttonBarHeight;
     text-align: center;
 }
 
@@ -36,4 +31,21 @@
 
 .SettingsPane-addPhotoDir {
     margin: 10px 0;
+}
+
+.SettingsPane-scan {
+    margin: 25px 0;
+}
+
+.SettingsPane-about {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.SettingsPane-appVersion {
+    opacity: 0.7;
 }

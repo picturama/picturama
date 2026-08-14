@@ -5,6 +5,8 @@
 /dot-picturama*/
 /node_modules/
 /src-tauri/libs/
+# Written by `npm run licenses` - a build artifact, see DEVELOP.md "Licenses"
+/licenses.json.gz
 /*.patch
 picturama.yml
 

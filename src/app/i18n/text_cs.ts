@@ -6,6 +6,7 @@ export default {
     common_hideReport: 'Skrýt report',
     common_showReport: 'Zobrazit report',
     common_reloadUi: 'Znovu nahrát UI',
+    common_licenses: 'Licence',
     common_error: 'Ale ne! Něco se pokazilo.',
     common_error_photoNotExisting: 'Fotografie už neexistuje',
     common_error_photoNotExisting_desc: 'Tato fotografie již není tam, kde byla při posledním vyhledání. Možná byla přesunuta, odstraněna nebo se nachází na disku, který již není připojen.',
@@ -164,6 +165,9 @@ export default {
     Settings_photoDirs: 'Složky ve kterých budou vyhledány fotografie:',
     Settings_addPhotoDir: 'Přidat složku fotografií',
     Settings_startScan: 'Vyhledat fotografie',
+
+    LicenseDialog_intro: 'Picturama je svobodný a otevřený software.',
+    LicenseDialog_libraries: 'Picturama používá následující knihovny od jiných autorů:',
 
     TagEditor_addTag: 'Přidat štítek...',
     TagEditor_error_tagExists: 'Zadejte prosím nový štítek',

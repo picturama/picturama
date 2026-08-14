@@ -256,3 +256,44 @@ export interface DecodedHeifImage {
     /** The image data in RGB (8 bit per channel). size in bytes = 3 * width * height */
     data: Uint8Array
 }
+
+
+// ----- Licenses -----
+
+// Unlike the types above this one does not mirror `common_types.rs`: the data is produced by
+// `src/script/collect-licenses.mjs` and passed through by `fetch_licenses` without Rust looking
+// inside it. So this is the mirror of the generator's output, and the two have to be changed together.
+
+/** A license text belonging to a component: `name` is what the button says, `key` looks the text up. */
+export interface LicenseTextRef {
+    name: string
+    key: string
+}
+
+export interface LicensedComponent {
+    name: string
+    /** An SPDX expression as declared by the component, or 'see copyright file' for a Debian package. */
+    license: string
+    /** Empty if the component ships no license file of its own. */
+    texts: LicenseTextRef[]
+}
+
+/** What a bundled library adds over Picturama's own entry: where it came from, and in which version. */
+export interface LicensedLibrary extends LicensedComponent {
+    version: string
+    /** E.g. 'crates.io', 'npm', 'debian', 'bundled' */
+    origin: string
+    source?: string
+    note?: string
+}
+
+export interface Licenses {
+    /** The day the file was generated, as 'YYYY-MM-DD'. */
+    generated: string
+    /** License texts by content hash - components sharing a text share an entry. */
+    texts: { [K: string]: string }
+    /** Picturama itself. */
+    own: LicensedComponent
+    /** Everything that ships with it, sorted by name. */
+    libraries: LicensedLibrary[]
+}

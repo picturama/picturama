@@ -6,6 +6,7 @@ export default {
     common_hideReport: 'Hide report',
     common_showReport: 'Show report',
     common_reloadUi: 'Reload user interface',
+    common_licenses: 'Licenses',
     common_error: 'Oh no! Something went wrong.',
     common_error_photoNotExisting: 'Photo is no longer there',
     common_error_photoNotExisting_desc: 'This photo is no longer where it was on the last scan. Maybe it has been moved, deleted or it is on a disk that is no longer connected.',
@@ -164,6 +165,9 @@ export default {
     Settings_photoDirs: 'Folders to scan for images:',
     Settings_addPhotoDir: 'Add photo folder',
     Settings_startScan: 'Scan for images',
+
+    LicenseDialog_intro: 'Picturama is free and open source.',
+    LicenseDialog_libraries: 'Picturama uses the following libraries written by others:',
 
     TagEditor_addTag: 'Add tag...',
     TagEditor_error_tagExists: 'Please enter a new tag',

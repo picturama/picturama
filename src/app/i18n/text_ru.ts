@@ -6,6 +6,7 @@ export default {
     common_hideReport: 'Скрыть отчет',
     common_showReport: 'Показать отчет',
     common_reloadUi: 'Перезагрузить интерфейс',
+    common_licenses: 'Лицензии',
     common_error: 'О нет! Что-то пошло не так.',
     common_error_photoNotExisting: 'Фото больше нет',
     common_error_photoNotExisting_desc: 'Эта фотография больше не находится там, где она была при последнем сканировании. Возможно, фото было перемещено, удалено или находится на диске, который больше не подключен.',
@@ -164,6 +165,9 @@ export default {
     Settings_photoDirs: 'папки для сканирования на наличие изображений:',
     Settings_addPhotoDir: 'Добавить папку с фотографиями',
     Settings_startScan: 'Сканировать на наличие изображений',
+
+    LicenseDialog_intro: 'Picturama — свободное программное обеспечение с открытым исходным кодом.',
+    LicenseDialog_libraries: 'Picturama использует следующие библиотеки других авторов:',
 
     TagEditor_addTag: 'Добавить тег...',
     TagEditor_error_tagExists: 'Введите новый тег',

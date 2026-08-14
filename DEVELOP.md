@@ -74,6 +74,7 @@ Fetch git submodules:
 Fetch dependencies and build and start Picturama:
 
     npm i
+    npm run licenses
     npm start
 
 Clean project:
@@ -179,6 +180,21 @@ The following files provide I18N:
 Add missing attributes to localization files:
 
     npm run i18n
+
+
+Licenses
+--------
+
+Picturama is MIT, but a build ships components written by others. Their license text and the copyright notice accompany
+the binary.
+
+  - `npm run licenses` collects the components and their license texts.
+  - `licenses.json.gz` — the result, in the project root. Declared as a Tauri resource in `tauri.conf.json` so it lands
+    in `app_dir` next to `migrations/`. Gzipped because it is mostly license texts: 820 KB become 82 KB
+
+Why generated, not checked in: the list is a property of the build, not of the source tree. The Rust crates differ per
+target platform, and the Debian package versions inside the AppImage differ between architectures and change whenever
+the build container is rebuilt. A checked-in list would be a second source of truth that goes stale silently.
 
 
 Icons

@@ -43,7 +43,8 @@
     "active": true,
     "targets": ["app", "dmg", "nsis", "appimage"],
     "resources": {
-      "../migrations/*": "app/migrations/"
+      "../migrations/*": "app/migrations/",
+      "../licenses.json.gz": "app/licenses.json.gz"
     },
     "icon": [
       "icons/32x32.png",

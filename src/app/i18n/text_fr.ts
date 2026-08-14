@@ -6,6 +6,7 @@ export default {
     common_hideReport: 'Masquer le rapport',
     common_showReport: 'Afficher le rapport',
     common_reloadUi: `Recharger l'interface`,
+    common_licenses: 'Licences',
     common_error: 'Oh non ! Quelque chose a mal tourné.',
     common_error_photoNotExisting: `Cette photo n'existe pas.`,
     common_error_photoNotExisting_desc: `Cette photo n'est plus à l'endroit où elle se trouvait lors du dernier scan. Elle a peut-être été déplacée, supprimée ou se trouve sur un disque qui n'est plus connecté`,
@@ -164,6 +165,9 @@ export default {
     Settings_photoDirs: 'Dossiers à scanner pour les images:',
     Settings_addPhotoDir: 'Ajouter un dossier de photos',
     Settings_startScan: `Recherche d'images`,
+
+    LicenseDialog_intro: 'Picturama est libre et open source.',
+    LicenseDialog_libraries: `Picturama utilise les bibliothèques suivantes, écrites par d'autres :`,
 
     TagEditor_addTag: 'Ajouter un tag...',
     TagEditor_error_tagExists: 'Veuillez saisir un nouveau tag',

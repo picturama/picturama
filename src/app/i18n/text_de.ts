@@ -6,6 +6,7 @@ export default {
     common_hideReport: 'Report ausblenden',
     common_showReport: 'Report anzeigen',
     common_reloadUi: `Oberfläche neu laden`,
+    common_licenses: 'Lizenzen',
     common_error: 'Oh nein! Da ging was schief.',
     common_error_photoNotExisting: 'Foto ist nicht mehr da',
     common_error_photoNotExisting_desc: 'Dieses Foto nicht mehr da wo es beim letzten Scan war. Evtl. wurde es verschoben, gelöscht oder es befindet sich auf einem Datenträger, der nun nicht mehr angeschlossen ist.',
@@ -164,6 +165,9 @@ export default {
     Settings_photoDirs: 'Ordner, die nach Fotos gescannt werden sollen:',
     Settings_addPhotoDir: 'Foto-Ordner hinzufügen',
     Settings_startScan: 'Nach Fotos scannen',
+
+    LicenseDialog_intro: 'Picturama ist frei und Open Source.',
+    LicenseDialog_libraries: 'Picturama verwendet folgende Bibliotheken anderer Autoren:',
 
     TagEditor_addTag: 'Schlagwort hinzufügen...',
     TagEditor_error_tagExists: 'Bitte neues Schlagwort eingeben',

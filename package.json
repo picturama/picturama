@@ -2,7 +2,7 @@
   "name": "picturama",
   "version": "2.0.0-dev",
   "description": "Digital image organizer powered by the web",
-  "author": "Loïc Nogues <nogues.loic@gmail.com>, Til Schneider <github@murfman.de>",
+  "author": "Til Schneider <github@murfman.de>, Loïc Nogues <nogues.loic@gmail.com>",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -11,6 +11,7 @@
     "dev": "vite",
     "build": "vite build",
     "i18n": "node src/script/check-i18n.mjs",
+    "licenses": "node src/script/collect-licenses.mjs",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",

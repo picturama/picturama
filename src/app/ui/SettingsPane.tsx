@@ -8,6 +8,7 @@ import BackgroundClient from 'app/BackgroundClient'
 import { Settings } from 'app/CommonTypes'
 import { showError } from 'app/ErrorPresenter'
 import { msg } from 'app/i18n/i18n'
+import LicenseDialog from 'app/ui/license/LicenseDialog'
 import Toolbar from 'app/ui/widget/Toolbar'
 import List from 'app/ui/widget/List'
 import LogoDecoration from 'app/ui/widget/LogoDecoration'
@@ -25,6 +26,7 @@ export interface OwnProps {
 
 interface StateProps {
     settings: Settings
+    version: string
 }
 
 interface DispatchProps {
@@ -35,11 +37,17 @@ interface DispatchProps {
 
 export interface Props extends OwnProps, StateProps, DispatchProps {}
 
-export class SettingsPane extends React.Component<Props> {
+interface State {
+    showLicenses: boolean
+}
+
+export class SettingsPane extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props)
-        bindMany(this, 'onPhotoDirsChange', 'onAddPhotoDir', 'onClose', 'onCloseAndImport', 'getDecorationWidth')
+        this.state = { showLicenses: false }
+        bindMany(this, 'onPhotoDirsChange', 'onAddPhotoDir', 'onClose', 'onCloseAndImport', 'getDecorationWidth',
+            'onShowLicenses', 'onLicensesClosed')
     }
 
     private onPhotoDirsChange(photoDirs: string[]) {
@@ -69,12 +77,20 @@ export class SettingsPane extends React.Component<Props> {
         this.props.onClose(this.props.settings, true)
     }
 
+    private onShowLicenses() {
+        this.setState({ showLicenses: true })
+    }
+
+    private onLicensesClosed() {
+        this.setState({ showLicenses: false })
+    }
+
     private getDecorationWidth(containerWidth: number): number {
         return containerWidth - 800
     }
 
     render() {
-        const { props } = this
+        const { props, state } = this
         const { settings } = props
         return (
             <div className={classnames(props.className, 'SettingsPane')} style={props.style}>
@@ -113,14 +129,27 @@ export class SettingsPane extends React.Component<Props> {
                         />
                     </div>
                 </div>
-                <div className='SettingsPane-buttonBar'>
+                <div className='SettingsPane-footer'>
                     <Button
+                        className='SettingsPane-scan'
                         large={true}
                         intent='primary'
                         text={msg('Settings_startScan')}
                         onClick={this.onCloseAndImport}
                     />
+                    <div className='SettingsPane-about'>
+                        <span>Picturama</span>
+                        <span className='SettingsPane-appVersion'>{props.version}</span>
+                        <Button
+                            small
+                            text={msg('common_licenses')}
+                            onClick={this.onShowLicenses}
+                        />
+                    </div>
                 </div>
+                {state.showLicenses &&
+                    <LicenseDialog onClosed={this.onLicensesClosed}/>
+                }
             </div>
         )
     }
@@ -137,7 +166,8 @@ const Connected = connect<StateProps, DispatchProps, OwnProps, AppState>(
     (state: AppState, props: OwnProps) => {
         return {
             ...props,
-            settings: state.data.settings
+            settings: state.data.settings,
+            version: state.data.uiConfig.version,
         }
     },
     dispatch => ({

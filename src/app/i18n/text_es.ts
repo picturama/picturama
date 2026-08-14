@@ -6,6 +6,7 @@ export default {
     common_hideReport: 'Ocultar informe',
     common_showReport: 'Mostrar informe',
     common_reloadUi: `Recargar UI`,
+    common_licenses: 'Licencias',
     common_error: '¡Oh no! Algo ha ido mal.',
     common_error_photoNotExisting: `Foto no encontrada`,
     common_error_photoNotExisting_desc: `Esta foto ya no se encuentra donde estaba ubicada en el último escaneo. Quizás fue movida, borrada o se encuentra en un disco que no está conectado`,
@@ -164,6 +165,9 @@ export default {
     Settings_photoDirs: 'Carpetas para escanear imágenes:',
     Settings_addPhotoDir: 'Añadir carpeta de fotos',
     Settings_startScan: 'Scanear en busca de imágenes',
+
+    LicenseDialog_intro: 'Picturama es software libre y de código abierto.',
+    LicenseDialog_libraries: 'Picturama utiliza las siguientes bibliotecas escritas por otras personas:',
 
     TagEditor_addTag: 'Añadir etiqueta...',
     TagEditor_error_tagExists: 'Por favor, introduce una nueva etiqueta',

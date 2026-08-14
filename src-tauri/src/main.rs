@@ -60,6 +60,7 @@ fn main() {
             commands::lifecycle::fetch_ui_config,
             commands::lifecycle::fetch_settings,
             commands::lifecycle::store_settings,
+            commands::lifecycle::fetch_licenses,
             // Filesystem
             commands::fs::file_exists,
             commands::fs::get_file_size,
