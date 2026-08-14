@@ -25,9 +25,15 @@ use crate::store::photo_store::NewPhoto;
 // Config
 // ---------------------------------------------------------------------------
 
+// The extensions Picturama imports — the single source, here because the scanner is what decides
+// whether a file is accepted at all. The two special cases are `pub(crate)` because the renderer needs
+// them too: it hands HEIC to libheif and RAW to the embedded-preview reader, everything else to the web
+// view. They reach it in the `UiConfig` (`commands::lifecycle::fetch_ui_config`), so a new extension is
+// added here and nowhere else. `ACCEPTED_NON_RAW` stays private: the frontend never filters by
+// "importable", the plain path is simply the `else` branch.
 const ACCEPTED_NON_RAW: &[&str] = &["png", "jpg", "jpeg", "tif", "tiff", "webp"];
-const ACCEPTED_HEIC: &[&str] = &["heic", "heif"];
-const ACCEPTED_RAW: &[&str] = &["raf", "cr2", "arw", "dng"];
+pub(crate) const ACCEPTED_HEIC: &[&str] = &["heic", "heif"];
+pub(crate) const ACCEPTED_RAW: &[&str] = &["raf", "cr2", "arw", "dng"];
 
 /// Number of photos accumulated before a batch is written in one transaction (one fsync per batch
 /// instead of one per photo). Deliberately independent of directory size.

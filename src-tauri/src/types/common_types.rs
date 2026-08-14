@@ -86,6 +86,10 @@ pub struct UiConfig {
     pub has_native_menu: bool,
     pub raw_locale: String,
     pub thumbnail_path: String,
+    /// The extensions the renderer has to treat specially, straight from `import_scanner`, so the
+    /// web view doesn't keep a second copy that could drift apart from the scanner's.
+    pub accepted_heic_extensions: Vec<String>,
+    pub accepted_raw_extensions: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

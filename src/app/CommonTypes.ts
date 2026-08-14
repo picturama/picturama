@@ -98,6 +98,10 @@ export interface UiConfig {
     hasNativeMenu: boolean
     rawLocale: string
     thumbnailPath: string
+    /** The extensions the renderer has load via `BackgroundClient.loadHeifFile`. See `DataUtil.isHeicFile` */
+    acceptedHeicExtensions: string[]
+    /** The extensions the renderer has load via `BackgroundClient.extractRawPreviewJpg`. See `DataUtil.isRawFile` */
+    acceptedRawExtensions: string[]
 }
 
 /**

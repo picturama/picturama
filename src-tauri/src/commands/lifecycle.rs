@@ -10,6 +10,7 @@ use tauri::{AppHandle, Manager, State};
 
 use crate::app_config_builder::AppConfig;
 use crate::i18n::I18n;
+use crate::import_scanner::{ACCEPTED_HEIC, ACCEPTED_RAW};
 #[cfg(target_os = "macos")]
 use crate::menu;
 use crate::store::settings_store;
@@ -47,6 +48,8 @@ pub async fn fetch_ui_config(app_config: State<'_, AppConfig>) -> Result<UiConfi
         has_native_menu: env::consts::OS == "macos",
         raw_locale:      app_config.raw_locale.to_string(),
         thumbnail_path:  app_config.picturama_home_dir.join("thumbnails").to_str().unwrap().to_string(),
+        accepted_heic_extensions: ACCEPTED_HEIC.iter().map(|ext| ext.to_string()).collect(),
+        accepted_raw_extensions:  ACCEPTED_RAW.iter().map(|ext| ext.to_string()).collect(),
     })
 }
 

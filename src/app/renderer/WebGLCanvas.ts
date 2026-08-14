@@ -2,14 +2,8 @@ import { mat4 } from 'gl-matrix'
 import { convertFileSrc } from '@tauri-apps/api/core'
 
 import BackgroundClient from 'app/BackgroundClient'
+import { isHeicFile, isRawFile } from 'app/util/DataUtil'
 import Profiler from 'app/util/Profiler'
-
-
-const acceptedHeicExtensions = [ 'heic', 'heif' ]
-const heicExtensionRE = new RegExp(`\\.(${acceptedHeicExtensions.join('|')})$`, 'i')
-
-const acceptedRawExtensions = [ 'raf', 'cr2', 'arw', 'dng' ]
-const rawExtensionRE = new RegExp(`\\.(${acceptedRawExtensions.join('|')})$`, 'i')
 
 
 export function hasWebGLSupport(): boolean {
@@ -82,7 +76,7 @@ export default class WebGLCanvas {
         let textureFormat: number
         let width: number
         let height: number
-        if (heicExtensionRE.test(filePath)) {
+        if (isHeicFile(filePath)) {
             // HEIC is decoded natively in Rust (libheif) and returned as interleaved RGB8.
             const imageData = await BackgroundClient.loadHeifFile(filePath)
             if (profiler) profiler.addPoint('Loaded heic image')
@@ -102,7 +96,7 @@ export default class WebGLCanvas {
             // RAW images can't be shown directly. Rust backend extracts the largest embedded JPEG preview and we
             // decode it with the browser like any other JPEG (via a blob URL). For all other formats the
             // image file is loaded straight from disk.
-            const isRaw = rawExtensionRE.test(filePath)
+            const isRaw = isRawFile(filePath)
             const src = isRaw
                 ? URL.createObjectURL(new Blob([await BackgroundClient.extractRawPreviewJpg(filePath)], { type: 'image/jpeg' }))
                 : convertFileSrc(filePath)

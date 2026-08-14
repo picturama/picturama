@@ -6,9 +6,36 @@ import { PhotoId, Photo, ExifOrientation, BinaryString, UiConfig, PhotoRenderFor
 const workExt: PhotoRenderFormat = 'webp'
 
 let uiConfig: UiConfig | undefined
+let heicExtensionRE: RegExp | undefined
+let rawExtensionRE: RegExp | undefined
 
 export function init(nextUiConfig: UiConfig) {
     uiConfig = nextUiConfig
+    heicExtensionRE = extensionRE(nextUiConfig.acceptedHeicExtensions)
+    rawExtensionRE = extensionRE(nextUiConfig.acceptedRawExtensions)
+}
+
+function extensionRE(extensions: string[]): RegExp {
+    return new RegExp(`\\.(${extensions.join('|')})$`, 'i')
+}
+
+/**
+ * Whether this file is decoded by libheif in Rust rather than by the web view.
+ *
+ * Which extensions those are is decided by the scanner in Rust (`import_scanner.rs`) and travels in the
+ * `UiConfig` - the frontend must not keep a list of its own, or it would drift apart from the one that
+ * decides what gets imported.
+ *
+ * Answers `false` before `init` - the UI Tester (`test-ui.html`) never fetches a `UiConfig`, and the photos
+ * it shows are JPEGs, for which the plain path is the right one anyway.
+ */
+export function isHeicFile(filePath: string): boolean {
+    return heicExtensionRE?.test(filePath) ?? false
+}
+
+/** Whether this file is shown through its embedded JPEG preview. See `isHeicFile` for where the list comes from. */
+export function isRawFile(filePath: string): boolean {
+    return rawExtensionRE?.test(filePath) ?? false
 }
 
 export function getVersion(): string | undefined {
