@@ -9,7 +9,6 @@ export default defineConfig({
     resolve: {
         alias: {
             app:       path.resolve(__dirname, 'src/app'),
-            common:    path.resolve(__dirname, 'src/common'),
             'test-ui': path.resolve(__dirname, 'src/test-ui'),
         },
         extensions: ['.mjs', '.ts', '.tsx', '.js', '.jsx', '.json'],

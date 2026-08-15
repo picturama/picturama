@@ -11,7 +11,6 @@ module.exports = {
     },
     moduleNameMapper: {
         '^app/(.*)$': '<rootDir>/src/app/$1',
-        '^common/(.*)$': '<rootDir>/src/common/$1',
     },
     roots: [
         '<rootDir>/src/test-jest/'
