@@ -136,10 +136,17 @@ Rust: foreground_client::call_foreground(&app, "renderPhoto", params).await
   → Rust resolves the oneshot channel, returns the BinaryString result
 ```
 
-The reason this exists: **image rendering only works in the web view**, in WebGL (`src/app/renderer/`). So
-when Rust needs a rendered photo — thumbnail generation (`commands/thumbnails.rs`) and export
-(`commands/export.rs`) — it calls *back* into the frontend and waits for the pixels. Rust drives, the web
-view renders.
+### Image rendering
+
+**Image rendering only works in the web view**, in WebGL (`src/app/renderer/`). So when Rust needs a rendered photo —
+thumbnail generation (`commands/thumbnails.rs`) and export (`commands/export.rs`) — it calls *back* into the frontend
+and waits for the pixels. Rust drives, the web view renders.
+
+In rare cases a render can take the web view down with it (a crash in the WebGL layer is a process death, not a JS error),
+and then the RPC never answers. `create_thumbnail` therefore writes a marker file next to the thumbnail *before* it asks
+the frontend and removes it as soon as the frontend answers — with pixels or with an error. A marker found on the next
+attempt means the last render was fatal, so the photo is skipped and the grid shows a placeholder instead of triggering
+the same crash again after every reload.
 
 ### Frontend layering
 
@@ -163,7 +170,8 @@ guarantee, not an implementation detail.
     same `-- Down` split convention).
   - **Settings** — `settings.json`
   - **PhotoWork (non-destructive edits)** — `picturama.yml` sidecar per photo directory.
-  - **Thumbnails** — `thumbnails/<shortId>.webp`
+  - **Thumbnails** — `thumbnails/<shortId>.webp`, plus `thumbnails/<shortId>.failed` for a photo whose render killed
+    the web view (see "Image rendering" above)
 
 
 I18N
