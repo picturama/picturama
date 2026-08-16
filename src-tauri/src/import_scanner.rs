@@ -798,7 +798,7 @@ mod tests {
     fn imports_raw_using_embedded_preview_dimensions() {
         // RAW is imported like a normal photo: its master dimensions come from the largest embedded JPEG
         // preview (which also backs display/export).
-        let (photo, _tags) = build_new_photo(&raw_corpus_dir(), "RAW_CANON_5D_ARGB.CR2", 333)
+        let (photo, _tags) = build_new_photo(&raw_corpus_dir(), "raw_Canon_5D_ARGB.cr2", 333)
             .unwrap()
             .expect("RAW should be importable");
         assert_eq!((photo.master_width, photo.master_height), (2496, 1664));
@@ -809,7 +809,7 @@ mod tests {
         // The iPhone 12 Pro ProRAW DNG is a portrait shot: its embedded preview is encoded 4032x3024
         // (landscape) with EXIF orientation 6, which the browser rotates to portrait on display. The
         // stored master dimensions must match that display orientation, so they are swapped to 3024x4032.
-        let (photo, _tags) = build_new_photo(&raw_corpus_dir(), "RAW_APPLE_IPHONE_12_PRO.DNG", 444)
+        let (photo, _tags) = build_new_photo(&raw_corpus_dir(), "raw_Apple_iPhone_12_Pro.dng", 444)
             .unwrap()
             .expect("RAW should be importable");
         assert_eq!((photo.master_width, photo.master_height), (3024, 4032));
@@ -832,7 +832,7 @@ mod tests {
         std::fs::write(photos.path.join("notes.txt"), b"ignore me").unwrap(); // not a photo
         // A real RAW file: imported via its embedded JPEG preview.
         std::fs::copy(
-            format!("{}/RAW_CANON_5D_ARGB.CR2", raw_corpus_dir()),
+            format!("{}/raw_Canon_5D_ARGB.cr2", raw_corpus_dir()),
             photos.path.join("raw.cr2"),
         )
         .unwrap();

@@ -261,22 +261,22 @@ mod tests {
         // The 5D CR2 embeds a 160x120 thumbnail, a 2496x1664 developed preview, and its raw sensor data
         // as a *larger* lossless JPEG (~10 MB). We must pick the largest displayable preview (2496x1664),
         // never the lossless raw blob (which begins with FF D8 FF too but renders black in a browser).
-        assert_valid_jpeg_of_size(&extract("RAW_CANON_5D_ARGB.CR2"), 2496, 1664);
+        assert_valid_jpeg_of_size(&extract("raw_Canon_5D_ARGB.cr2"), 2496, 1664);
     }
 
     #[test]
     fn extracts_raf_previews() {
-        assert_valid_jpeg_of_size(&extract("RAW_FUJIFILM_X100T.RAF"), 1920, 1280);
-        assert_valid_jpeg_of_size(&extract("RAW_FUJIFILM_X100S.RAF"), 1920, 1280);
-        assert_valid_jpeg_of_size(&extract("RAW_FUJI_FINEPIX_X100.RAF"), 2176, 1448);
+        assert_valid_jpeg_of_size(&extract("raw_Fujifilm_X100T.raf"), 1920, 1280);
+        assert_valid_jpeg_of_size(&extract("raw_Fujifilm_X100S.raf"), 1920, 1280);
+        assert_valid_jpeg_of_size(&extract("raw_Fuji_FinePix_X100.raf"), 2176, 1448);
     }
 
     #[test]
     fn extracts_arw_preview() {
         // Sony ARW (little-endian TIFF): the preview is a `JPEGInterchangeFormat` blob. The DSLR-A100
         // (2006) only embeds a 640x480 preview; newer bodies embed Sony's standard 1616x1080 preview.
-        assert_valid_jpeg_of_size(&extract("RAW_SONY_DSLR-A100.ARW"), 640, 480);
-        assert_valid_jpeg_of_size(&extract("RAW_SONY_ILCE-7M3.ARW"), 1616, 1080);
+        assert_valid_jpeg_of_size(&extract("raw_Sony_DSLR-A100.arw"), 640, 480);
+        assert_valid_jpeg_of_size(&extract("raw_Sony_ILCE-7M3.arw"), 1616, 1080);
     }
 
     #[test]
@@ -284,10 +284,10 @@ mod tests {
         // Ricoh GR DNG (big-endian TIFF) embeds a 160x120 thumbnail, its 4960x3280 raw CFA data (as a
         // lossless `Compression`-7 JPEG) and a 640x424 baseline preview. We must yield the 640x424
         // preview: the raw CFA is excluded both by photometric interpretation and by frame type.
-        assert_valid_jpeg_of_size(&extract("RAW_RICOH_GR.DNG"), 640, 424);
+        assert_valid_jpeg_of_size(&extract("raw_Ricoh_GR.dng"), 640, 424);
         // Apple ProRAW DNG (big-endian) stores a full-size 4032x3024 preview as a `Compression`-7 YCbCr
         // JPEG strip — exercising the modern-JPEG-strip path at full resolution.
-        assert_valid_jpeg_of_size(&extract("RAW_APPLE_IPHONE_12_PRO.DNG"), 4032, 3024);
+        assert_valid_jpeg_of_size(&extract("raw_Apple_iPhone_12_Pro.dng"), 4032, 3024);
     }
 
     #[test]

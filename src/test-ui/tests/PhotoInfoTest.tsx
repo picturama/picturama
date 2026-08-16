@@ -63,7 +63,7 @@ addSection('PhotoInfo')
     .add('filename overflow', context => (
         <PhotoInfo
             {...createDefaultProps(context)}
-            photo={{ ...testBigPhoto, masterFilename: 'RAW_FUJI_FINEPIX_X100.RAF' }}
+            photo={{ ...testBigPhoto, masterFilename: 'raw_Fuji_FinePix_X100.raf' }}
         />
     ))
     .add('no tags', context => (
