@@ -22,7 +22,7 @@
 //     --out <path>           where to write (default: licenses.json.gz in the current directory)
 
 
-import { execFileSync } from 'child_process'
+import { execFileSync, execSync } from 'child_process'
 import { createHash } from 'crypto'
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'fs'
 import { basename, dirname, join } from 'path'
@@ -206,8 +206,13 @@ function hostTriple() {
 // `--omit=dev` is the point: Vite bundles the runtime dependencies into the frontend and Tauri embeds that into
 // the binary, while Jest, TypeScript and the Vite plugins never leave the build machine. `--parseable` gives one
 // installed directory per line, which saves walking npm's nested tree to find where a package actually landed.
+//
+// Spawned through a shell — `execSync` rather than the `execFileSync` used for `cargo` and `rustc` — because npm
+// is a `.cmd` on Windows, which the process creation API cannot start on its own; `release.py` spawns `npx` the
+// same way and for the same reason. The command is a constant, so there is nothing for cmd.exe to take apart
+// along its quotes.
 function collectNpmPackages(texts) {
-    const output = execFileSync('npm', ['ls', '--all', '--omit=dev', '--parseable'],
+    const output = execSync('npm ls --all --omit=dev --parseable',
         { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
 
     const components = []
