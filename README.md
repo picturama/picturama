@@ -16,7 +16,7 @@ the AppImage with `--appimage-extract-and-run`. And make sure the file is execut
 
 - Scan local files - Keep your privacy, don't upload your personal photos to a cloud service
 - Non-Destructive - The original images won't be touched (unless you purge the trash)
-- Read various photo formats: JPG, PNG, TIF, WebP, HEIC / HEIF
+- Read various photo formats: JPG, PNG, WebP, HEIC / HEIF, TIF (macOS only)
 - Read raw formats: RAF (Fujifilm), CR2 (Canon), ARW (Sony), DNG — shown through the JPEG preview the camera embedded
 - Browse photos by dates
 - View photo in detail (zoomable)

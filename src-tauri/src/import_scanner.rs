@@ -31,7 +31,15 @@ use crate::store::photo_store::NewPhoto;
 // view. They reach it in the `UiConfig` (`commands::lifecycle::fetch_ui_config`), so a new extension is
 // added here and nowhere else. `ACCEPTED_NON_RAW` stays private: the frontend never filters by
 // "importable", the plain path is simply the `else` branch.
-const ACCEPTED_NON_RAW: &[&str] = &["png", "jpg", "jpeg", "tif", "tiff", "webp"];
+//
+// TIFF is the one platform-dependent entry: plain files are decoded by the web view, and only the one
+// on macOS (WKWebView) has a TIFF decoder, through ImageIO. The one on Windows (WebView2, built on
+// Chromium) and the one on Linux (WebKitGTK) ship none, so a TIFF imported there could never be shown.
+// Hence: Import TIFF only on macOS.
+#[cfg(target_os = "macos")]
+const ACCEPTED_NON_RAW: &[&str] = &["png", "jpg", "jpeg", "webp", "tif", "tiff"];
+#[cfg(not(target_os = "macos"))]
+const ACCEPTED_NON_RAW: &[&str] = &["png", "jpg", "jpeg", "webp"];
 pub(crate) const ACCEPTED_HEIC: &[&str] = &["heic", "heif"];
 pub(crate) const ACCEPTED_RAW: &[&str] = &["raf", "cr2", "arw", "dng"];
 
@@ -735,6 +743,9 @@ mod tests {
         assert!(is_raw_ext("a.CR2") && !is_raw_ext("a.jpg"));
         // HEIC is imported like a normal photo, so it is accepted but not classified as RAW.
         assert!(is_accepted_ext("a.heif") && !is_raw_ext("a.heif"));
+        // TIFF only where the web view can decode it (see `ACCEPTED_NON_RAW`).
+        assert_eq!(is_accepted_ext("a.tif"), cfg!(target_os = "macos"));
+        assert_eq!(is_accepted_ext("a.TIFF"), cfg!(target_os = "macos"));
     }
 
     #[test]
