@@ -72,7 +72,7 @@ export default class WebGLCanvas {
 
         const gl = this.gl
 
-        let textureSource: HTMLImageElement | Uint8Array
+        let textureSource: ImageBitmap | Uint8Array
         let textureFormat: number
         let width: number
         let height: number
@@ -111,15 +111,27 @@ export default class WebGLCanvas {
             } finally {
                 if (isRaw) URL.revokeObjectURL(src)
             }
-            textureSource = image
-            textureFormat = -1  // Not needed for images
             if (profiler) profiler.addPoint('Loaded image')
 
-            // `image.width` and `image.height` already has EXIF orientation applied
-            width = image.width
-            height = image.height
+            // Never hand the `<img>` itself to texImage2D: WebKit pulls the pixels out of the CGImage in
+            // `GraphicsContextGLImageExtractor::extractImage`, and for a layout it doesn't handle it crashes the whole
+            // web content process instead of throwing an Error.
+            //
+            // Example photo which causes a crash: submodules/test-data/photos/tif/tiff_CMYK_uncompressed.tiff
+            // (I don't exactly know why this image crashes - it's not because of CMYK, since a CMYK JPEG works)
+            //
+            // Workaround: Using an ImageBitmap leaves that conversion to WebKit itself and measured no slower than the
+            // direct upload.
+            const bitmap = await createImageBitmap(image, { imageOrientation: 'from-image' })
+            textureSource = bitmap
+            textureFormat = -1  // Not needed for bitmaps
 
-            if (profiler) profiler.addPoint('Loaded Exif orientation')
+            // Using `from-image` in the `createImageBitmap` call above keeps the EXIF rotation the `<img>` applies.
+            // Without it the bitmap would carry the unrotated pixels. So we don't apply EXIF rotation here.
+            width = bitmap.width
+            height = bitmap.height
+
+            if (profiler) profiler.addPoint('Created image bitmap')
         }
 
         const textureId = this.gl.createTexture()
@@ -133,8 +145,11 @@ export default class WebGLCanvas {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 
-        if (textureSource instanceof HTMLImageElement) {
+        if (textureSource instanceof ImageBitmap) {
             gl.texImage2D(gl.TEXTURE_2D, 0, this.internalFormat, srcFormat, srcType, textureSource)
+            // The pixels are in the texture now, so release the bitmap's copy right away instead of
+            // waiting for the garbage collector - it holds a full RGBA frame.
+            textureSource.close()
         } else {
             // The RGB8 buffer from Rust is packed tightly (row stride = width*3), but WebGL defaults
             // UNPACK_ALIGNMENT to 4, expecting each row to start on a 4-byte boundary. When width*3 is not a
